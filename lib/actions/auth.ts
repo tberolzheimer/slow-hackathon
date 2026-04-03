@@ -58,18 +58,13 @@ export async function createAccountFromEmail(
     return { error: "Please enter a valid email" }
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) {
-    return { error: "An account with this email already exists. Try signing in." }
+  // Find or create user
+  let user = await prisma.user.findUnique({ where: { email } })
+  if (!user) {
+    user = await prisma.user.create({
+      data: { email },
+    })
   }
-
-  // Generate a random password (user can set a real one later via reset flow)
-  const randomPassword = crypto.randomUUID()
-  const hashed = await bcrypt.hash(randomPassword, 10)
-
-  const user = await prisma.user.create({
-    data: { email, password: hashed },
-  })
 
   // Merge guest hearts
   let merged = 0
@@ -122,21 +117,21 @@ export async function createAccountFromEmail(
     console.error("Klaviyo sync failed (non-blocking):", err)
   }
 
-  // Sign in the user
+  // Send magic link via Resend
   try {
-    await signIn("credentials", {
+    await signIn("resend", {
       email,
-      password: randomPassword,
       redirectTo: "/saves",
     })
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Account created but sign-in failed. Try signing in manually." }
+      // Magic link sent successfully — Auth.js throws a redirect
+      return { merged, magicLinkSent: true }
     }
     throw error
   }
 
-  return { merged }
+  return { merged, magicLinkSent: true }
 }
 
 export async function signInWithCredentials(formData: FormData) {
