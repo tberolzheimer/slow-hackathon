@@ -20,6 +20,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { StickyShopBar } from "./sticky-shop-bar"
+import { StickyHero } from "./sticky-hero"
 import { HeartButton } from "@/components/heart-button"
 
 interface Props {
@@ -141,22 +142,10 @@ export default async function LookPage({ params }: Props) {
 
       {/* PDP Split Layout */}
       <div className="lg:grid lg:grid-cols-[1fr_420px] lg:gap-8 px-4 sm:px-6">
-        {/* LEFT: Hero Image (sticky on desktop) */}
-        <div className="lg:sticky lg:top-20 lg:self-start">
-          {post.outfitImageUrl && (
-            <div className="relative w-full rounded-lg overflow-hidden">
-              <Image
-                src={post.outfitImageUrl}
-                alt={displayTitle}
-                width={800}
-                height={1000}
-                className="w-full h-auto"
-                priority
-                sizes="(max-width: 1024px) 100vw, 55vw"
-              />
-            </div>
-          )}
-        </div>
+        {/* Hero Image — sticky + shrinking on mobile, sticky in grid on desktop */}
+        {post.outfitImageUrl && (
+          <StickyHero src={post.outfitImageUrl} alt={displayTitle} />
+        )}
 
         {/* RIGHT: Shopping Elements */}
         <div className="mt-6 lg:mt-0">
