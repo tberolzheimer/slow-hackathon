@@ -163,6 +163,7 @@ async function VibeGrid() {
           },
         },
       },
+      _count: { select: { vibeAssignments: true } },
     },
   })
 
@@ -223,7 +224,7 @@ async function VibeGrid() {
                 <p className="text-sm text-white/80">{vibe.tagline}</p>
               )}
               <p className="text-xs text-white/60 mt-1">
-                {vibe.vibeAssignments.length} looks
+                {vibe._count.vibeAssignments} looks
               </p>
             </div>
           </Link>

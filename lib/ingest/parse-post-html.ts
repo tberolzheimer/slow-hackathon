@@ -59,11 +59,16 @@ function extractSlug(url: string): string {
 
 function extractDate(url: string, $: cheerio.CheerioAPI): Date {
   // Try URL slug: daily-look-{M}-{D}-{YY}
-  const slugMatch = url.match(/daily-look-(\d{1,2})-(\d{1,2})-(\d{2})\/?$/)
+  // Match daily-look-{M}-{D}-{YY} but validate year is 24-26
+  const slugMatch = url.match(/daily-look-(\d{1,2})-(\d{1,2})-(\d{2})/)
   if (slugMatch) {
     const [, month, day, year] = slugMatch
-    const fullYear = parseInt(year, 10) + 2000
-    return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10))
+    const yearNum = parseInt(year, 10)
+    // Only treat as year if it's in the valid range (24-26)
+    if (yearNum >= 24 && yearNum <= 26) {
+      const fullYear = yearNum + 2000
+      return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10))
+    }
   }
 
   // Fallback: category header like "Mar 2026"
