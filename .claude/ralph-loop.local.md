@@ -1,51 +1,34 @@
 ---
 active: true
 iteration: 1
-max_iterations: 15
-completion_promise: "BUGS FIXED"
-started_at: "2026-04-03T14:12:00Z"
+max_iterations: 10
+completion_promise: "JBV-47 COMPLETE"
+started_at: "2026-04-03T14:15:00Z"
 ---
 
-## Fix 3 Demo Bugs: JBV-43, JBV-44, JBV-45
+## JBV-47: Vibe Page — Filter/Sort by Recency
 
-### Bug 1: Heart count badge not incrementing (JBV-43)
-File: `components/heart-nav-badge.tsx`
+Add a sort toggle on the vibe page outfit grid: "Newest" vs "Best Match".
 
-The HeartNavBadge polls every 2s via setInterval, but the guest heart count might not be updating because:
-- The polling reads `getGuestHeartCount()` which reads localStorage
-- But the HeartButton writes to localStorage via `addGuestHeart` in a different component
-- The polling should work but might have a stale closure issue
+### What to build
 
-Fix: dispatch a custom event from HeartButton when a heart changes, listen for it in HeartNavBadge.
+File: `app/(public)/vibe/[slug]/outfit-grid.tsx` (already a client component)
 
-Also check: `components/heart-button.tsx` — after toggling, dispatch `window.dispatchEvent(new Event("hearts-changed"))`. Then in HeartNavBadge, listen for that event in addition to the interval.
+Add two pill buttons above the outfit grid:
+- "Newest" — sorts by post date descending
+- "Best Match" — sorts by confidence score (current default)
 
-### Bug 2: "Styled in X looks" badge not clickable (JBV-44)
-File: `app/(public)/look/[slug]/page.tsx`
+The OutfitGrid already receives `posts` as a prop. Need to also pass the post dates so client-side sorting works.
 
-The badge is currently a `<span>`. It was changed from `<Link>` because onClick can't be used in server components. But a plain `<a>` tag (not Next.js Link) works fine in server components without onClick.
-
-Fix: change the `<span>` to an `<a href="/product/[slug]">` tag. No onClick needed — it's just a regular link.
-
-### Bug 3: Brand search not returning looks (JBV-45)
-File: `app/(public)/search/page.tsx`
-
-The VisionData raw SQL query searches garments, mood, season, etc. but NOT brand names. When someone searches "Chanel", the VisionData query won't match because "Chanel" is in `Product.brand`, not in VisionData fields.
-
-Fix: add a second query that finds posts containing products matching the brand search:
-```sql
-SELECT DISTINCT p.id, p.slug, p.title, p."displayTitle", p."outfitImageUrl", p.date
-FROM posts p
-JOIN products pr ON pr."postId" = p.id
-WHERE pr.brand ILIKE $1 OR pr."itemName" ILIKE $1 OR pr."rawText" ILIKE $1
-ORDER BY p.date DESC
-LIMIT 20
-```
-Merge these results into the looks array (deduplicate by id).
+1. Update the Post interface in outfit-grid.tsx to include `date: string`
+2. Update the vibe page to pass `date` in the post data
+3. Add sort pills UI at the top of OutfitGrid
+4. Default to "Newest" (people want to see what's new)
 
 ### Completion criteria
-When ALL true, output `<promise>BUGS FIXED</promise>`:
-- [ ] Heart an item → nav badge count updates immediately
-- [ ] "Styled in X looks" badge is a clickable link to /product/[slug]
-- [ ] Search "Chanel" returns look photos (outfits featuring Chanel products)
+When ALL true, output `<promise>JBV-47 COMPLETE</promise>`:
+- [ ] Sort toggle visible: "Newest" / "Best Match"
+- [ ] "Newest" sorts by date descending
+- [ ] "Best Match" sorts by original order (confidence)
+- [ ] Default is "Newest"
 - [ ] TypeScript zero errors

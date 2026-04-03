@@ -12,8 +12,10 @@ interface Post {
   title: string
   displayTitle: string | null
   outfitImageUrl: string | null
+  date: string
 }
 
+type SortMode = "newest" | "best"
 const INITIAL_COUNT = 12
 
 export function OutfitGrid({
@@ -24,11 +26,44 @@ export function OutfitGrid({
   productCount: number
 }) {
   const [showAll, setShowAll] = useState(false)
-  const visiblePosts = showAll ? posts : posts.slice(0, INITIAL_COUNT)
-  const hasMore = posts.length > INITIAL_COUNT
+  const [sortMode, setSortMode] = useState<SortMode>("newest")
+
+  const sortedPosts = [...posts].sort((a, b) => {
+    if (sortMode === "newest") {
+      return new Date(b.date).getTime() - new Date(a.date).getTime()
+    }
+    return 0 // "best" keeps original order (confidence score from server)
+  })
+
+  const visiblePosts = showAll ? sortedPosts : sortedPosts.slice(0, INITIAL_COUNT)
+  const hasMore = sortedPosts.length > INITIAL_COUNT
 
   return (
     <div>
+      {/* Sort toggle */}
+      <div className="flex items-center gap-2 mb-4">
+        <button
+          onClick={() => setSortMode("newest")}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+            sortMode === "newest"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Newest
+        </button>
+        <button
+          onClick={() => setSortMode("best")}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+            sortMode === "best"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Best Match
+        </button>
+      </div>
+
       <div className="columns-2 sm:columns-3 gap-4">
         {visiblePosts.map((post, i) =>
           post.outfitImageUrl ? (

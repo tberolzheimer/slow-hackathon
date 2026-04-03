@@ -112,6 +112,7 @@ export default async function VibePage({ params }: Props) {
             title: p.title,
             displayTitle: p.displayTitle,
             outfitImageUrl: p.outfitImageUrl,
+            date: p.date.toISOString(),
           }))}
           productCount={uniqueProducts.length}
         />
