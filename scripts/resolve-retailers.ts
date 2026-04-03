@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 const RATE_LIMIT_MS = 500
-const BATCH_SIZE = 500
+const BATCH_SIZE = 5000
 
 const DOMAIN_NAMES: Record<string, string> = {
   "nordstrom.com": "Nordstrom",
