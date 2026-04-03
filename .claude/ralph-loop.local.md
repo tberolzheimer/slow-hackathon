@@ -2,64 +2,50 @@
 active: true
 iteration: 1
 max_iterations: 15
-completion_promise: "JBV-36 COMPLETE"
-started_at: "2026-04-03T08:34:00Z"
+completion_promise: "JBV-37 COMPLETE"
+started_at: "2026-04-03T08:40:00Z"
 ---
 
-## JBV-36: Retailer Extraction — Follow Affiliate URLs
+## JBV-37: "Styled in X Looks" Product Badges
 
-Resolve affiliate URLs (go.shopmy.us, shopstyle.it) to actual retailer destinations.
+When a product appears across multiple Daily Looks, show a badge and create a click-through page.
 
 ### What to build
 
-#### 1. Resolver script (`scripts/resolve-retailers.ts`)
-- Fetch each product's affiliate URL with `redirect: "manual"`
-- Read the `Location` header to get the redirect destination
-- For go.shopmy.us/ap/ URLs: the `url` query param contains the encoded retailer URL — just decode it
-- For go.shopmy.us/p-NNNNN URLs: need to follow the redirect
-- For shopstyle.it URLs: need to follow the redirect
-- Parse the retailer domain from the destination URL
-- Map domains to friendly names: nordstrom.com → "Nordstrom", net-a-porter.com → "Net-a-Porter", etc.
-- Update Product records: `retailerName`, `retailerUrl`
-- Rate limit: 500ms between requests
-- Batch process all products, skip any that already have retailerName set
+#### 1. Query cross-outfit products
+Products are matched by `brand + itemName` combo. Create a server function that counts how many distinct posts each product appears in.
 
-#### 2. Add retailerDomain to Prisma schema
-Add `retailerDomain String?` to the Product model. Run db:push.
+File: `lib/actions/products.ts`
+```
+getProductLookCount(brand: string, itemName: string) → number
+getProductOutfits(brand: string, itemName: string) → Post[]
+```
 
-#### 3. npm script
-Add `"resolve-retailers": "tsx scripts/resolve-retailers.ts"` to package.json
+#### 2. Badge on product cards
+On look page product cards, if the same brand+itemName appears in 2+ posts, show a small badge:
+"Styled in 5 looks"
 
-#### 4. Update product cards to show retailer
-In look page product cards, show "Shop at Nordstrom →" instead of just "Shop This →" when retailerName is available.
 File: `app/(public)/look/[slug]/page.tsx`
+- Query the look count for each product
+- Show badge as a small pill below the product info
 
-### Known retailer domain mappings
-```
-nordstrom.com → Nordstrom
-net-a-porter.com → Net-a-Porter
-shopbop.com → Shopbop
-revolve.com → Revolve
-saksfifthavenue.com → Saks Fifth Avenue
-bergdorfgoodman.com → Bergdorf Goodman
-mytheresa.com → Mytheresa
-matchesfashion.com → Matches
-ssense.com → SSENSE
-farfetch.com → Farfetch
-amazon.com → Amazon
-margauxny.com → Margaux
-dfrfrnt.com → Dôen
-tuckernuck.com → Tuckernuck
-jcrew.com → J.Crew
-mango.com → Mango
-zara.com → Zara
-```
+#### 3. Product outfit page
+New route: `app/(public)/product/[slug]/page.tsx`
+- Slug format: `chanel-jacket`, `hermes-bag` (brand-itemName slugified)
+- Shows all outfit photos featuring this product
+- Header: "Julia styled this piece X ways"
+- Each outfit clickable to the look page
+- Vibe tags on each outfit
+- SEO: generateMetadata with "How Julia styles the Chanel Jacket"
+
+#### 4. Make badge clickable
+The "Styled in X looks" badge links to `/product/[slug]`
 
 ### Completion criteria
-When ALL true, output `<promise>JBV-36 COMPLETE</promise>`:
-- [ ] Product model has retailerDomain field, db:push succeeds
-- [ ] scripts/resolve-retailers.ts exists and can resolve ShopMy URLs
-- [ ] npm script "resolve-retailers" added to package.json
-- [ ] Product cards show "Shop at [Retailer] →" when retailerName available
+When ALL true, output `<promise>JBV-37 COMPLETE</promise>`:
+- [ ] Products in 2+ looks show "Styled in X looks" badge on look page
+- [ ] Badge links to /product/[slug] page
+- [ ] Product outfit page shows all looks featuring that product
+- [ ] Page has SEO metadata
+- [ ] /product added to publicRoutes in proxy.ts
 - [ ] TypeScript zero errors
-- [ ] Test: run resolver on 10 products, verify retailerName populated

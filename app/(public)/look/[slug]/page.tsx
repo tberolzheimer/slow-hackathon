@@ -65,6 +65,19 @@ export default async function LookPage({ params }: Props) {
   const stylingNotes = post.visionData?.stylingNotes
   const displayTitle = post.displayTitle || post.title
 
+  // Get look counts for products that appear in multiple outfits
+  const lookCounts = new Map<string, number>()
+  for (const p of post.products) {
+    if (!p.brand || !p.itemName) continue
+    const key = `${p.brand}::${p.itemName}`
+    if (lookCounts.has(key)) continue
+    const count = await prisma.product.groupBy({
+      by: ["postId"],
+      where: { brand: p.brand, itemName: p.itemName, isAlternative: false },
+    })
+    if (count.length > 1) lookCounts.set(key, count.length)
+  }
+
   // Split products into hero pieces and supporting pieces
   const heroProducts = post.products.filter((p) => p.isHeroPiece)
   const supportingProducts = post.products.filter((p) => !p.isHeroPiece)
@@ -231,6 +244,15 @@ export default async function LookPage({ params }: Props) {
                     <p className="text-xs text-primary font-medium mt-2 group-hover:underline">
                       {product.retailerName ? `Shop at ${product.retailerName} →` : "Shop This →"}
                     </p>
+                    {product.brand && product.itemName && lookCounts.get(`${product.brand}::${product.itemName}`) && (
+                      <Link
+                        href={`/product/${`${product.brand}-${product.itemName}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
+                        className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Styled in {lookCounts.get(`${product.brand}::${product.itemName}`)} looks
+                      </Link>
+                    )}
                   </div>
                 </a>
               ))}
