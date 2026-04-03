@@ -10,7 +10,7 @@ const AFTER_DATE = new Date("2024-01-01")
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("VibéShop Ingest Pipeline")
+  console.log("VibeShop Ingest Pipeline")
   console.log("═══════════════════════════════════════\n")
 
   // Create ingest log

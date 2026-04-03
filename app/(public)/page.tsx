@@ -10,9 +10,9 @@ import { HeartButton } from "@/components/heart-button"
 
 
 export const metadata: Metadata = {
-  title: "VibéShop — Find Your Vibe, Shop the Look",
+  title: "VibeShop — Find Your Vibe, Shop the Look",
   description:
-    "VibéShop organizes hundreds of Julia Berolzheimer's styled outfits by aesthetic feeling. Find your vibe and shop it in minutes.",
+    "VibeShop organizes hundreds of Julia Berolzheimer's styled outfits by aesthetic feeling. Find your vibe and shop it in minutes.",
 }
 
 export default function HomePage() {
@@ -25,7 +25,7 @@ export default function HomePage() {
         </h1>
         <p className="font-display italic text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
           You know the feeling — you love a look but can&apos;t name what draws
-          you to it. VibéShop organizes hundreds of Julia Berolzheimer&apos;s
+          you to it. VibeShop organizes hundreds of Julia Berolzheimer&apos;s
           styled outfits by aesthetic feeling, so you can find your vibe and
           shop it in minutes.
         </p>
@@ -63,7 +63,7 @@ export default function HomePage() {
       {/* How It Works — SB4: Plan */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-border/50">
         <h2 className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-10">
-          How VibéShop Works
+          How VibeShop Works
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 text-center">
           <div>
@@ -124,7 +124,7 @@ export default function HomePage() {
       {/* Editor's Note — SB7: Success + SB3: Authority */}
       <section className="max-w-2xl mx-auto px-4 sm:px-6 pb-16">
         <p className="text-sm text-muted-foreground leading-relaxed text-center">
-          VibéShop draws from Julia Berolzheimer&apos;s Daily Looks archive —
+          VibeShop draws from Julia Berolzheimer&apos;s Daily Looks archive —
           over 500 styled outfits photographed in Charleston, New York, and
           beyond. Each look is analyzed for color palette, fabric, silhouette,
           and mood, then grouped into vibes that capture a feeling, not just a

@@ -15,7 +15,7 @@ export default function PublicLayout({
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-display text-2xl tracking-tight text-foreground">
-            VibéShop
+            VibeShop
           </Link>
           <div className="flex items-center gap-1">
             <HeartNavBadge />

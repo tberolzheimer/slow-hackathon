@@ -13,7 +13,7 @@ function slugify(text: string): string {
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("VibéShop Vibe Renamer")
+  console.log("VibeShop Vibe Renamer")
   console.log("═══════════════════════════════════════\n")
 
   const vibes = await prisma.vibe.findMany({

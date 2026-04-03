@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: "Look not found" }
   const title = post.displayTitle || post.title
   return {
-    title: `${title} — VibéShop`,
+    title: `${title} — VibeShop`,
     description: `Shop ${title} by Julia Berolzheimer. Every piece identified with direct links.`,
     openGraph: post.outfitImageUrl
       ? { images: [{ url: post.outfitImageUrl }] }

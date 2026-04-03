@@ -12,7 +12,7 @@ interface DataPoint {
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("VibéShop Vibe Clustering")
+  console.log("VibeShop Vibe Clustering")
   console.log("═══════════════════════════════════════\n")
 
   // Load all vision data
@@ -235,7 +235,7 @@ async function _nameClusterCall(
     messages: [
       {
         role: "user",
-        content: `You are naming aesthetic vibes for VibéShop, Julia Berolzheimer's fashion styling destination. Each vibe is an emotional portal — it should evoke a feeling and identity, not describe a clothing category.
+        content: `You are naming aesthetic vibes for VibeShop, Julia Berolzheimer's fashion styling destination. Each vibe is an emotional portal — it should evoke a feeling and identity, not describe a clothing category.
 
 Given this cluster of ${postCount} outfit photos:
 - Top keywords: ${keywords.join(", ")}

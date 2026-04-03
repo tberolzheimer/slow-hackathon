@@ -81,7 +81,7 @@ async function followShopStyleRedirect(url: string): Promise<string | null> {
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("VibéShop ShopStyle → ShopMy Link Fixer")
+  console.log("VibeShop ShopStyle → ShopMy Link Fixer")
   console.log("═══════════════════════════════════════\n")
 
   // Find all products with ShopStyle affiliate URLs

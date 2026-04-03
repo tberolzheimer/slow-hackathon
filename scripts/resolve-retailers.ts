@@ -117,7 +117,7 @@ async function resolveAffiliateUrl(affiliateUrl: string): Promise<{
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("VibéShop Retailer URL Resolver")
+  console.log("VibeShop Retailer URL Resolver")
   console.log("═══════════════════════════════════════\n")
 
   const products = await prisma.product.findMany({

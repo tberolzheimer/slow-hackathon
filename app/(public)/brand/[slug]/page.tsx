@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const brand = brands.find((b) => b.slug === slug)
   if (!brand) return { title: "Brand not found" }
   return {
-    title: `Julia's ${brand.brand} Outfits — VibéShop`,
+    title: `Julia's ${brand.brand} Outfits — VibeShop`,
     description: `See every outfit featuring ${brand.brand}, styled ${brand.count} different ways by Julia Berolzheimer. Shop the look.`,
   }
 }

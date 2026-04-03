@@ -51,7 +51,7 @@ export async function analyzeOutfitImage(
           },
           {
             type: "text",
-            text: `You are analyzing outfit photos for VibéShop, a styling destination by Julia Berolzheimer. Analyze this outfit photo and return a JSON object with the following structure. Be specific and descriptive — your analysis powers search, clustering, and styling content.
+            text: `You are analyzing outfit photos for VibeShop, a styling destination by Julia Berolzheimer. Analyze this outfit photo and return a JSON object with the following structure. Be specific and descriptive — your analysis powers search, clustering, and styling content.
 ${productContext}
 
 Return ONLY valid JSON with this exact structure:

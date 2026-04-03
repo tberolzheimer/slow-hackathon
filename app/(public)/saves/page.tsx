@@ -3,7 +3,7 @@ import Link from "next/link"
 import { SavesContent } from "./saves-content"
 
 export const metadata: Metadata = {
-  title: "My Saves — VibéShop",
+  title: "My Saves — VibeShop",
   description: "Your saved looks, products, and vibes.",
 }
 

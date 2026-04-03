@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const vibe = await prisma.vibe.findUnique({ where: { slug } })
   if (!vibe) return { title: "Vibe not found" }
   return {
-    title: `${vibe.name} — VibéShop`,
-    description: vibe.tagline || `Explore the ${vibe.name} aesthetic on VibéShop.`,
+    title: `${vibe.name} — VibeShop`,
+    description: vibe.tagline || `Explore the ${vibe.name} aesthetic on VibeShop.`,
   }
 }
 

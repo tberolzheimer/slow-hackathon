@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const season = slug.charAt(0).toUpperCase() + slug.slice(1)
   const desc = SEASON_DESCRIPTIONS[slug]
   return {
-    title: `${season} Outfits — VibéShop by Julia Berolzheimer`,
+    title: `${season} Outfits — VibeShop by Julia Berolzheimer`,
     description: desc?.description.slice(0, 160) || `${season} outfit inspiration from Julia Berolzheimer's Daily Looks.`,
   }
 }

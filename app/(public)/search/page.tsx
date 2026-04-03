@@ -15,7 +15,7 @@ interface Props {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { q } = await searchParams
   return {
-    title: q ? `"${q}" — VibéShop Search` : "Find Your Look — VibéShop",
+    title: q ? `"${q}" — VibeShop Search` : "Find Your Look — VibeShop",
   }
 }
 

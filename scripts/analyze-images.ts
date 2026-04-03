@@ -7,7 +7,7 @@ const BATCH_SIZE = 500
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("VibéShop Vision AI Analysis")
+  console.log("VibeShop Vision AI Analysis")
   console.log("═══════════════════════════════════════\n")
 
   // Find posts without vision data

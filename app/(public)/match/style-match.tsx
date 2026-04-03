@@ -135,11 +135,11 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
     ctx.fillStyle = "#c4787a"
     ctx.fillRect(0, 0, 1080, 6)
 
-    // VibéShop
+    // VibeShop
     ctx.fillStyle = "#1a1714"
     ctx.font = "48px Georgia, serif"
     ctx.textAlign = "center"
-    ctx.fillText("VibéShop", 540, 200)
+    ctx.fillText("VibeShop", 540, 200)
 
     // Divider
     ctx.fillStyle = "#e8e4df"
@@ -443,7 +443,7 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
 
       {/* Preview */}
       <div className="bg-[#FAF8F5] rounded-xl p-8 mb-6 border border-border">
-        <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground mb-4">VibéShop</p>
+        <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground mb-4">VibeShop</p>
         <p className="font-display italic text-lg text-foreground mb-1">
           {userName ? `${userName}'s Style` : "My Style"}
         </p>

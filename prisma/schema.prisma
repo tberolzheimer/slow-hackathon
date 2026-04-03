@@ -67,7 +67,7 @@ model VerificationToken {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// VibéShop tables
+// VibeShop tables
 // After editing, run: npm run db:push
 // ═══════════════════════════════════════════════════════════════
 

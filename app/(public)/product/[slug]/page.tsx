@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!products) return { title: "Product not found" }
 
   return {
-    title: `How Julia Styles the ${products.brand} ${products.itemName} — VibéShop`,
+    title: `How Julia Styles the ${products.brand} ${products.itemName} — VibeShop`,
     description: `See every outfit featuring the ${products.brand} ${products.itemName}, styled ${products.count} different ways by Julia Berolzheimer.`,
   }
 }

@@ -28,7 +28,7 @@ async function klaviyoFetch(path: string, body: unknown) {
 }
 
 /**
- * Create or update a Klaviyo profile with VibéShop data.
+ * Create or update a Klaviyo profile with VibeShop data.
  * Also subscribes them to the main email list.
  */
 export async function syncProfileToKlaviyo(

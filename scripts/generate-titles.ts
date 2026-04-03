@@ -7,7 +7,7 @@ const RATE_LIMIT_MS = 300 // Faster since these are tiny prompts
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("VibéShop Display Title Generator")
+  console.log("VibeShop Display Title Generator")
   console.log("═══════════════════════════════════════\n")
 
   const posts = await prisma.post.findMany({
