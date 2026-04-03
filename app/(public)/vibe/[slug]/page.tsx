@@ -90,11 +90,18 @@ export default async function VibePage({ params }: Props) {
 
   return (
     <div>
+      {/* Back link */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+        <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          ← All Vibes
+        </Link>
+      </div>
+
       {/* Sticky Section Nav */}
       <SectionNav productCount={uniqueProducts.length} />
 
       {/* Vibe Header */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-8 text-center">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-8 text-center">
         <h1 className="font-display text-4xl sm:text-5xl tracking-tight text-foreground mb-3">
           {vibe.name}
         </h1>

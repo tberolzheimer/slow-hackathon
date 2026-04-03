@@ -106,7 +106,11 @@ export default async function ProductOutfitsPage({ params }: Props) {
   })
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-16">
+      <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        ← All Vibes
+      </Link>
+
       {/* Header */}
       <div className="max-w-3xl mx-auto text-center mb-10">
         <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground mb-2">

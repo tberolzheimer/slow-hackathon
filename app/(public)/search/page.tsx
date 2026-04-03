@@ -186,8 +186,11 @@ export default async function SearchPage({ searchParams }: Props) {
   const hasResults = vibes.length > 0 || looks.length > 0 || products.length > 0
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-16">
-      <div className="max-w-xl mx-auto mb-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-16">
+      <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        ← All Vibes
+      </Link>
+      <div className="max-w-xl mx-auto mb-12 mt-6">
         <h1 className="font-display text-3xl text-foreground text-center mb-6">
           Find your look
         </h1>
