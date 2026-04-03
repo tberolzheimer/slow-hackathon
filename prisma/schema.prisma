@@ -66,6 +66,138 @@ model VerificationToken {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Your app tables — add your own models below
+// VibéShop tables
 // After editing, run: npm run db:push
 // ═══════════════════════════════════════════════════════════════
+
+model Post {
+  id             String    @id @default(cuid())
+  wpPostId       Int?      @unique
+  title          String
+  date           DateTime
+  publishedAt    DateTime?
+  url            String    @unique
+  slug           String    @unique
+  outfitImageUrl String?
+  season         String?
+  rawHtml        String?   @db.Text
+  ingestStatus   String    @default("pending")
+  ingestError    String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  products        Product[]
+  vibeAssignments VibeAssignment[]
+  visionData      VisionData?
+
+  @@index([date])
+  @@index([season])
+  @@index([ingestStatus])
+  @@map("posts")
+}
+
+model Product {
+  id              String    @id @default(cuid())
+  postId          String
+  brand           String?
+  itemName        String?
+  rawText         String
+  affiliateUrl    String
+  productImageUrl String?
+  garmentType     String?
+  sortOrder       Int       @default(0)
+  isAlternative   Boolean   @default(false)
+  parentProductId String?
+  linkAlive       Boolean   @default(true)
+  lastCheckedAt   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentProduct Product?  @relation("ProductAlternatives", fields: [parentProductId], references: [id])
+  alternatives  Product[] @relation("ProductAlternatives")
+
+  @@index([postId])
+  @@index([brand])
+  @@index([garmentType])
+  @@map("products")
+}
+
+model Vibe {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  slug          String    @unique
+  tagline       String?
+  introText     String?   @db.Text
+  type          String    @default("auto") // "auto" | "editorial" | "smart"
+  filterRules   Json?     // For smart vibes: { dateRange?, brand?, color?, formality?, season? }
+  stylingTips   String?   @db.Text // "How to wear this vibe" — guide voice
+  occasionText  String?   @db.Text // Seasonal/occasion context paragraph
+  accentColor   String?
+  coverImageUrl String?
+  centroid      Json?
+  sortOrder     Int       @default(0)
+  approvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  vibeAssignments VibeAssignment[]
+
+  @@map("vibes")
+}
+
+model VibeAssignment {
+  id              String   @id @default(cuid())
+  postId          String
+  vibeId          String
+  confidenceScore Float?
+  assignedBy      String   @default("ai")
+  createdAt       DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  vibe Vibe @relation(fields: [vibeId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, vibeId])
+  @@index([vibeId])
+  @@index([postId])
+  @@map("vibe_assignments")
+}
+
+model VisionData {
+  id           String    @id @default(cuid())
+  postId       String    @unique
+  garments     Json?
+  palette      Json?
+  mood         String?
+  season       String?
+  formality    String?
+  setting      String?
+  vibeKeywords Json?
+  stylingNotes String?   @db.Text
+  embedding    Json?
+  modelVersion String?
+  processedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("vision_data")
+}
+
+model IngestLog {
+  id           String    @id @default(cuid())
+  runType      String
+  status       String
+  postsFound   Int       @default(0)
+  postsNew     Int       @default(0)
+  postsUpdated Int       @default(0)
+  postsFailed  Int       @default(0)
+  errorLog     Json?
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+
+  @@index([runType])
+  @@index([startedAt])
+  @@map("ingest_logs")
+}
