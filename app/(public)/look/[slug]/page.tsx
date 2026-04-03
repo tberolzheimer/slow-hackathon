@@ -20,6 +20,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { StickyShopBar } from "./sticky-shop-bar"
+import { HeartButton } from "@/components/heart-button"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -159,11 +160,14 @@ export default async function LookPage({ params }: Props) {
 
         {/* RIGHT: Shopping Elements */}
         <div className="mt-6 lg:mt-0">
-          {/* Title + Date */}
+          {/* Title + Heart + Date */}
           <div className="mb-4">
-            <h1 className="font-display text-2xl sm:text-3xl text-foreground mb-1">
-              {displayTitle}
-            </h1>
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="font-display text-2xl sm:text-3xl text-foreground mb-1">
+                {displayTitle}
+              </h1>
+              <HeartButton itemType="look" itemId={post.slug} size="lg" />
+            </div>
             <p className="text-sm text-muted-foreground">
               {post.date.toLocaleDateString("en-US", {
                 month: "long",
@@ -205,6 +209,9 @@ export default async function LookPage({ params }: Props) {
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                         sizes="(max-width: 1024px) 45vw, 180px"
                       />
+                      <div className="absolute top-2 right-2 z-10">
+                        <HeartButton itemType="product" itemId={product.id} size="sm" />
+                      </div>
                     </div>
                   )}
                   <div className="p-3">

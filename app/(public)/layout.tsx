@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Search } from "lucide-react"
+import { Search, Heart } from "lucide-react"
+import { HeartPromptToast } from "@/components/heart-prompt-toast"
 
 export default function PublicLayout({
   children,
@@ -14,18 +15,30 @@ export default function PublicLayout({
           <Link href="/" className="font-display text-2xl tracking-tight text-foreground">
             VibéShop
           </Link>
-          <Link
-            href="/search"
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/saves"
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="My Saves"
+            >
+              <Heart className="h-5 w-5" />
+            </Link>
+            <Link
+              href="/search"
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
+            </Link>
+          </div>
         </div>
       </header>
 
       {/* Main content */}
       <main>{children}</main>
+
+      {/* Heart sign-up prompt toast */}
+      <HeartPromptToast />
 
       {/* Footer */}
       <footer className="border-t border-border/50 mt-20">

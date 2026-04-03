@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { HeartButton } from "@/components/heart-button"
 
 interface Post {
   id: string
@@ -32,24 +33,29 @@ export function OutfitGrid({
         {visiblePosts.map((post, i) =>
           post.outfitImageUrl ? (
             <div key={post.id}>
-              <Link
-                href={`/look/${post.slug}`}
-                className="group block mb-4 break-inside-avoid relative rounded-lg overflow-hidden"
-              >
-                <Image
-                  src={post.outfitImageUrl}
-                  alt={post.displayTitle || post.title}
-                  width={400}
-                  height={500}
-                  className="w-full h-auto object-cover group-hover:brightness-90 transition-all duration-300"
-                  sizes="(max-width: 640px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-end">
-                  <p className="p-3 text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {post.displayTitle || post.title}
-                  </p>
+              <div className="relative mb-4 break-inside-avoid rounded-lg overflow-hidden">
+                <Link
+                  href={`/look/${post.slug}`}
+                  className="group block"
+                >
+                  <Image
+                    src={post.outfitImageUrl}
+                    alt={post.displayTitle || post.title}
+                    width={400}
+                    height={500}
+                    className="w-full h-auto object-cover group-hover:brightness-90 transition-all duration-300"
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-end">
+                    <p className="p-3 text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {post.displayTitle || post.title}
+                    </p>
+                  </div>
+                </Link>
+                <div className="absolute top-2 right-2 z-10">
+                  <HeartButton itemType="look" itemId={post.slug} size="sm" />
                 </div>
-              </Link>
+              </div>
 
               {/* Jump to products teaser after 6th item */}
               {i === 5 && !showAll && productCount > 0 && (

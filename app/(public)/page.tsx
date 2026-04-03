@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { connection } from "next/server"
 import { SearchBar } from "./search-bar"
 import { Skeleton } from "@/components/ui/skeleton"
+import { HeartButton } from "@/components/heart-button"
 
 export const metadata: Metadata = {
   title: "VibéShop — Find Your Vibe, Shop the Look",
@@ -160,8 +161,11 @@ async function VibeGrid() {
             </div>
 
             {/* Gradient overlay + text */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-5">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+            <div className="absolute top-3 right-3 z-10">
+              <HeartButton itemType="vibe" itemId={vibe.slug} size="sm" />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-5 pointer-events-none">
               <h2 className="font-display text-2xl text-white mb-1">
                 {vibe.name}
               </h2>
