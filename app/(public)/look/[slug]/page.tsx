@@ -4,6 +4,13 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { connection } from "next/server"
+import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,6 +19,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { StickyShopBar } from "./sticky-shop-bar"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -21,9 +29,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = await prisma.post.findUnique({ where: { slug } })
   if (!post) return { title: "Look not found" }
+  const title = post.displayTitle || post.title
   return {
-    title: `${post.title} — VibéShop`,
-    description: `Shop ${post.title} by Julia Berolzheimer.`,
+    title: `${title} — VibéShop`,
+    description: `Shop ${title} by Julia Berolzheimer. Every piece identified with direct links.`,
     openGraph: post.outfitImageUrl
       ? { images: [{ url: post.outfitImageUrl }] }
       : undefined,
@@ -53,30 +62,59 @@ export default async function LookPage({ params }: Props) {
 
   const vibe = post.vibeAssignments[0]?.vibe
   const stylingNotes = post.visionData?.stylingNotes
+  const displayTitle = post.displayTitle || post.title
+
+  // Split products into hero pieces and supporting pieces
+  const heroProducts = post.products.filter((p) => p.isHeroPiece)
+  const supportingProducts = post.products.filter((p) => !p.isHeroPiece)
+  // If no hero pieces flagged, treat first 2 with images as heroes
+  const effectiveHeroes =
+    heroProducts.length > 0
+      ? heroProducts
+      : supportingProducts.filter((p) => p.productImageUrl).slice(0, 2)
+  const effectiveSupporting =
+    heroProducts.length > 0
+      ? supportingProducts
+      : supportingProducts.filter((p) => p.productImageUrl).slice(2)
 
   // Related looks from the same vibe
-  let relatedPosts: { id: string; slug: string; title: string; outfitImageUrl: string | null }[] = []
+  let relatedPosts: {
+    id: string
+    slug: string
+    title: string
+    displayTitle: string | null
+    outfitImageUrl: string | null
+  }[] = []
   if (vibe) {
+    try {
     const related = await prisma.vibeAssignment.findMany({
-      where: {
-        vibeId: vibe.id,
-        postId: { not: post.id },
-      },
-      take: 6,
+      where: { vibeId: vibe.id, postId: { not: post.id } },
+      take: 8,
       orderBy: { confidenceScore: "desc" },
       include: {
         post: {
-          select: { id: true, slug: true, title: true, outfitImageUrl: true },
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            displayTitle: true,
+            outfitImageUrl: true,
+          },
         },
       },
     })
     relatedPosts = related.map((r) => r.post)
+    } catch {
+      // Vibe may have been deleted — gracefully show no related posts
+    }
   }
 
+  const productCount = post.products.length
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6">
+    <div className="max-w-7xl mx-auto">
       {/* Breadcrumb */}
-      <div className="pt-6 pb-4">
+      <div className="px-4 sm:px-6 pt-4 pb-2">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -94,127 +132,194 @@ export default async function LookPage({ params }: Props) {
             )}
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{post.title}</BreadcrumbPage>
+              <BreadcrumbPage>{displayTitle}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
 
-      {/* Hero Image */}
-      {post.outfitImageUrl && (
-        <div className="relative w-full max-w-lg mx-auto mb-8">
-          <Image
-            src={post.outfitImageUrl}
-            alt={post.title}
-            width={600}
-            height={750}
-            className="w-full h-auto rounded-lg"
-            priority
-            sizes="(max-width: 640px) 100vw, 600px"
-          />
+      {/* PDP Split Layout */}
+      <div className="lg:grid lg:grid-cols-[1fr_420px] lg:gap-8 px-4 sm:px-6">
+        {/* LEFT: Hero Image (sticky on desktop) */}
+        <div className="lg:sticky lg:top-20 lg:self-start">
+          {post.outfitImageUrl && (
+            <div className="relative w-full rounded-lg overflow-hidden">
+              <Image
+                src={post.outfitImageUrl}
+                alt={displayTitle}
+                width={800}
+                height={1000}
+                className="w-full h-auto"
+                priority
+                sizes="(max-width: 1024px) 100vw, 55vw"
+              />
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Title + Date */}
-      <div className="text-center mb-8">
-        <h1 className="font-display text-3xl sm:text-4xl text-foreground mb-2">
-          {post.title}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {post.date.toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </p>
+        {/* RIGHT: Shopping Elements */}
+        <div className="mt-6 lg:mt-0">
+          {/* Title + Date */}
+          <div className="mb-4">
+            <h1 className="font-display text-2xl sm:text-3xl text-foreground mb-1">
+              {displayTitle}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {post.date.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+              {vibe && (
+                <>
+                  {" "}
+                  &middot;{" "}
+                  <Link
+                    href={`/vibe/${vibe.slug}`}
+                    className="underline underline-offset-4 hover:text-foreground transition-colors"
+                  >
+                    {vibe.name}
+                  </Link>
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* All Products — unified grid */}
+          {post.products.length > 0 && (
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {[...effectiveHeroes, ...effectiveSupporting].map((product) => (
+                <a
+                  key={product.id}
+                  href={product.affiliateUrl}
+                  target="_blank"
+                  rel="noopener sponsored"
+                  className="group block rounded-lg border border-border hover:border-primary/40 hover:shadow-sm transition-all overflow-hidden"
+                >
+                  {product.productImageUrl && (
+                    <div className="relative aspect-square overflow-hidden bg-muted">
+                      <Image
+                        src={product.productImageUrl}
+                        alt={product.rawText || "Product"}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 1024px) 45vw, 180px"
+                      />
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      {product.brand || "Shop"}
+                    </p>
+                    <p className="text-sm text-foreground truncate mt-0.5">
+                      {product.itemName || product.rawText}
+                    </p>
+                    {product.price ? (
+                      <p className="text-sm font-medium mt-1">
+                        ${product.price.toFixed(0)}
+                      </p>
+                    ) : null}
+                    <p className="text-xs text-primary font-medium mt-2 group-hover:underline">
+                      Shop This →
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* Collapsible Sections — SEO content in dropdowns */}
+          <Accordion type="multiple" className="mb-8">
+            {stylingNotes && (
+              <AccordionItem value="styling">
+                <AccordionTrigger className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                  Styling Notes
+                </AccordionTrigger>
+                <AccordionContent>
+                  <p className="font-display italic text-sm text-muted-foreground leading-relaxed">
+                    {stylingNotes}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            <AccordionItem value="details">
+              <AccordionTrigger className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                Look Details
+              </AccordionTrigger>
+              <AccordionContent>
+                <p className="text-sm text-muted-foreground">
+                  {productCount} pieces from{" "}
+                  {[
+                    ...new Set(
+                      post.products
+                        .map((p) => p.brand)
+                        .filter(Boolean)
+                    ),
+                  ].join(", ")}
+                  . Originally styled on{" "}
+                  {post.date.toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                  .
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
       </div>
 
-      {/* Styling Notes — SB3: Guide voice, magazine caption treatment */}
-      {stylingNotes && (
-        <div className="max-w-2xl mx-auto mb-10 px-4">
-          <p className="font-display italic text-base text-muted-foreground leading-relaxed">
-            {stylingNotes}
-          </p>
-        </div>
-      )}
-
-      {/* Get the Look */}
-      {post.products.length > 0 && (
-        <section className="mb-16">
-          <h2 className="font-display text-xl text-foreground mb-6 text-center">
-            Get the Look
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {post.products.map((product) => (
-              <a
-                key={product.id}
-                href={product.affiliateUrl}
-                target="_blank"
-                rel="noopener sponsored"
-                className="group block"
-              >
-                {product.productImageUrl && (
-                  <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-2">
-                    <Image
-                      src={product.productImageUrl}
-                      alt={product.rawText || "Product"}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 50vw, 33vw"
-                    />
-                  </div>
-                )}
-                {product.brand && (
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                    {product.brand}
-                  </p>
-                )}
-                {product.itemName && (
-                  <p className="text-sm text-foreground">{product.itemName}</p>
-                )}
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* More from this vibe — internal linking for SEO + session depth */}
+      {/* More from this vibe — horizontal carousel */}
       {relatedPosts.length > 0 && vibe && (
-        <section className="mb-16">
-          <h2 className="font-display text-xl text-foreground mb-2 text-center">
-            If you love this look
-          </h2>
-          <p className="text-sm text-muted-foreground text-center mb-6">
+        <section className="px-4 sm:px-6 py-12 border-t border-border/50 mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-display text-xl text-foreground">
+              If you love this look
+            </h2>
             <Link
               href={`/vibe/${vibe.slug}`}
-              className="underline underline-offset-4 hover:text-foreground transition-colors"
+              className="text-sm text-primary hover:underline underline-offset-4"
             >
-              Explore more {vibe.name} &rarr;
+              All {vibe.name} →
             </Link>
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory">
             {relatedPosts.map(
               (related) =>
                 related.outfitImageUrl && (
                   <Link
                     key={related.id}
                     href={`/look/${related.slug}`}
-                    className="group block rounded-lg overflow-hidden"
+                    className="group flex-shrink-0 w-36 sm:w-44 snap-start"
                   >
-                    <Image
-                      src={related.outfitImageUrl}
-                      alt={related.title}
-                      width={300}
-                      height={375}
-                      className="w-full h-auto object-cover group-hover:brightness-90 transition-all duration-300"
-                      sizes="(max-width: 640px) 50vw, 33vw"
-                    />
+                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
+                      <Image
+                        src={related.outfitImageUrl}
+                        alt={related.displayTitle || related.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="176px"
+                      />
+                    </div>
                   </Link>
                 )
             )}
           </div>
         </section>
       )}
+
+      {/* Sticky Mobile CTA */}
+      <StickyShopBar
+        productCount={productCount}
+        products={post.products.map((p) => ({
+          id: p.id,
+          brand: p.brand,
+          itemName: p.itemName,
+          affiliateUrl: p.affiliateUrl,
+          price: p.price,
+        }))}
+      />
     </div>
   )
 }

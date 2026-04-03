@@ -5,6 +5,8 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { Badge } from "@/components/ui/badge"
 import { connection } from "next/server"
+import { SectionNav } from "./section-nav"
+import { OutfitGrid } from "./outfit-grid"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -61,6 +63,9 @@ export default async function VibePage({ params }: Props) {
 
   return (
     <div>
+      {/* Sticky Section Nav */}
+      <SectionNav productCount={uniqueProducts.length} />
+
       {/* Vibe Header */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-8 text-center">
         <h1 className="font-display text-4xl sm:text-5xl tracking-tight text-foreground mb-3">
@@ -76,38 +81,23 @@ export default async function VibePage({ params }: Props) {
         )}
         <div className="mt-4 flex items-center justify-center gap-2">
           <Badge variant="secondary">{posts.length} looks</Badge>
-          <Badge variant="secondary">{uniqueProducts.length} products</Badge>
+          <Badge variant="secondary">{uniqueProducts.length} pieces</Badge>
         </div>
       </section>
 
       {/* Section 1: The Looks */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+      <section id="the-looks" className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
         <h2 className="font-display text-2xl text-foreground mb-6">The Looks</h2>
-        <div className="columns-2 sm:columns-3 gap-4">
-          {posts.map((post) =>
-            post.outfitImageUrl ? (
-              <Link
-                key={post.id}
-                href={`/look/${post.slug}`}
-                className="group block mb-4 break-inside-avoid relative rounded-lg overflow-hidden"
-              >
-                <Image
-                  src={post.outfitImageUrl}
-                  alt={post.title}
-                  width={400}
-                  height={500}
-                  className="w-full h-auto object-cover group-hover:brightness-90 transition-all duration-300"
-                  sizes="(max-width: 640px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-end">
-                  <p className="p-3 text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {post.title}
-                  </p>
-                </div>
-              </Link>
-            ) : null
-          )}
-        </div>
+        <OutfitGrid
+          posts={posts.map((p) => ({
+            id: p.id,
+            slug: p.slug,
+            title: p.title,
+            displayTitle: p.displayTitle,
+            outfitImageUrl: p.outfitImageUrl,
+          }))}
+          productCount={uniqueProducts.length}
+        />
 
         {/* Intro text — mobile only, shown below the image grid */}
         {vibe.introText && (
@@ -133,11 +123,11 @@ export default async function VibePage({ params }: Props) {
 
       {/* Section 2: Shop the Vibe */}
       {uniqueProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+        <section id="shop-the-vibe" className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 scroll-mt-32">
           <h2 className="font-display text-2xl text-foreground mb-6">
-            Shop the Vibe
+            Shop the Vibe — {uniqueProducts.length} pieces
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
             {uniqueProducts.slice(0, 24).map((product) => (
               <a
                 key={product.id}
@@ -146,7 +136,7 @@ export default async function VibePage({ params }: Props) {
                 rel="noopener sponsored"
                 className="group block"
               >
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-2">
+                <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-3">
                   <Image
                     src={product.productImageUrl!}
                     alt={product.rawText || "Product"}

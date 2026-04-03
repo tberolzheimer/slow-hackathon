@@ -193,6 +193,30 @@ async function nameCluster(
   seasonDist: string,
   postCount: number
 ): Promise<{ name: string; tagline: string; description: string }> {
+  // Retry with exponential backoff for rate limits
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return await _nameClusterCall(keywords, moods, seasonDist, postCount)
+    } catch (err: unknown) {
+      const isRateLimit = err instanceof Error && err.message.includes("rate_limit")
+      if (isRateLimit && attempt < 4) {
+        const waitMs = (attempt + 1) * 15000 // 15s, 30s, 45s, 60s
+        console.log(`  Rate limited, waiting ${waitMs / 1000}s...`)
+        await new Promise((r) => setTimeout(r, waitMs))
+        continue
+      }
+      throw err
+    }
+  }
+  throw new Error("Max retries exceeded")
+}
+
+async function _nameClusterCall(
+  keywords: string[],
+  moods: string[],
+  seasonDist: string,
+  postCount: number
+): Promise<{ name: string; tagline: string; description: string }> {
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 500,

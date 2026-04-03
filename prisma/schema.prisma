@@ -74,6 +74,7 @@ model Post {
   id             String    @id @default(cuid())
   wpPostId       Int?      @unique
   title          String
+  displayTitle   String?   // AI-generated desire name: "Garden Party in Florals"
   date           DateTime
   publishedAt    DateTime?
   url            String    @unique
@@ -107,7 +108,10 @@ model Product {
   garmentType     String?
   sortOrder       Int       @default(0)
   isAlternative   Boolean   @default(false)
+  isHeroPiece     Boolean   @default(false)
   parentProductId String?
+  price           Float?
+  retailerName    String?
   linkAlive       Boolean   @default(true)
   lastCheckedAt   DateTime?
   createdAt       DateTime  @default(now())
