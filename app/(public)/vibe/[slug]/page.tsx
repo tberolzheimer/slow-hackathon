@@ -14,8 +14,19 @@ import {
 import { SectionNav } from "./section-nav"
 import { OutfitGrid } from "./outfit-grid"
 
+export const revalidate = 3600 // 1 hour
+
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+export async function generateStaticParams() {
+  const { prisma } = await import("@/lib/db/prisma")
+  const vibes = await prisma.vibe.findMany({
+    where: { approvedAt: { not: null } },
+    select: { slug: true },
+  })
+  return vibes.map((v) => ({ slug: v.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

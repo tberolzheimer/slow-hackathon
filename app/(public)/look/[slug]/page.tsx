@@ -22,8 +22,20 @@ import {
 import { StickyShopBar } from "./sticky-shop-bar"
 import { HeartButton } from "@/components/heart-button"
 
+export const revalidate = 86400 // 1 day — look content rarely changes
+
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+export async function generateStaticParams() {
+  const { prisma } = await import("@/lib/db/prisma")
+  const posts = await prisma.post.findMany({
+    select: { slug: true },
+    orderBy: { date: "desc" },
+    take: 100, // Pre-render recent 100 looks
+  })
+  return posts.map((p) => ({ slug: p.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -68,17 +80,26 @@ export default async function LookPage({ params }: Props) {
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
   const isPastSeason = post.date < sixMonthsAgo
 
-  // Get look counts for products that appear in multiple outfits
+  // Get look counts for products in multiple outfits — single batched query
   const lookCounts = new Map<string, number>()
-  for (const p of post.products) {
-    if (!p.brand || !p.itemName) continue
-    const key = `${p.brand}::${p.itemName}`
-    if (lookCounts.has(key)) continue
-    const count = await prisma.product.groupBy({
-      by: ["postId"],
-      where: { brand: p.brand, itemName: p.itemName, isAlternative: false },
-    })
-    if (count.length > 1) lookCounts.set(key, count.length)
+  const productKeys = post.products
+    .filter((p) => p.brand && p.itemName)
+    .map((p) => ({ brand: p.brand!, itemName: p.itemName! }))
+
+  if (productKeys.length > 0) {
+    const multiLookProducts = await prisma.$queryRaw<
+      { brand: string; itemName: string; count: bigint }[]
+    >`
+      SELECT brand, "itemName", COUNT(DISTINCT "postId") as count
+      FROM products
+      WHERE "isAlternative" = false
+        AND brand IS NOT NULL AND "itemName" IS NOT NULL
+      GROUP BY brand, "itemName"
+      HAVING COUNT(DISTINCT "postId") > 1
+    `
+    for (const p of multiLookProducts) {
+      lookCounts.set(`${p.brand}::${p.itemName}`, Number(p.count))
+    }
   }
 
   // Split products into hero pieces and supporting pieces

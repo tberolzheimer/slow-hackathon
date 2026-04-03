@@ -127,6 +127,8 @@ model Product {
   @@index([postId])
   @@index([brand])
   @@index([garmentType])
+  @@index([postId, isAlternative])
+  @@index([brand, itemName])
   @@map("products")
 }
 
