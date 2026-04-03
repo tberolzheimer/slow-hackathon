@@ -258,14 +258,14 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
         )}
 
         {/* Card */}
-        <div className="flex-1 px-4 pb-4 flex flex-col">
-          <div className="relative flex-1 rounded-2xl overflow-hidden bg-muted">
+        <div className="flex-1 px-4 pb-4 flex flex-col items-center justify-center">
+          <div className="relative w-full max-w-sm aspect-[3/4] rounded-2xl overflow-hidden bg-muted shadow-lg">
             <Image
               src={card.outfitImageUrl}
               alt={card.displayTitle}
               fill
-              className="object-cover"
-              sizes="100vw"
+              className="object-cover object-top"
+              sizes="(max-width: 640px) 90vw, 384px"
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
