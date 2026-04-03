@@ -243,12 +243,12 @@ export default async function LookPage({ params }: Props) {
                 >
                   {product.productImageUrl && (
                     <div className="p-3 pb-0">
-                      <div className="relative aspect-square rounded-md overflow-hidden bg-muted">
+                      <div className="relative aspect-square rounded-md overflow-hidden bg-white">
                         <Image
                           src={product.productImageUrl}
                           alt={product.rawText || "Product"}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="object-contain group-hover:scale-105 transition-transform duration-300"
                           sizes="(max-width: 1024px) 45vw, 180px"
                         />
                         <div className="absolute top-2 right-2 z-10">
