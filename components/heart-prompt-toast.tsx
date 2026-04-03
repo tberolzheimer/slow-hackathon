@@ -61,7 +61,7 @@ export function HeartPromptToast() {
           <Button
             size="sm"
             className="mt-2"
-            onClick={() => router.push("/sign-up")}
+            onClick={() => router.push("/saves")}
           >
             Save My Hearts
           </Button>
