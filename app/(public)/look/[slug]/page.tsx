@@ -20,7 +20,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { StickyShopBar } from "./sticky-shop-bar"
-import { StickyHero } from "./sticky-hero"
 import { HeartButton } from "@/components/heart-button"
 
 interface Props {
@@ -142,9 +141,21 @@ export default async function LookPage({ params }: Props) {
 
       {/* PDP Split Layout */}
       <div className="lg:grid lg:grid-cols-[1fr_420px] lg:gap-8 px-4 sm:px-6">
-        {/* Hero Image — sticky + shrinking on mobile, sticky in grid on desktop */}
+        {/* Hero Image — scrolls naturally on mobile, sticky on desktop */}
         {post.outfitImageUrl && (
-          <StickyHero src={post.outfitImageUrl} alt={displayTitle} />
+          <div className="lg:sticky lg:top-20 lg:self-start mb-6 lg:mb-0">
+            <div className="relative w-full rounded-lg overflow-hidden">
+              <Image
+                src={post.outfitImageUrl}
+                alt={displayTitle}
+                width={800}
+                height={1000}
+                className="w-full h-auto"
+                priority
+                sizes="(max-width: 1024px) 100vw, 55vw"
+              />
+            </div>
+          </div>
         )}
 
         {/* RIGHT: Shopping Elements */}
@@ -187,19 +198,21 @@ export default async function LookPage({ params }: Props) {
                   href={product.affiliateUrl}
                   target="_blank"
                   rel="noopener sponsored"
-                  className="group block rounded-lg border border-border hover:border-primary/40 hover:shadow-sm transition-all overflow-hidden"
+                  className="group block rounded-lg border border-border hover:border-primary/40 hover:shadow-sm transition-all"
                 >
                   {product.productImageUrl && (
-                    <div className="relative aspect-square overflow-hidden bg-muted">
-                      <Image
-                        src={product.productImageUrl}
-                        alt={product.rawText || "Product"}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 1024px) 45vw, 180px"
-                      />
-                      <div className="absolute top-2 right-2 z-10">
-                        <HeartButton itemType="product" itemId={product.id} size="sm" />
+                    <div className="p-3 pb-0">
+                      <div className="relative aspect-square rounded-md overflow-hidden bg-muted">
+                        <Image
+                          src={product.productImageUrl}
+                          alt={product.rawText || "Product"}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 1024px) 45vw, 180px"
+                        />
+                        <div className="absolute top-2 right-2 z-10">
+                          <HeartButton itemType="product" itemId={product.id} size="sm" />
+                        </div>
                       </div>
                     </div>
                   )}
