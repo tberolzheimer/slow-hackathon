@@ -1,54 +1,48 @@
 ---
 active: true
 iteration: 1
-max_iterations: 15
-completion_promise: "JBV-48 COMPLETE"
-started_at: "2026-04-03T14:20:00Z"
+max_iterations: 20
+completion_promise: "JBV-25 COMPLETE"
+started_at: "2026-04-03T14:30:00Z"
 ---
 
-## JBV-48: Performance — Speed Up Page Loads
+## JBV-25: Programmatic SEO Pages — Brand, Style, Color, Season
 
-### What to optimize
+Build auto-generated pages from VisionData. Start with brand and season pages (most straightforward), then add style/color/combo pages.
 
-#### 1. Optimize Prisma queries — select only needed fields
-The vibe page query includes full post data + all products. Use `select` instead of `include` to only fetch what's displayed.
+### Phase 1: Brand Pages (`/brand/[slug]`)
 
-Files: `app/(public)/vibe/[slug]/page.tsx`, `app/(public)/look/[slug]/page.tsx`, `app/(public)/page.tsx`
+**Route:** `app/(public)/brand/[slug]/page.tsx`
 
-#### 2. Add database indexes
-The search queries join vision_data and products tables. Add indexes for common query patterns:
-- `products.brand` (already exists)
-- `posts.date` (already exists)
-- Composite index on `products(postId, isAlternative)` for filtered queries
+1. Query all distinct brands from Product.brand where the brand has 3+ non-alternative products
+2. For each brand: show all looks featuring that brand's products + all products from that brand
+3. generateStaticParams for all brands with 3+ products
+4. generateMetadata: "Julia's [Brand] Outfits — VibéShop"
+5. Add `/brand` to publicRoutes in proxy.ts
 
-File: `prisma/schema.prisma`
+**Page layout:**
+- Header: brand name (Playfair Display) + "X looks featuring [Brand]"
+- Outfit grid: all posts containing this brand's products
+- Product grid: all products from this brand (deduplicated)
+- Internal links to related brands
 
-#### 3. Use generateStaticParams for pre-rendering
-Vibe pages and popular look pages can be pre-rendered at build time:
-- `generateStaticParams` on `/vibe/[slug]` — only 8-15 vibes
-- `generateStaticParams` on `/look/[slug]` — at least recent 50 looks
+### Phase 2: Season Pages (`/season/[slug]`)
 
-Files: `app/(public)/vibe/[slug]/page.tsx`, `app/(public)/look/[slug]/page.tsx`
+**Route:** `app/(public)/season/[slug]/page.tsx`
 
-#### 4. Add revalidation (ISR)
-Pages don't need to be re-rendered on every request. Add revalidation:
-- Vibe pages: `revalidate = 3600` (1 hour)
-- Look pages: `revalidate = 86400` (1 day — content doesn't change)
-- Landing page: `revalidate = 1800` (30 min)
-- Search: dynamic (no cache — needs fresh results)
+1. Query all posts by VisionData.season or Post.season
+2. 4 pages: spring, summer, fall, winter
+3. Show outfits + products for that season
+4. generateStaticParams: ["spring", "summer", "fall", "winter"]
 
-#### 5. Reduce N+1 queries on look page
-The look page does a separate `groupBy` query PER PRODUCT to get look counts. This is an N+1. Batch it into a single query.
-
-File: `app/(public)/look/[slug]/page.tsx`
-
-#### 6. Image optimization
-Ensure all images use proper `sizes` attribute and `priority` on above-fold images.
+### Phase 3: Add to sitemap
+Update `app/sitemap.ts` to include brand and season pages.
 
 ### Completion criteria
-When ALL true, output `<promise>JBV-48 COMPLETE</promise>`:
-- [ ] Vibe page query optimized (select only needed fields)
-- [ ] Look page N+1 query eliminated (batch look counts)
-- [ ] generateStaticParams on vibe and look pages
-- [ ] revalidate set on all pages
+When ALL true, output `<promise>JBV-25 COMPLETE</promise>`:
+- [ ] Brand pages render for brands with 3+ products
+- [ ] Season pages render for spring/summer/fall/winter
+- [ ] generateStaticParams + generateMetadata on both
+- [ ] /brand and /season in publicRoutes
+- [ ] Sitemap includes brand and season pages
 - [ ] TypeScript zero errors
