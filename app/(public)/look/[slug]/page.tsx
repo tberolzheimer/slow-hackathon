@@ -22,7 +22,6 @@ import {
 import { StickyShopBar } from "./sticky-shop-bar"
 import { HeartButton } from "@/components/heart-button"
 
-export const revalidate = 86400 // 1 day — look content rarely changes
 
 interface Props {
   params: Promise<{ slug: string }>

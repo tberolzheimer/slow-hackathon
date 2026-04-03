@@ -8,7 +8,6 @@ import { connection } from "next/server"
 import { Badge } from "@/components/ui/badge"
 import { HeartButton } from "@/components/heart-button"
 
-export const revalidate = 86400 // 1 day
 
 interface Props {
   params: Promise<{ slug: string }>

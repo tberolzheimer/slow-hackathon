@@ -8,7 +8,6 @@ import { SearchBar } from "./search-bar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HeartButton } from "@/components/heart-button"
 
-export const revalidate = 1800 // 30 minutes
 
 export const metadata: Metadata = {
   title: "VibéShop — Find Your Vibe, Shop the Look",

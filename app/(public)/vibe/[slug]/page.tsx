@@ -14,7 +14,6 @@ import {
 import { SectionNav } from "./section-nav"
 import { OutfitGrid } from "./outfit-grid"
 
-export const revalidate = 3600 // 1 hour
 
 interface Props {
   params: Promise<{ slug: string }>

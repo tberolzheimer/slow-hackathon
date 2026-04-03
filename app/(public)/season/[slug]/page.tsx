@@ -6,7 +6,6 @@ import type { Metadata } from "next"
 import { connection } from "next/server"
 import { HeartButton } from "@/components/heart-button"
 
-export const revalidate = 86400 // 1 day
 
 const SEASONS = ["spring", "summer", "fall", "winter"] as const
 const SEASON_DESCRIPTIONS: Record<string, { tagline: string; description: string }> = {
