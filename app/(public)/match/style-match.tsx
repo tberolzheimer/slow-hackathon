@@ -99,10 +99,27 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
     setEmailStatus("loading")
 
     try {
-      // Create account with Style Match data
-      await createAccountFromEmail(email.trim(), [])
+      // Create account with liked looks as hearts
+      const hearts = likedCards.map((c) => ({
+        itemType: "look" as const,
+        itemId: c.slug,
+        createdAt: new Date().toISOString(),
+      }))
+      await createAccountFromEmail(email.trim(), hearts)
     } catch {
       // signIn redirect throws — expected
+    }
+
+    // Sync Style Match data to Klaviyo
+    try {
+      const { syncProfileToKlaviyo } = await import("@/lib/klaviyo/sync")
+      await syncProfileToKlaviyo(email.trim(), {
+        heartedVibes: vibes.map((v) => v.name),
+        heartCount: likedCards.length,
+        topVibe: topVibe?.name || "",
+      })
+    } catch {
+      // Non-blocking
     }
 
     setEmailStatus("done")
