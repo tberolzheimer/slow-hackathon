@@ -229,7 +229,7 @@ export default async function LookPage({ params }: Props) {
                       </p>
                     ) : null}
                     <p className="text-xs text-primary font-medium mt-2 group-hover:underline">
-                      Shop This →
+                      {product.retailerName ? `Shop at ${product.retailerName} →` : "Shop This →"}
                     </p>
                   </div>
                 </a>

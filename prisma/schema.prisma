@@ -113,6 +113,8 @@ model Product {
   parentProductId String?
   price           Float?
   retailerName    String?
+  retailerUrl     String?
+  retailerDomain  String?
   linkAlive       Boolean   @default(true)
   lastCheckedAt   DateTime?
   createdAt       DateTime  @default(now())

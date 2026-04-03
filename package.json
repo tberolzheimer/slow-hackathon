@@ -11,7 +11,8 @@
     "db:studio": "prisma studio",
     "ingest": "tsx scripts/ingest/index.ts",
     "ai:analyze": "tsx scripts/analyze-images.ts",
-    "ai:cluster": "tsx scripts/cluster-vibes.ts"
+    "ai:cluster": "tsx scripts/cluster-vibes.ts",
+    "resolve-retailers": "tsx scripts/resolve-retailers.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
