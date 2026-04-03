@@ -141,16 +141,21 @@ export default async function StylePage({ params }: Props) {
   if (!page) notFound()
 
   // Query matching posts via VisionData
-  const posts = await prisma.$queryRaw<
-    { id: string; slug: string; title: string; displayTitle: string | null; outfitImageUrl: string | null; date: Date }[]
-  >(Prisma.sql`
-    SELECT DISTINCT p.id, p.slug, p.title, p."displayTitle", p."outfitImageUrl", p.date
-    FROM posts p
-    JOIN vision_data v ON v."postId" = p.id
-    WHERE ${Prisma.raw(page.query)}
-    ORDER BY p.date DESC
-    LIMIT 24
-  `)
+  let posts: { id: string; slug: string; title: string; displayTitle: string | null; outfitImageUrl: string | null; date: Date }[] = []
+  try {
+    posts = await prisma.$queryRawUnsafe<
+      { id: string; slug: string; title: string; displayTitle: string | null; outfitImageUrl: string | null; date: Date }[]
+    >(`
+      SELECT DISTINCT p.id, p.slug, p.title, p."displayTitle", p."outfitImageUrl", p.date
+      FROM posts p
+      JOIN vision_data v ON v."postId" = p.id
+      WHERE ${page.query}
+      ORDER BY p.date DESC
+      LIMIT 24
+    `)
+  } catch (err) {
+    console.error("Style page query error:", err)
+  }
 
   // Get products from matching posts
   const postIds = posts.map((p) => p.id)
