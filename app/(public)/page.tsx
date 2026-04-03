@@ -72,6 +72,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Browse by Season */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+        <h2 className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-6">
+          Browse by Season
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {["Spring", "Summer", "Fall", "Winter"].map((season) => (
+            <Link
+              key={season}
+              href={`/season/${season.toLowerCase()}`}
+              className="text-center py-4 px-6 rounded-xl border border-border hover:border-primary/40 hover:shadow-sm transition-all"
+            >
+              <p className="font-display text-lg text-foreground">{season}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Browse by Brand */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-10">
+        <h2 className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-6">
+          Browse by Brand
+        </h2>
+        <Suspense fallback={null}>
+          <BrandPills />
+        </Suspense>
+      </section>
+
       {/* Editor's Note — SB7: Success + SB3: Authority */}
       <section className="max-w-2xl mx-auto px-4 sm:px-6 pb-16">
         <p className="text-sm text-muted-foreground leading-relaxed text-center">
@@ -177,6 +205,33 @@ async function VibeGrid() {
           </Link>
         )
       })}
+    </div>
+  )
+}
+
+async function BrandPills() {
+  await connection()
+  const brands = await prisma.$queryRaw<{ brand: string; count: bigint }[]>`
+    SELECT brand, COUNT(DISTINCT "postId") as count
+    FROM products
+    WHERE brand IS NOT NULL AND "isAlternative" = false
+    GROUP BY brand
+    HAVING COUNT(DISTINCT "postId") >= 3
+    ORDER BY count DESC
+    LIMIT 20
+  `
+
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      {brands.map((b) => (
+        <Link
+          key={b.brand}
+          href={`/brand/${b.brand.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
+          className="px-4 py-1.5 rounded-full border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+        >
+          {b.brand}
+        </Link>
+      ))}
     </div>
   )
 }

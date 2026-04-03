@@ -200,6 +200,29 @@ export default async function VibePage({ params }: Props) {
         </section>
       )}
 
+      {/* Brands in this vibe */}
+      {(() => {
+        const brands = [...new Set(uniqueProducts.map((p) => p.brand).filter(Boolean))] as string[]
+        return brands.length > 0 ? (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+            <h3 className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground mb-4">
+              Brands in this vibe
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {brands.slice(0, 15).map((brand) => (
+                <Link
+                  key={brand}
+                  href={`/brand/${brand.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
+                  className="px-3 py-1 rounded-full border border-border text-xs text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+                >
+                  {brand}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null
+      })()}
+
       {/* Occasion Context — SB2: Problem (philosophical) */}
       {vibe.occasionText && (
         <section className="max-w-2xl mx-auto px-4 sm:px-6 pb-16">

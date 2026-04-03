@@ -1,28 +1,47 @@
 ---
 active: true
 iteration: 1
-max_iterations: 10
-completion_promise: "JBV-54 COMPLETE"
-started_at: "2026-04-03T15:07:00Z"
+max_iterations: 15
+completion_promise: "JBV-53 COMPLETE"
+started_at: "2026-04-03T15:09:00Z"
 ---
 
-## JBV-54: Re-generate vibe names
+## JBV-53: Internal Discovery — Surface Brand + Season Pages
 
-Write a script that renames each existing vibe by re-prompting Claude with better instructions. Don't re-cluster — just rename.
+Make programmatic SEO pages discoverable inside the experience.
 
-### Script: `scripts/rename-vibes.ts`
+### What to build
 
-For each vibe:
-1. Load the vibe + its top keywords, mood, season distribution
-2. Send to Claude with this prompt: "Name this vibe in 2-3 words. Think like a playlist name or a photo album title, not a motivational poster. Simple. Visual. A moment or place, not an adjective + noun. Examples: 'Endless Summer', 'Sunday Garden', 'After Dark', 'Charleston Morning', 'Riviera Lunch'. AVOID: 'golden', 'wanderer', 'confidence', 'muse', 'radiant', 'energy'. Do NOT repeat any of these existing names: [list]. Return ONLY the name, nothing else."
-3. Also generate a new tagline with similar tone
-4. Update the vibe name, slug, and tagline
+#### 1. Landing page: "Browse by Brand" + "Browse by Season" sections
+File: `app/(public)/page.tsx`
+
+Below the vibe grid and "How It Works", add:
+- "Browse by Brand" — horizontal scroll of top brand names as pills/links
+- "Browse by Season" — 4 season cards linking to /season/[slug]
+
+#### 2. Look page: brand links + season tag
+File: `app/(public)/look/[slug]/page.tsx`
+
+- Product card brand names become links to `/brand/[slug]`
+- Add a season badge near the date that links to `/season/[slug]`
+
+#### 3. Vibe page: "Brands in this vibe" section
+File: `app/(public)/vibe/[slug]/page.tsx`
+
+After the product grid, add a "Brands in this vibe" section:
+- Query distinct brands from the vibe's products
+- Show as horizontal pill links to `/brand/[slug]`
+
+#### 4. Footer: nav links
+File: `app/(public)/layout.tsx`
+
+Add to footer: "Brands · Seasons · Search · Saves" links
 
 ### Completion criteria
-When ALL true, output `<promise>JBV-54 COMPLETE</promise>`:
-- [ ] All 12 vibes renamed
-- [ ] No collision suffixes
-- [ ] No repeated words across vibes
-- [ ] Names feel simple and visual like "Endless Summer"
-- [ ] Slugs updated to match new names
+When ALL true, output `<promise>JBV-53 COMPLETE</promise>`:
+- [ ] Landing page has "Browse by Brand" + "Browse by Season"
+- [ ] Look page brand names link to brand pages
+- [ ] Look page has season badge linking to season page
+- [ ] Vibe page has "Brands in this vibe" section
+- [ ] Footer has nav links
 - [ ] TypeScript zero errors

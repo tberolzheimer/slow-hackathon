@@ -42,6 +42,16 @@ export default function PublicLayout({
       {/* Footer */}
       <footer className="border-t border-border/50 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 text-center">
+          <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground mb-4">
+            <Link href="/search" className="hover:text-foreground transition-colors">Search</Link>
+            <span className="text-border">·</span>
+            <Link href="/season/spring" className="hover:text-foreground transition-colors">Spring</Link>
+            <Link href="/season/summer" className="hover:text-foreground transition-colors">Summer</Link>
+            <Link href="/season/fall" className="hover:text-foreground transition-colors">Fall</Link>
+            <Link href="/season/winter" className="hover:text-foreground transition-colors">Winter</Link>
+            <span className="text-border">·</span>
+            <Link href="/saves" className="hover:text-foreground transition-colors">My Saves</Link>
+          </div>
           <p className="text-sm text-muted-foreground">
             Curated by{" "}
             <a

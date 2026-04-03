@@ -222,6 +222,18 @@ export default async function LookPage({ params }: Props) {
                   </Link>
                 </>
               )}
+              {post.season && (
+                <>
+                  {" "}
+                  &middot;{" "}
+                  <Link
+                    href={`/season/${post.season}`}
+                    className="underline underline-offset-4 hover:text-foreground transition-colors"
+                  >
+                    {post.season.charAt(0).toUpperCase() + post.season.slice(1)}
+                  </Link>
+                </>
+              )}
             </p>
           </div>
 
@@ -258,9 +270,16 @@ export default async function LookPage({ params }: Props) {
                     </div>
                   )}
                   <div className="p-3">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                      {product.brand || "Shop"}
-                    </p>
+                    {product.brand ? (
+                      <a
+                        href={`/brand/${product.brand.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
+                        className="text-xs text-muted-foreground uppercase tracking-wide hover:text-primary transition-colors"
+                      >
+                        {product.brand}
+                      </a>
+                    ) : (
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Shop</p>
+                    )}
                     <p className="text-sm text-foreground truncate mt-0.5">
                       {product.itemName || product.rawText}
                     </p>
