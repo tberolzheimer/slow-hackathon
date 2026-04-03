@@ -139,11 +139,23 @@ async function main() {
     console.log(`    ${cluster.postIds.length} outfits | ${seasonDist}`)
     console.log(`    Keywords: ${topKeywords.slice(0, 6).join(", ")}`)
 
-    // Create Vibe record
+    // Create Vibe record (handle name collisions)
+    let vibeName = naming.name
+    let vibeSlug = slugify(naming.name)
+    const existingName = await prisma.vibe.findUnique({ where: { name: vibeName } })
+    if (existingName) {
+      vibeName = `${naming.name} ${vibeOrder + 1}`
+      vibeSlug = slugify(vibeName)
+    }
+    const existingSlug = await prisma.vibe.findUnique({ where: { slug: vibeSlug } })
+    if (existingSlug) {
+      vibeSlug = `${vibeSlug}-${vibeOrder + 1}`
+    }
+
     const vibe = await prisma.vibe.create({
       data: {
-        name: naming.name,
-        slug: slugify(naming.name),
+        name: vibeName,
+        slug: vibeSlug,
         tagline: naming.tagline,
         introText: naming.description,
         centroid: centroid,
