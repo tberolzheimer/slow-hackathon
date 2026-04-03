@@ -39,6 +39,27 @@ export default function HomePage() {
         </Suspense>
       </section>
 
+      {/* Style Match CTA */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+        <Link
+          href="/match"
+          className="group block p-8 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
+        >
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary mb-3">
+            New
+          </p>
+          <h2 className="font-display text-2xl sm:text-3xl text-foreground mb-2">
+            How much of Julia&apos;s style is yours?
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Swipe through 20 looks. Get your Style DNA in 60 seconds.
+          </p>
+          <span className="inline-flex items-center text-sm font-medium text-primary group-hover:underline">
+            Take the Style Match →
+          </span>
+        </Link>
+      </section>
+
       {/* How It Works — SB4: Plan */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-border/50">
         <h2 className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-10">
