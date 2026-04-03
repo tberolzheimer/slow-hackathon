@@ -253,9 +253,12 @@ export default async function LookPage({ params }: Props) {
                       {product.retailerName ? `Shop at ${product.retailerName} →` : "Shop This →"}
                     </p>
                     {product.brand && product.itemName && lookCounts.get(`${product.brand}::${product.itemName}`) && (
-                      <span className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                        Styled in {lookCounts.get(`${product.brand}::${product.itemName}`)} looks
-                      </span>
+                      <a
+                        href={`/product/${`${product.brand}-${product.itemName}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
+                        className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                      >
+                        Styled in {lookCounts.get(`${product.brand}::${product.itemName}`)} looks →
+                      </a>
                     )}
                   </div>
                 </a>

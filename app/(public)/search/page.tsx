@@ -91,6 +91,35 @@ export default async function SearchPage({ searchParams }: Props) {
       // Fallback to simple title search if raw query fails
     }
 
+    // Search posts by product brand/name (e.g. "Chanel" finds looks featuring Chanel)
+    try {
+      const brandResults = await prisma.$queryRaw<
+        { id: string; slug: string; title: string; displayTitle: string | null; outfitImageUrl: string | null; date: Date }[]
+      >(Prisma.sql`
+        SELECT DISTINCT p.id, p.slug, p.title, p."displayTitle", p."outfitImageUrl", p.date
+        FROM posts p
+        JOIN products pr ON pr."postId" = p.id
+        WHERE pr.brand ILIKE ${pattern} OR pr."itemName" ILIKE ${pattern} OR pr."rawText" ILIKE ${pattern}
+        ORDER BY p.date DESC
+        LIMIT 20
+      `)
+      const existingBrandIds = new Set(looks.map((l) => l.id))
+      for (const r of brandResults) {
+        if (!existingBrandIds.has(r.id)) {
+          looks.push({
+            id: r.id,
+            slug: r.slug,
+            title: r.title,
+            displayTitle: r.displayTitle,
+            outfitImageUrl: r.outfitImageUrl,
+            matchContext: `Features ${query} products`,
+          })
+        }
+      }
+    } catch {
+      // Non-critical
+    }
+
     // Also search by post title / displayTitle (catches things VisionData might miss)
     const titleResults = await prisma.post.findMany({
       where: {

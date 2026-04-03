@@ -28,11 +28,14 @@ export function HeartNavBadge() {
     // Poll for changes (guest hearts happen via localStorage)
     const interval = setInterval(updateCount, 2000)
 
+    // Listen for heart changes from HeartButton
+    window.addEventListener("hearts-changed", updateCount)
     // Also listen for storage events (cross-tab sync)
     window.addEventListener("storage", updateCount)
 
     return () => {
       clearInterval(interval)
+      window.removeEventListener("hearts-changed", updateCount)
       window.removeEventListener("storage", updateCount)
     }
   }, [session])

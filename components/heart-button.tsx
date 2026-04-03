@@ -36,7 +36,10 @@ export function HeartButton({
       onClick={(e) => {
         e.preventDefault()
         e.stopPropagation()
-        toggle()
+        toggle().then(() => {
+          // Notify HeartNavBadge to update count
+          window.dispatchEvent(new Event("hearts-changed"))
+        })
       }}
       disabled={loading}
       className={cn(
