@@ -50,6 +50,70 @@ export async function signUp(formData: FormData) {
   }
 }
 
+export async function createAccountFromEmail(
+  email: string,
+  hearts: { itemType: string; itemId: string; createdAt: string }[]
+) {
+  if (!email || !email.includes("@")) {
+    return { error: "Please enter a valid email" }
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } })
+  if (existing) {
+    return { error: "An account with this email already exists. Try signing in." }
+  }
+
+  // Generate a random password (user can set a real one later via reset flow)
+  const randomPassword = crypto.randomUUID()
+  const hashed = await bcrypt.hash(randomPassword, 10)
+
+  const user = await prisma.user.create({
+    data: { email, password: hashed },
+  })
+
+  // Merge guest hearts
+  let merged = 0
+  for (const heart of hearts) {
+    try {
+      await prisma.heart.upsert({
+        where: {
+          userId_itemType_itemId: {
+            userId: user.id,
+            itemType: heart.itemType,
+            itemId: heart.itemId,
+          },
+        },
+        create: {
+          userId: user.id,
+          itemType: heart.itemType,
+          itemId: heart.itemId,
+          createdAt: new Date(heart.createdAt),
+        },
+        update: {},
+      })
+      merged++
+    } catch {
+      // Skip duplicates
+    }
+  }
+
+  // Sign in the user
+  try {
+    await signIn("credentials", {
+      email,
+      password: randomPassword,
+      redirectTo: "/saves",
+    })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { error: "Account created but sign-in failed. Try signing in manually." }
+    }
+    throw error
+  }
+
+  return { merged }
+}
+
 export async function signInWithCredentials(formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string

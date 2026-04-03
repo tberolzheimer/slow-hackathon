@@ -1,6 +1,8 @@
 import Link from "next/link"
-import { Search, Heart } from "lucide-react"
+import { Search } from "lucide-react"
 import { HeartPromptToast } from "@/components/heart-prompt-toast"
+import { HeartNavBadge } from "@/components/heart-nav-badge"
+import { ReturnVisitBanner } from "@/components/return-visit-banner"
 
 export default function PublicLayout({
   children,
@@ -16,13 +18,7 @@ export default function PublicLayout({
             VibéShop
           </Link>
           <div className="flex items-center gap-1">
-            <Link
-              href="/saves"
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="My Saves"
-            >
-              <Heart className="h-5 w-5" />
-            </Link>
+            <HeartNavBadge />
             <Link
               href="/search"
               className="p-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -33,6 +29,9 @@ export default function PublicLayout({
           </div>
         </div>
       </header>
+
+      {/* Return visit banner */}
+      <ReturnVisitBanner />
 
       {/* Main content */}
       <main>{children}</main>

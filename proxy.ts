@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
 
-const publicRoutes = ["/", "/sign-in", "/sign-up", "/api/auth", "/vibe", "/look", "/search", "/saves", "/sitemap.xml", "/api/webhook"]
+const publicRoutes = ["/", "/sign-in", "/sign-up", "/api/auth", "/api/saves", "/vibe", "/look", "/search", "/saves", "/sitemap.xml", "/api/webhook"]
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
