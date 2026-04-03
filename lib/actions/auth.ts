@@ -97,6 +97,31 @@ export async function createAccountFromEmail(
     }
   }
 
+  // Sync to Klaviyo (non-blocking)
+  try {
+    const { syncProfileToKlaviyo } = await import("@/lib/klaviyo/sync")
+    // Compute vibe preferences from hearts
+    const vibeHearts = hearts.filter((h) => h.itemType === "vibe").map((h) => h.itemId)
+    // Get vibe names for look hearts
+    const lookHearts = hearts.filter((h) => h.itemType === "look")
+    const vibeNames: string[] = [...vibeHearts]
+    if (lookHearts.length > 0) {
+      const assignments = await prisma.vibeAssignment.findMany({
+        where: { post: { slug: { in: lookHearts.map((h) => h.itemId) } } },
+        include: { vibe: { select: { name: true } } },
+      })
+      vibeNames.push(...assignments.map((a) => a.vibe.name))
+    }
+    const uniqueVibes = [...new Set(vibeNames)]
+    await syncProfileToKlaviyo(email, {
+      heartedVibes: uniqueVibes,
+      heartCount: hearts.length,
+      topVibe: uniqueVibes[0] || "",
+    })
+  } catch (err) {
+    console.error("Klaviyo sync failed (non-blocking):", err)
+  }
+
   // Sign in the user
   try {
     await signIn("credentials", {

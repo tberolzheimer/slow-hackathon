@@ -32,6 +32,22 @@ export async function toggleHeart(itemType: string, itemId: string) {
     },
   })
 
+  // Track heart event in Klaviyo (non-blocking)
+  if (session.user.email) {
+    try {
+      const { trackHeartEvent } = await import("@/lib/klaviyo/sync")
+      const eventName =
+        itemType === "look"
+          ? "Hearted Look"
+          : itemType === "product"
+            ? "Hearted Product"
+            : "Hearted Vibe"
+      trackHeartEvent(session.user.email, eventName, { itemName: itemId })
+    } catch {
+      // Non-blocking
+    }
+  }
+
   return { hearted: true }
 }
 

@@ -1,66 +1,77 @@
 ---
 active: true
 iteration: 1
-max_iterations: 15
-completion_promise: "JBV-32 COMPLETE"
-started_at: "2026-04-03T07:37:00Z"
+max_iterations: 20
+completion_promise: "JBV-33 COMPLETE"
+started_at: "2026-04-03T07:42:00Z"
 ---
 
-## JBV-32: Email-First Sign-Up — Hearts as Email Subscriber Driver
+## JBV-33: Klaviyo Integration — Welcome Flow + Vibe-Personalized Email
 
-You are building VibéShop. Read `CLAUDE.md`. The heart system is already built (components/heart-button.tsx, lib/hearts/guest-hearts.ts, lib/hooks/use-heart.ts, lib/actions/hearts.ts).
+You are building VibéShop. Read `CLAUDE.md`. Klaviyo MCP is connected. The heart system is built (lib/actions/hearts.ts, createAccountFromEmail in lib/actions/auth.ts).
 
-### Build 3 things:
+### Build in this order:
 
-#### 1. Heart count badge in header nav
-**File:** `components/heart-nav-badge.tsx` ("use client")
+#### 1. Klaviyo sync module
+**File:** `lib/klaviyo/sync.ts`
 
-- Wraps the Heart icon in the header with a count badge
-- For guests: reads count from localStorage via `getGuestHeartCount()`
-- For logged-in: reads from DB (use a lightweight approach — could use the hook or a simple fetch)
-- Shows count as a small red/primary circle with number, positioned top-right of the heart icon
-- Only shows badge if count > 0
-- Updates in real-time (poll localStorage every 2s for guests, or listen for storage events)
+Functions:
+- `syncProfileToKlaviyo(email, vibePreferences)` — creates/updates Klaviyo profile with custom properties
+- `trackHeartEvent(email, eventName, eventData)` — tracks heart events in Klaviyo
 
-**Wire into:** `app/(public)/layout.tsx` — replace the static Heart icon link with this component
+Use the Klaviyo MCP tools: `klaviyo_create_profile`, `klaviyo_update_profile`, `klaviyo_subscribe_profile_to_marketing`
 
-#### 2. Inline email capture on /saves page
-**File:** Update `app/(public)/saves/saves-content.tsx`
+BUT since MCP tools aren't callable from server code, use the Klaviyo API directly via fetch. The API key is in env as `KLAVIYO_API_KEY` (or check what's available).
 
-Replace the current guest prompt section with a proper email capture:
-- One email input field + "Save My Hearts" button
-- Copy: "Enter your email to save these across all your devices."
-- On submit: call a new server action `createAccountFromEmail(email, guestHearts[])`
-- The server action creates a User with email (generate a random password), merges hearts, returns success
-- Show confirmation: "Done! Your N saved items are now synced."
-- Clear localStorage hearts after merge
+First, check what Klaviyo lists exist using the MCP: `klaviyo_get_lists`. Then check the account details: `klaviyo_get_account_details`.
 
-**New server action:** `lib/actions/auth.ts` — add `createAccountFromEmail(email: string, hearts: GuestHeart[])`
-- Creates User with email + random bcrypt password
-- Calls mergeGuestHearts internally
-- Signs the user in via signIn("credentials") or returns success for client-side redirect
+API endpoints:
+- POST https://a.klaviyo.com/api/profiles/ — create profile
+- POST https://a.klaviyo.com/api/events/ — track event
+- POST https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/ — subscribe to list
 
-#### 3. Return-visit banner
-**File:** `components/return-visit-banner.tsx` ("use client")
+Custom properties to set on profile:
+```
+vibeshop_hearted_vibes: string[] (vibe names)
+vibeshop_heart_count: number
+vibeshop_top_vibe: string
+vibeshop_preferred_season: string
+vibeshop_sign_up_source: "vibeshop_hearts"
+```
 
-- Shows for guests who have 1+ hearts from a previous visit (oldest heart > 1 hour old)
-- Slides down from below the header
-- Copy: "Welcome back! You have [N] saved looks. Sign up to keep them forever."
-- CTA: "Save My Hearts" → /saves (where the email capture is)
-- Dismiss X, stores dismissal in localStorage, don't show for 7 days
-- NOT a modal, NOT blocking
+#### 2. Wire into createAccountFromEmail
+**File:** `lib/actions/auth.ts`
 
-**Wire into:** `app/(public)/layout.tsx` — add below header, above main
+After creating account + merging hearts:
+- Compute the user's vibe preferences from their hearts (which vibes their hearted looks belong to)
+- Call syncProfileToKlaviyo with email + preferences
+- Subscribe to marketing list
+
+#### 3. Wire into toggleHeart
+**File:** `lib/actions/hearts.ts`
+
+After toggling a heart (for logged-in users):
+- Track a Klaviyo event: "Hearted Look", "Hearted Product", or "Hearted Vibe"
+- Include metadata: item name, vibe name, brand, etc.
+
+#### 4. Create welcome flow email templates
+Use Klaviyo MCP to create email templates for the 5-email welcome series:
+
+Email 1: "Your [N] saved looks are safe with us" — instant
+Email 2: "We figured out your vibe" — day 2
+Email 3: "Julia posted something you'll love" — day 4
+Email 4: "The [Brand] [Item] everyone's saving" — day 7
+Email 5: "New looks just dropped in [Vibe]" — day 14
+
+Use `klaviyo_create_email_template` for each. HTML templates with VibéShop branding.
 
 ### Completion criteria
-When ALL of the following are true, output `<promise>JBV-32 COMPLETE</promise>`:
-- [ ] Heart count badge shows in header nav with correct count
-- [ ] Badge updates when user hearts/unhearts items
-- [ ] /saves page has inline email input for guests
-- [ ] Email capture creates account + merges hearts
-- [ ] Return-visit banner shows for returning guests with hearts
-- [ ] Banner dismisses and respects 7-day cooldown
-- [ ] All CTAs say "Save My Hearts" not "Sign Up"
+When ALL of the following are true, output `<promise>JBV-33 COMPLETE</promise>`:
+- [ ] lib/klaviyo/sync.ts exists with syncProfileToKlaviyo and trackHeartEvent
+- [ ] createAccountFromEmail calls syncProfileToKlaviyo after account creation
+- [ ] toggleHeart tracks events to Klaviyo for logged-in users
+- [ ] 5 email templates created in Klaviyo (or template creation code ready)
+- [ ] KLAVIYO_API_KEY referenced from env
 - [ ] TypeScript compiles with zero errors
 
 Do NOT output the promise tag until every item is verified.
