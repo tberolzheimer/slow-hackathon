@@ -56,7 +56,7 @@ export function HeartButton({
           "transition-all duration-200",
           hearted
             ? "fill-primary text-primary animate-heart-pulse"
-            : "fill-transparent text-white/70 hover:text-white drop-shadow-sm"
+            : "fill-transparent text-muted-foreground/50 hover:text-muted-foreground drop-shadow-sm"
         )}
       />
       {showCount && count !== undefined && count > 0 && (
