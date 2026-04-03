@@ -49,5 +49,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE_URL}/season/${s}`,
       lastModified: new Date(),
     })),
+    // Style guide pages (keyword-targeted SEO)
+    ...[
+      "spring-wedding-guest-dresses", "casual-spring-outfits", "spring-outfits-women",
+      "spring-outfit-ideas", "spring-dress-with-jacket", "spring-work-outfits",
+      "spring-capsule-wardrobe", "spring-brunch-outfit", "spring-date-night-outfit",
+      "spring-fashion-2026",
+    ].map((s) => ({
+      url: `${BASE_URL}/style/${s}`,
+      lastModified: new Date(),
+    })),
   ]
 }

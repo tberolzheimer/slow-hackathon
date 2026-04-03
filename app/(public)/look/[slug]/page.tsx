@@ -255,7 +255,7 @@ export default async function LookPage({ params }: Props) {
                 >
                   {product.productImageUrl && (
                     <div className="p-3 pb-0">
-                      <div className="relative aspect-square rounded-md overflow-hidden bg-white">
+                      <div className="relative aspect-[4/5] rounded-md overflow-hidden bg-white">
                         <Image
                           src={product.productImageUrl}
                           alt={product.rawText || "Product"}

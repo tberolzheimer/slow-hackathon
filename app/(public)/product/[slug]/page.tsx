@@ -131,22 +131,22 @@ export default async function ProductOutfitsPage({ params }: Props) {
               href={sampleProduct.affiliateUrl}
               target="_blank"
               rel="noopener sponsored"
-              className="group inline-flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/40 transition-all"
+              className="group inline-flex items-center gap-6 p-5 rounded-xl border border-border hover:border-primary/40 transition-all"
             >
-              <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted">
+              <div className="relative w-36 h-36 rounded-lg overflow-hidden bg-white flex-shrink-0">
                 <Image
                   src={sampleProduct.productImageUrl}
                   alt={`${product.brand} ${product.itemName}`}
                   fill
-                  className="object-cover"
-                  sizes="80px"
+                  className="object-contain"
+                  sizes="144px"
                 />
               </div>
               <div className="text-left">
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-base font-medium text-foreground">
                   {product.brand} {product.itemName}
                 </p>
-                <p className="text-xs text-primary group-hover:underline mt-1">
+                <p className="text-sm text-primary group-hover:underline mt-1.5">
                   Shop This Piece →
                 </p>
               </div>
