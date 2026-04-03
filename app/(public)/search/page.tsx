@@ -6,6 +6,7 @@ import type { Metadata } from "next"
 import { connection } from "next/server"
 import { SearchBar } from "../search-bar"
 import { Badge } from "@/components/ui/badge"
+import { HeartButton } from "@/components/heart-button"
 
 interface Props {
   searchParams: Promise<{ q?: string }>
@@ -280,35 +281,40 @@ export default async function SearchPage({ searchParams }: Props) {
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
                 {products.map((product) => (
-                  <a
-                    key={product.id}
-                    href={product.affiliateUrl}
-                    target="_blank"
-                    rel="noopener sponsored"
-                    className="group block"
-                  >
-                    {product.productImageUrl && (
-                      <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-2">
-                        <Image
-                          src={product.productImageUrl}
-                          alt={product.brand || "Product"}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        />
-                      </div>
-                    )}
-                    {product.brand && (
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                        {product.brand}
-                      </p>
-                    )}
-                    {product.itemName && (
-                      <p className="text-sm text-foreground">
-                        {product.itemName}
-                      </p>
-                    )}
-                  </a>
+                  <div key={product.id}>
+                    <a
+                      href={product.affiliateUrl}
+                      target="_blank"
+                      rel="noopener sponsored"
+                      className="group block"
+                    >
+                      {product.productImageUrl && (
+                        <div className="relative aspect-square rounded-lg overflow-hidden bg-white mb-2">
+                          <Image
+                            src={product.productImageUrl}
+                            alt={product.brand || "Product"}
+                            fill
+                            className="object-contain group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          />
+                          <div className="absolute top-2 right-2 z-10">
+                            <HeartButton itemType="product" itemId={product.id} size="sm" />
+                          </div>
+                        </div>
+                      )}
+                      {product.brand && (
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                          {product.brand}
+                        </p>
+                      )}
+                      {product.itemName && (
+                        <p className="text-sm text-foreground">
+                          {product.itemName}
+                        </p>
+                      )}
+                      <p className="text-xs text-primary mt-1 group-hover:underline">Shop This →</p>
+                    </a>
+                  </div>
                 ))}
               </div>
             </section>

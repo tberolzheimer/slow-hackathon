@@ -11,6 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { HeartButton } from "@/components/heart-button"
 import { SectionNav } from "./section-nav"
 import { OutfitGrid } from "./outfit-grid"
 
@@ -245,31 +246,36 @@ function ProductGrid({
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
       {products.map((product) => (
-        <a
-          key={product.id}
-          href={product.affiliateUrl}
-          target="_blank"
-          rel="noopener sponsored"
-          className={`group block ${muted ? "opacity-70 hover:opacity-100" : ""}`}
-        >
-          <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-3">
-            <Image
-              src={product.productImageUrl!}
-              alt={product.rawText || "Product"}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
-          </div>
-          {product.brand && (
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">
-              {product.brand}
-            </p>
-          )}
-          {product.itemName && (
-            <p className="text-sm text-foreground">{product.itemName}</p>
-          )}
-        </a>
+        <div key={product.id} className={`${muted ? "opacity-70 hover:opacity-100" : ""}`}>
+          <a
+            href={product.affiliateUrl}
+            target="_blank"
+            rel="noopener sponsored"
+            className="group block"
+          >
+            <div className="relative aspect-square rounded-lg overflow-hidden bg-white mb-3">
+              <Image
+                src={product.productImageUrl!}
+                alt={product.rawText || "Product"}
+                fill
+                className="object-contain group-hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+              <div className="absolute top-2 right-2 z-10">
+                <HeartButton itemType="product" itemId={product.id} size="sm" />
+              </div>
+            </div>
+            {product.brand && (
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                {product.brand}
+              </p>
+            )}
+            {product.itemName && (
+              <p className="text-sm text-foreground">{product.itemName}</p>
+            )}
+            <p className="text-xs text-primary mt-1 group-hover:underline">Shop This →</p>
+          </a>
+        </div>
       ))}
     </div>
   )

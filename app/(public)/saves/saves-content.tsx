@@ -256,10 +256,10 @@ function EmailCapture({
   return (
     <div className="text-center mb-8 p-6 rounded-xl bg-muted/50">
       <p className="text-sm text-foreground mb-1 font-medium">
-        {heartCount} looks saved on this device
+        Don&apos;t lose out on your {heartCount} saves
       </p>
       <p className="text-sm text-muted-foreground mb-4">
-        Enter your email to save these across all your devices.
+        Enter your email to keep them forever across all your devices.
       </p>
       <form onSubmit={handleSubmit} className="flex gap-2 max-w-sm mx-auto">
         <Input
