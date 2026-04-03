@@ -201,6 +201,9 @@ async function VibeGrid() {
               {vibe.tagline && (
                 <p className="text-sm text-white/80">{vibe.tagline}</p>
               )}
+              <p className="text-xs text-white/60 mt-1">
+                {vibe.vibeAssignments.length} looks
+              </p>
             </div>
           </Link>
         )
