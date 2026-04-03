@@ -5,6 +5,12 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { Badge } from "@/components/ui/badge"
 import { connection } from "next/server"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { SectionNav } from "./section-nav"
 import { OutfitGrid } from "./outfit-grid"
 
@@ -48,18 +54,29 @@ export default async function VibePage({ params }: Props) {
 
   const posts = vibe.vibeAssignments.map((a) => a.post)
 
-  // Aggregate unique products across all posts in this vibe
-  const allProducts = posts
-    .flatMap((p) => p.products)
-    .filter((p) => p.productImageUrl)
+  // Aggregate unique products across all posts in this vibe, with post date
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 
-  // Deduplicate by affiliate URL
+  const allProductsWithDate = posts
+    .flatMap((p) =>
+      p.products
+        .filter((prod) => prod.productImageUrl)
+        .map((prod) => ({ ...prod, postDate: p.date }))
+    )
+
+  // Deduplicate by affiliate URL, keep newest
   const seen = new Set<string>()
-  const uniqueProducts = allProducts.filter((p) => {
-    if (seen.has(p.affiliateUrl)) return false
-    seen.add(p.affiliateUrl)
-    return true
-  })
+  const uniqueProducts = allProductsWithDate
+    .sort((a, b) => new Date(b.postDate).getTime() - new Date(a.postDate).getTime())
+    .filter((p) => {
+      if (seen.has(p.affiliateUrl)) return false
+      seen.add(p.affiliateUrl)
+      return true
+    })
+
+  const recentProducts = uniqueProducts.filter((p) => new Date(p.postDate) >= sixMonthsAgo)
+  const pastProducts = uniqueProducts.filter((p) => new Date(p.postDate) < sixMonthsAgo)
 
   return (
     <div>
@@ -124,38 +141,44 @@ export default async function VibePage({ params }: Props) {
       {/* Section 2: Shop the Vibe */}
       {uniqueProducts.length > 0 && (
         <section id="shop-the-vibe" className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 scroll-mt-32">
-          <h2 className="font-display text-2xl text-foreground mb-6">
-            Shop the Vibe — {uniqueProducts.length} pieces
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
-            {uniqueProducts.slice(0, 24).map((product) => (
-              <a
-                key={product.id}
-                href={product.affiliateUrl}
-                target="_blank"
-                rel="noopener sponsored"
-                className="group block"
-              >
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-3">
-                  <Image
-                    src={product.productImageUrl!}
-                    alt={product.rawText || "Product"}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  />
-                </div>
-                {product.brand && (
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                    {product.brand}
-                  </p>
-                )}
-                {product.itemName && (
-                  <p className="text-sm text-foreground">{product.itemName}</p>
-                )}
-              </a>
-            ))}
-          </div>
+          {/* Shop Now — recent products */}
+          {recentProducts.length > 0 && (
+            <>
+              <h2 className="font-display text-2xl text-foreground mb-6">
+                Shop Now — {recentProducts.length} pieces
+              </h2>
+              <ProductGrid products={recentProducts.slice(0, 24)} />
+            </>
+          )}
+
+          {/* Past Seasons — older products, collapsible */}
+          {pastProducts.length > 0 && (
+            <div className={recentProducts.length > 0 ? "mt-12" : ""}>
+              <Accordion type="single" collapsible>
+                <AccordionItem value="past-seasons" className="border-none">
+                  <AccordionTrigger className="font-display text-xl text-muted-foreground hover:text-foreground">
+                    Past Seasons — {pastProducts.length} pieces
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      These pieces may no longer be available, but the styling inspiration is forever.
+                    </p>
+                    <ProductGrid products={pastProducts.slice(0, 24)} muted />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          )}
+
+          {/* Fallback if no recent split possible */}
+          {recentProducts.length === 0 && pastProducts.length === 0 && (
+            <>
+              <h2 className="font-display text-2xl text-foreground mb-6">
+                Shop the Vibe — {uniqueProducts.length} pieces
+              </h2>
+              <ProductGrid products={uniqueProducts.slice(0, 24)} />
+            </>
+          )}
         </section>
       )}
 
@@ -167,6 +190,46 @@ export default async function VibePage({ params }: Props) {
           </p>
         </section>
       )}
+    </div>
+  )
+}
+
+function ProductGrid({
+  products,
+  muted = false,
+}: {
+  products: { id: string; affiliateUrl: string; productImageUrl: string | null; rawText: string; brand: string | null; itemName: string | null }[]
+  muted?: boolean
+}) {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+      {products.map((product) => (
+        <a
+          key={product.id}
+          href={product.affiliateUrl}
+          target="_blank"
+          rel="noopener sponsored"
+          className={`group block ${muted ? "opacity-70 hover:opacity-100" : ""}`}
+        >
+          <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-3">
+            <Image
+              src={product.productImageUrl!}
+              alt={product.rawText || "Product"}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+          </div>
+          {product.brand && (
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">
+              {product.brand}
+            </p>
+          )}
+          {product.itemName && (
+            <p className="text-sm text-foreground">{product.itemName}</p>
+          )}
+        </a>
+      ))}
     </div>
   )
 }

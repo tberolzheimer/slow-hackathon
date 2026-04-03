@@ -64,6 +64,9 @@ export default async function LookPage({ params }: Props) {
   const vibe = post.vibeAssignments[0]?.vibe
   const stylingNotes = post.visionData?.stylingNotes
   const displayTitle = post.displayTitle || post.title
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+  const isPastSeason = post.date < sixMonthsAgo
 
   // Get look counts for products that appear in multiple outfits
   const lookCounts = new Map<string, number>()
@@ -203,6 +206,11 @@ export default async function LookPage({ params }: Props) {
           </div>
 
           {/* All Products — unified grid */}
+          {isPastSeason && post.products.length > 0 && (
+            <p className="text-xs text-muted-foreground mb-3">
+              Past season — some items may no longer be available
+            </p>
+          )}
           {post.products.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mb-6">
               {[...effectiveHeroes, ...effectiveSupporting].map((product) => (
