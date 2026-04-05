@@ -835,11 +835,14 @@ function ExpandedCapsuleView({
             ref={scrollRef}
             className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1"
           >
-            {suggestions.map((look) => (
+            {suggestions
+              .filter((look) => !capsule.looks.includes(look.slug))
+              .map((look) => (
               <SuggestionCard
                 key={look.slug}
                 look={look}
                 capsuleId={capsule.id}
+                isAdded={capsule.looks.includes(look.slug)}
                 onAddToCapsule={onAddLook}
               />
             ))}
@@ -863,49 +866,69 @@ function ExpandedCapsuleView({
 function SuggestionCard({
   look,
   capsuleId,
+  isAdded,
   onAddToCapsule,
 }: {
   look: SuggestedLook
   capsuleId: string
+  isAdded: boolean
   onAddToCapsule: (capsuleId: string, lookSlug: string) => void
 }) {
+  function handleAdd() {
+    if (!isAdded) {
+      onAddToCapsule(capsuleId, look.slug)
+    }
+  }
+
   return (
-    <div className="flex-none w-32 group">
-      <div className="relative rounded-lg overflow-hidden bg-muted">
-        <Link href={`/look/${look.slug}`} className="block">
-          {look.outfitImageUrl ? (
-            <div className="relative aspect-[3/4]">
-              <Image
-                src={look.outfitImageUrl}
-                alt={look.displayTitle}
-                fill
-                className="object-cover group-hover:brightness-90 transition-all"
-                sizes="128px"
-              />
-            </div>
-          ) : (
-            <div className="aspect-[3/4] flex items-center justify-center">
-              <Badge variant="secondary">look</Badge>
-            </div>
-          )}
-        </Link>
-        {/* Action buttons */}
-        <div className="absolute bottom-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <HeartButton itemType="look" itemId={look.slug} size="sm" />
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onAddToCapsule(capsuleId, look.slug)
-            }}
-            className="p-1 rounded-full bg-background/80 text-muted-foreground hover:text-primary transition-colors"
-            title="Add to capsule"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
+    <div className="flex-none w-32">
+      {/* Tapping the image = add to capsule (primary action) */}
+      <div
+        onClick={handleAdd}
+        className={cn(
+          "relative rounded-lg overflow-hidden bg-muted cursor-pointer ring-2 transition-all",
+          isAdded ? "ring-primary opacity-70" : "ring-transparent hover:ring-primary/30 active:scale-95"
+        )}
+      >
+        {look.outfitImageUrl ? (
+          <div className="relative aspect-[3/4]">
+            <Image
+              src={look.outfitImageUrl}
+              alt={look.displayTitle}
+              fill
+              className="object-cover"
+              sizes="128px"
+            />
+          </div>
+        ) : (
+          <div className="aspect-[3/4] flex items-center justify-center">
+            <Badge variant="secondary">look</Badge>
+          </div>
+        )}
+        {/* Added checkmark or + indicator */}
+        <div className="absolute top-1.5 left-1.5">
+          <div className={cn(
+            "w-5 h-5 rounded-full flex items-center justify-center transition-all",
+            isAdded
+              ? "bg-primary"
+              : "bg-background/80 border border-border"
+          )}>
+            {isAdded ? (
+              <Check className="h-3 w-3 text-primary-foreground" />
+            ) : (
+              <Plus className="h-3 w-3 text-muted-foreground" />
+            )}
+          </div>
         </div>
       </div>
+      {/* Title + view link */}
       <p className="text-xs text-foreground truncate mt-1">{look.displayTitle}</p>
+      <Link
+        href={`/look/${look.slug}`}
+        className="text-[10px] text-muted-foreground hover:text-primary"
+      >
+        View look →
+      </Link>
     </div>
   )
 }
