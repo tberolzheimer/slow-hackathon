@@ -7,30 +7,15 @@ import { connection } from "next/server"
 import { Badge } from "@/components/ui/badge"
 import { HeartButton } from "@/components/heart-button"
 import { ExternalLink } from "lucide-react"
+import { productSlug as makeProductSlug, normalizeItemKey } from "@/lib/product-normalize"
 
 
 interface Props {
   params: Promise<{ slug: string }>
 }
 
-function parseSlug(slug: string): { brand: string; itemName: string } | null {
-  // Slug format: "chanel-jacket" or "hermes-bag"
-  // We need to try matching against known products
-  return null // Will use DB lookup instead
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const product = await prisma.product.findFirst({
-    where: {
-      isAlternative: false,
-      brand: { not: null },
-      itemName: { not: null },
-    },
-    // We'll match by constructing the slug from brand+itemName
-  })
-
-  // Look up by slug pattern
   const products = await findProductBySlug(slug)
   if (!products) return { title: "Product not found" }
 
@@ -41,26 +26,69 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function findProductBySlug(slug: string) {
-  // Get all unique brand+itemName combos that appear in 2+ posts
-  const multiLook = await prisma.$queryRaw<
-    { brand: string; itemName: string; count: bigint }[]
-  >`
-    SELECT brand, "itemName", COUNT(DISTINCT "postId") as count
-    FROM products
-    WHERE brand IS NOT NULL AND "itemName" IS NOT NULL AND "isAlternative" = false
-    GROUP BY brand, "itemName"
-    HAVING COUNT(DISTINCT "postId") > 1
-  `
+  // Get all non-alternative products with brand + itemName
+  const allProducts = await prisma.product.findMany({
+    where: {
+      isAlternative: false,
+      brand: { not: null },
+      itemName: { not: null },
+    },
+    select: {
+      brand: true,
+      itemName: true,
+      postId: true,
+    },
+  })
 
-  // Match slug against brand-itemName
-  for (const p of multiLook) {
-    const productSlug = `${p.brand}-${p.itemName}`
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
+  // Group by normalized key (same logic as most-worn page)
+  const groups = new Map<
+    string,
+    {
+      brand: string
+      itemName: string
+      postIds: Set<string>
+      /** All distinct (brand, itemName) pairs that collapse into this group */
+      variants: { brand: string; itemName: string }[]
+    }
+  >()
 
-    if (productSlug === slug) {
-      return { brand: p.brand, itemName: p.itemName, count: Number(p.count) }
+  for (const p of allProducts) {
+    if (!p.brand || !p.itemName) continue
+    const key = normalizeItemKey(p.brand, p.itemName)
+    if (!key) continue
+
+    const existing = groups.get(key)
+    if (!existing) {
+      groups.set(key, {
+        brand: p.brand,
+        itemName: p.itemName,
+        postIds: new Set([p.postId]),
+        variants: [{ brand: p.brand, itemName: p.itemName }],
+      })
+    } else {
+      existing.postIds.add(p.postId)
+      // Track unique (brand, itemName) pairs
+      if (
+        !existing.variants.some(
+          (v) => v.brand === p.brand && v.itemName === p.itemName
+        )
+      ) {
+        existing.variants.push({ brand: p.brand, itemName: p.itemName })
+      }
+    }
+  }
+
+  // Match slug against each group's normalized slug
+  for (const [, g] of groups) {
+    if (g.postIds.size < 2) continue
+    const s = makeProductSlug(g.brand, g.itemName)
+    if (s === slug) {
+      return {
+        brand: g.brand,
+        itemName: g.itemName,
+        count: g.postIds.size,
+        variants: g.variants,
+      }
     }
   }
   return null
@@ -73,10 +101,16 @@ export default async function ProductOutfitsPage({ params }: Props) {
   const product = await findProductBySlug(slug)
   if (!product) notFound()
 
+  // Build an OR filter across all variant (brand, itemName) pairs so
+  // "Chanel Ballet Flats" and "Chanel Flats" both contribute outfits.
+  const variantFilter = product.variants.map((v) => ({
+    brand: v.brand,
+    itemName: v.itemName,
+  }))
+
   const posts = await prisma.product.findMany({
     where: {
-      brand: product.brand,
-      itemName: product.itemName,
+      OR: variantFilter,
       isAlternative: false,
     },
     include: {
@@ -99,10 +133,19 @@ export default async function ProductOutfitsPage({ params }: Props) {
     orderBy: { post: { date: "desc" } },
   })
 
-  const outfits = posts.map((p) => p.post)
+  // Deduplicate outfits (same post may appear via different variant rows)
+  const seenPostIds = new Set<string>()
+  const outfits = posts
+    .map((p) => p.post)
+    .filter((o) => {
+      if (seenPostIds.has(o.id)) return false
+      seenPostIds.add(o.id)
+      return true
+    })
+
   // Get a sample product image + stock status
   const sampleProduct = await prisma.product.findFirst({
-    where: { brand: product.brand, itemName: product.itemName, productImageUrl: { not: null } },
+    where: { OR: variantFilter, productImageUrl: { not: null } },
     select: { productImageUrl: true, affiliateUrl: true, stockStatus: true },
   })
 

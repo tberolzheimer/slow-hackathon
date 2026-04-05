@@ -6,6 +6,7 @@ import { connection } from "next/server"
 import { Badge } from "@/components/ui/badge"
 import { HeartButton } from "@/components/heart-button"
 import { ShareButtons } from "@/components/share-buttons"
+import { normalizeItemKey, productSlug } from "@/lib/product-normalize"
 
 export const metadata: Metadata = {
   title: "Julia Berolzheimer's Most Worn Items | VibeShop",
@@ -172,25 +173,7 @@ interface MostWornItem {
   }[]
 }
 
-// ---------------------------------------------------------------------------
-// Item key normalization — groups the same product across different URLs
-// ---------------------------------------------------------------------------
-
-function normalizeItemKey(brand: string | null, itemName: string | null): string | null {
-  if (!brand) return null
-  const b = brand.toLowerCase().trim()
-  // Normalize item name: remove color words, size indicators, strip to core type
-  let item = (itemName || "").toLowerCase().trim()
-  // Remove common color/qualifier words that vary across listings
-  item = item
-    .replace(/\b(black|white|beige|tan|brown|navy|cream|nude|gold|silver|pink|blue|red|green|gray|grey)\b/g, "")
-    .replace(/\b(leather|suede|canvas|satin|silk|patent|velvet|wool)\b/g, "")
-    .replace(/\b(mini|small|medium|large|oversized)\b/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-  if (!item) item = "item"
-  return `${b}|${item}`
-}
+// normalizeItemKey is imported from @/lib/product-normalize
 
 // ---------------------------------------------------------------------------
 // Data fetching
@@ -458,9 +441,7 @@ export default async function MostWornPage() {
 // Card component
 // ---------------------------------------------------------------------------
 
-function productSlug(brand: string | null, itemName: string | null): string {
-  return [brand, itemName].filter(Boolean).join(" ").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
-}
+// productSlug is imported from @/lib/product-normalize
 
 function MostWornCard({ item }: { item: MostWornItem }) {
   const displayName =
