@@ -291,7 +291,7 @@ export default async function LookPage({ params }: Props) {
                       rel="noopener sponsored"
                       className="text-xs text-primary font-medium mt-2 hover:underline block"
                     >
-                      {product.retailerName ? `Shop at ${product.retailerName} →` : "Shop This →"}
+                      {product.retailerName && product.retailerName !== "ShopStyle" && product.retailerName !== "Shopmy" && product.retailerName !== "Linksynergy" && product.retailerName !== "Prf" && product.retailerName !== "Awin1" ? `Shop at ${product.retailerName} →` : "Shop This →"}
                     </a>
                     {product.brand && product.itemName && lookCounts.get(`${product.brand}::${product.itemName}`) && (
                       <a

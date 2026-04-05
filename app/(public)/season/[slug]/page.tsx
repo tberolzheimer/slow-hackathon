@@ -194,6 +194,33 @@ export default async function SeasonPage({ params }: Props) {
         </section>
       )}
 
+      {/* Style Guides for this season */}
+      {slug === "spring" && (
+        <section className="mb-12">
+          <h2 className="font-display text-xl text-foreground mb-4">
+            Spring Style Guides
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { slug: "spring-wedding-guest-dresses", title: "Spring Wedding Guest Dresses" },
+              { slug: "casual-spring-outfits", title: "Casual Spring Outfits" },
+              { slug: "spring-work-outfits", title: "Spring Work Outfits" },
+              { slug: "spring-capsule-wardrobe", title: "Spring Capsule Wardrobe" },
+            ].map((guide) => (
+              <Link
+                key={guide.slug}
+                href={`/style/${guide.slug}`}
+                className="group block p-4 rounded-xl border border-border hover:border-primary/40 transition-all"
+              >
+                <p className="text-sm text-foreground group-hover:text-primary transition-colors">
+                  {guide.title} →
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Other Seasons */}
       <section>
         <h2 className="font-display text-xl text-foreground mb-4">

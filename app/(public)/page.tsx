@@ -121,6 +121,33 @@ export default function HomePage() {
         </Suspense>
       </section>
 
+      {/* Style Guides */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-10">
+        <h2 className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-6">
+          Style Guides
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[
+            { slug: "spring-wedding-guest-dresses", title: "Spring Wedding Guest Dresses" },
+            { slug: "casual-spring-outfits", title: "Casual Spring Outfits" },
+            { slug: "spring-work-outfits", title: "Spring Work Outfits" },
+            { slug: "spring-capsule-wardrobe", title: "Spring Capsule Wardrobe" },
+            { slug: "spring-brunch-outfit", title: "Spring Brunch Outfits" },
+            { slug: "spring-date-night-outfit", title: "Spring Date Night Outfits" },
+          ].map((guide) => (
+            <Link
+              key={guide.slug}
+              href={`/style/${guide.slug}`}
+              className="group block p-4 rounded-xl border border-border hover:border-primary/40 transition-all"
+            >
+              <p className="font-display text-base text-foreground group-hover:text-primary transition-colors">
+                {guide.title}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Editor's Note — SB7: Success + SB3: Authority */}
       <section className="max-w-2xl mx-auto px-4 sm:px-6 pb-16">
         <p className="text-sm text-muted-foreground leading-relaxed text-center">

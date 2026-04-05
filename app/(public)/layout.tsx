@@ -50,6 +50,8 @@ export default function PublicLayout({
             <Link href="/season/fall" className="hover:text-foreground transition-colors">Fall</Link>
             <Link href="/season/winter" className="hover:text-foreground transition-colors">Winter</Link>
             <span className="text-border">·</span>
+            <Link href="/style/spring-outfit-ideas" className="hover:text-foreground transition-colors">Style Guides</Link>
+            <span className="text-border">·</span>
             <Link href="/saves" className="hover:text-foreground transition-colors">My Saves</Link>
           </div>
           <p className="text-sm text-muted-foreground">
