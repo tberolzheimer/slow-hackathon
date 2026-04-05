@@ -101,12 +101,15 @@ export function clearGuestHearts(): void {
 export function shouldShowSignUpPrompt(): boolean {
   const store = readStore()
 
-  if (store.hearts.length < 3) return false
+  if (store.hearts.length < 2) return false
 
+  // Show every session — no cooldown period. If they haven't signed up,
+  // they should see the prompt again. Only suppress if dismissed THIS session.
   if (store.promptDismissedAt) {
     const dismissed = new Date(store.promptDismissedAt)
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    if (dismissed > sevenDaysAgo) return false
+    // Only suppress for 1 hour (same browsing session), not 7 days
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+    if (dismissed > oneHourAgo) return false
   }
 
   return true

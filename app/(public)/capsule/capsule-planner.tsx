@@ -9,9 +9,11 @@ import {
   Heart, ChevronDown, ChevronUp, ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { generateCapsule } from "@/lib/actions/capsule"
 import type { CapsuleResult } from "@/lib/ai/capsule-engine"
-import { addGuestHeart } from "@/lib/hearts/guest-hearts"
+import { addGuestHeart, getGuestHearts, clearGuestHearts } from "@/lib/hearts/guest-hearts"
+import { createAccountFromEmail } from "@/lib/actions/auth"
 
 type Screen = "intro" | "destination" | "details" | "activities" | "generating" | "capsule"
 
@@ -124,6 +126,9 @@ export function CapsulePlanner() {
   const [result, setResult] = useState<CapsuleResult | null>(null)
   const [loadingMessage, setLoadingMessage] = useState("")
   const [savedAll, setSavedAll] = useState(false)
+  const [showEmailGate, setShowEmailGate] = useState(false)
+  const [capsuleEmail, setCapsuleEmail] = useState("")
+  const [emailStatus, setEmailStatus] = useState<"idle" | "loading" | "success">("idle")
   const [expandedPacking, setExpandedPacking] = useState(false)
 
   // When destination changes, set default activities
@@ -187,6 +192,26 @@ export function CapsulePlanner() {
     }
     window.dispatchEvent(new Event("hearts-changed"))
     setSavedAll(true)
+    setShowEmailGate(true)
+  }
+
+  async function handleCapsuleEmailSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!capsuleEmail.trim()) return
+    setEmailStatus("loading")
+    try {
+      const hearts = getGuestHearts().map((h) => ({
+        itemType: h.itemType,
+        itemId: h.itemId,
+        createdAt: h.createdAt,
+      }))
+      await createAccountFromEmail(capsuleEmail.trim(), hearts)
+      clearGuestHearts()
+      setEmailStatus("success")
+    } catch {
+      clearGuestHearts()
+      setEmailStatus("success")
+    }
   }
 
   // ═══════════════════════════════════════
@@ -471,17 +496,47 @@ export function CapsulePlanner() {
           )}
         </div>
 
-        {/* Save all CTA */}
+        {/* Save all CTA + Email gate */}
         <div className="text-center mb-10">
-          <Button
-            onClick={handleSaveAll}
-            disabled={savedAll}
-            variant={savedAll ? "outline" : "default"}
-            size="lg"
-          >
-            <Heart className={`h-4 w-4 mr-2 ${savedAll ? "fill-primary text-primary" : ""}`} />
-            {savedAll ? `${result.totalLooks} Looks Saved` : "Save This Capsule"}
-          </Button>
+          {!savedAll ? (
+            <Button onClick={handleSaveAll} size="lg">
+              <Heart className="h-4 w-4 mr-2" />
+              Save This Capsule
+            </Button>
+          ) : showEmailGate && emailStatus !== "success" ? (
+            <div className="max-w-sm mx-auto p-6 rounded-xl bg-primary/5 border border-primary/10">
+              <p className="text-sm text-foreground font-medium mb-1">
+                {result.totalLooks} looks saved!
+              </p>
+              <p className="text-xs text-muted-foreground mb-4">
+                Enter your email to keep this capsule across devices.
+              </p>
+              <form onSubmit={handleCapsuleEmailSubmit} className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={capsuleEmail}
+                  onChange={(e) => setCapsuleEmail(e.target.value)}
+                  className="flex-1"
+                  required
+                />
+                <Button type="submit" disabled={emailStatus === "loading"}>
+                  {emailStatus === "loading" ? "..." : "Save"}
+                </Button>
+              </form>
+              <button
+                onClick={() => setShowEmailGate(false)}
+                className="mt-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                Skip for now
+              </button>
+            </div>
+          ) : (
+            <Button variant="outline" size="lg" disabled>
+              <Heart className="h-4 w-4 mr-2 fill-primary text-primary" />
+              {emailStatus === "success" ? "Capsule Synced!" : `${result.totalLooks} Looks Saved`}
+            </Button>
+          )}
         </div>
 
         {/* Sections by activity */}

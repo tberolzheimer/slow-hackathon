@@ -37,14 +37,7 @@ export function HeartPromptToast() {
     return () => clearInterval(interval)
   }, [session])
 
-  // Auto-dismiss after 20 seconds
-  useEffect(() => {
-    if (!visible || status === "success") return
-    const timer = setTimeout(() => {
-      handleDismiss()
-    }, 20000)
-    return () => clearTimeout(timer)
-  }, [visible, status])
+  // No auto-dismiss — persist until user submits or manually dismisses
 
   function handleDismiss() {
     setVisible(false)
