@@ -1,0 +1,315 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VibeShop" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "My Saves" [ref=e7] [cursor=pointer]:
+            - /url: /saves
+            - img [ref=e8]
+          - link "Search" [ref=e10] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e11]
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Find your vibe. Shop the look." [level=1] [ref=e17]
+          - paragraph [ref=e18]: You know the feeling — you love a look but can't name what draws you to it. VibeShop organizes hundreds of Julia Berolzheimer's styled outfits by aesthetic feeling, so you can find your vibe and shop it in minutes.
+          - generic [ref=e19]:
+            - img [ref=e20]
+            - textbox "What are you feeling?" [ref=e23]
+        - generic [ref=e25]:
+          - link "Morning Porch outfit Morning Porch outfit Morning Porch outfit Morning Porch outfit Save Morning Porch Where vintage romance meets effortless spring mornings 54 looks" [ref=e26] [cursor=pointer]:
+            - /url: /vibe/morning-porch
+            - generic [ref=e27]:
+              - img "Morning Porch outfit" [ref=e29]
+              - img "Morning Porch outfit" [ref=e31]
+              - img "Morning Porch outfit" [ref=e33]
+              - generic:
+                - img "Morning Porch outfit"
+            - button "Save" [disabled] [ref=e35]:
+              - img [ref=e36]
+            - generic:
+              - heading "Morning Porch" [level=2]
+              - paragraph: Where vintage romance meets effortless spring mornings
+              - paragraph: 54 looks
+          - link "Spring Studio outfit Spring Studio outfit Spring Studio outfit Spring Studio outfit Save Spring Studio Where vintage prints meet effortless weekend style 43 looks" [ref=e38] [cursor=pointer]:
+            - /url: /vibe/spring-studio
+            - generic [ref=e39]:
+              - img "Spring Studio outfit" [ref=e41]
+              - img "Spring Studio outfit" [ref=e43]
+              - img "Spring Studio outfit" [ref=e45]
+              - generic:
+                - img "Spring Studio outfit"
+            - button "Save" [disabled] [ref=e47]:
+              - img [ref=e48]
+            - generic:
+              - heading "Spring Studio" [level=2]
+              - paragraph: Where vintage prints meet effortless weekend style
+              - paragraph: 43 looks
+          - link "Spring Cotillion outfit Spring Cotillion outfit Spring Cotillion outfit Spring Cotillion outfit Save Spring Cotillion Preppy polish meets garden party perfection 43 looks" [ref=e50] [cursor=pointer]:
+            - /url: /vibe/spring-cotillion
+            - generic [ref=e51]:
+              - img "Spring Cotillion outfit" [ref=e53]
+              - img "Spring Cotillion outfit" [ref=e55]
+              - img "Spring Cotillion outfit" [ref=e57]
+              - generic:
+                - img "Spring Cotillion outfit"
+            - button "Save" [disabled] [ref=e59]:
+              - img [ref=e60]
+            - generic:
+              - heading "Spring Cotillion" [level=2]
+              - paragraph: Preppy polish meets garden party perfection
+              - paragraph: 43 looks
+          - link "City Palette outfit City Palette outfit City Palette outfit City Palette outfit Save City Palette Bold colors meet unexpected patterns on spring streets 39 looks" [ref=e62] [cursor=pointer]:
+            - /url: /vibe/city-palette
+            - generic [ref=e63]:
+              - img "City Palette outfit" [ref=e65]
+              - img "City Palette outfit" [ref=e67]
+              - img "City Palette outfit" [ref=e69]
+              - generic:
+                - img "City Palette outfit"
+            - button "Save" [disabled] [ref=e71]:
+              - img [ref=e72]
+            - generic:
+              - heading "City Palette" [level=2]
+              - paragraph: Bold colors meet unexpected patterns on spring streets
+              - paragraph: 39 looks
+          - link "Bohemian April outfit Bohemian April outfit Bohemian April outfit Bohemian April outfit Save Bohemian April Patterns and prints for the free-spirited spring soul 32 looks" [ref=e74] [cursor=pointer]:
+            - /url: /vibe/bohemian-april
+            - generic [ref=e75]:
+              - img "Bohemian April outfit" [ref=e77]
+              - img "Bohemian April outfit" [ref=e79]
+              - img "Bohemian April outfit" [ref=e81]
+              - generic:
+                - img "Bohemian April outfit"
+            - button "Save" [disabled] [ref=e83]:
+              - img [ref=e84]
+            - generic:
+              - heading "Bohemian April" [level=2]
+              - paragraph: Patterns and prints for the free-spirited spring soul
+              - paragraph: 32 looks
+          - link "Spring Rituals outfit Spring Rituals outfit Spring Rituals outfit Spring Rituals outfit Save Spring Rituals Polished ease for every moment that matters 27 looks" [ref=e86] [cursor=pointer]:
+            - /url: /vibe/spring-rituals
+            - generic [ref=e87]:
+              - img "Spring Rituals outfit" [ref=e89]
+              - img "Spring Rituals outfit" [ref=e91]
+              - img "Spring Rituals outfit" [ref=e93]
+              - generic:
+                - img "Spring Rituals outfit"
+            - button "Save" [disabled] [ref=e95]:
+              - img [ref=e96]
+            - generic:
+              - heading "Spring Rituals" [level=2]
+              - paragraph: Polished ease for every moment that matters
+              - paragraph: 27 looks
+          - link "Winter Luxe outfit Winter Luxe outfit Winter Luxe outfit Winter Luxe outfit Save Winter Luxe Rich textures and layered warmth for cold days 17 looks" [ref=e98] [cursor=pointer]:
+            - /url: /vibe/winter-luxe
+            - generic [ref=e99]:
+              - img "Winter Luxe outfit" [ref=e101]
+              - img "Winter Luxe outfit" [ref=e103]
+              - img "Winter Luxe outfit" [ref=e105]
+              - generic:
+                - img "Winter Luxe outfit"
+            - button "Save" [disabled] [ref=e107]:
+              - img [ref=e108]
+            - generic:
+              - heading "Winter Luxe" [level=2]
+              - paragraph: Rich textures and layered warmth for cold days
+              - paragraph: 17 looks
+          - link "Endless Vacation outfit Endless Vacation outfit Endless Vacation outfit Endless Vacation outfit Save Endless Vacation Sun-soaked style for wherever wanderlust takes you 139 looks" [ref=e110] [cursor=pointer]:
+            - /url: /vibe/endless-vacation
+            - generic [ref=e111]:
+              - img "Endless Vacation outfit" [ref=e113]
+              - img "Endless Vacation outfit" [ref=e115]
+              - img "Endless Vacation outfit" [ref=e117]
+              - generic:
+                - img "Endless Vacation outfit"
+            - button "Save" [disabled] [ref=e119]:
+              - img [ref=e120]
+            - generic:
+              - heading "Endless Vacation" [level=2]
+              - paragraph: Sun-soaked style for wherever wanderlust takes you
+              - paragraph: 139 looks
+          - link "Summer Wandering outfit Summer Wandering outfit Summer Wandering outfit Summer Wandering outfit Save Summer Wandering Bohemian luxe meets effortless travel style 39 looks" [ref=e122] [cursor=pointer]:
+            - /url: /vibe/summer-wandering
+            - generic [ref=e123]:
+              - img "Summer Wandering outfit" [ref=e125]
+              - img "Summer Wandering outfit" [ref=e127]
+              - img "Summer Wandering outfit" [ref=e129]
+              - generic:
+                - img "Summer Wandering outfit"
+            - button "Save" [disabled] [ref=e131]:
+              - img [ref=e132]
+            - generic:
+              - heading "Summer Wandering" [level=2]
+              - paragraph: Bohemian luxe meets effortless travel style
+              - paragraph: 39 looks
+          - link "October Streets outfit October Streets outfit October Streets outfit October Streets outfit Save October Streets Vintage polish meets bohemian luxe for autumn adventures 220 looks" [ref=e134] [cursor=pointer]:
+            - /url: /vibe/october-streets
+            - generic [ref=e135]:
+              - img "October Streets outfit" [ref=e137]
+              - img "October Streets outfit" [ref=e139]
+              - img "October Streets outfit" [ref=e141]
+              - generic:
+                - img "October Streets outfit"
+            - button "Save" [disabled] [ref=e143]:
+              - img [ref=e144]
+            - generic:
+              - heading "October Streets" [level=2]
+              - paragraph: Vintage polish meets bohemian luxe for autumn adventures
+              - paragraph: 220 looks
+          - link "Poolside Gallery outfit Poolside Gallery outfit Poolside Gallery outfit Poolside Gallery outfit Save Poolside Gallery Where tropical luxury meets artistic sophistication 17 looks" [ref=e146] [cursor=pointer]:
+            - /url: /vibe/poolside-gallery
+            - generic [ref=e147]:
+              - img "Poolside Gallery outfit" [ref=e149]
+              - img "Poolside Gallery outfit" [ref=e151]
+              - img "Poolside Gallery outfit" [ref=e153]
+              - generic:
+                - img "Poolside Gallery outfit"
+            - button "Save" [disabled] [ref=e155]:
+              - img [ref=e156]
+            - generic:
+              - heading "Poolside Gallery" [level=2]
+              - paragraph: Where tropical luxury meets artistic sophistication
+              - paragraph: 17 looks
+          - link "Garden Vacation outfit Garden Vacation outfit Garden Vacation outfit Garden Vacation outfit Save Garden Vacation Polished pieces for romantic summer escapes 141 looks" [ref=e158] [cursor=pointer]:
+            - /url: /vibe/garden-vacation
+            - generic [ref=e159]:
+              - img "Garden Vacation outfit" [ref=e161]
+              - img "Garden Vacation outfit" [ref=e163]
+              - img "Garden Vacation outfit" [ref=e165]
+              - generic:
+                - img "Garden Vacation outfit"
+            - button "Save" [disabled] [ref=e167]:
+              - img [ref=e168]
+            - generic:
+              - heading "Garden Vacation" [level=2]
+              - paragraph: Polished pieces for romantic summer escapes
+              - paragraph: 141 looks
+        - link "New How much of Julia's style is yours? Swipe through 20 looks. Get your Style DNA in 60 seconds. Take the Style Match →" [ref=e171] [cursor=pointer]:
+          - /url: /match
+          - paragraph [ref=e172]: New
+          - heading "How much of Julia's style is yours?" [level=2] [ref=e173]
+          - paragraph [ref=e174]: Swipe through 20 looks. Get your Style DNA in 60 seconds.
+          - generic [ref=e175]: Take the Style Match →
+        - generic [ref=e176]:
+          - heading "How VibeShop Works" [level=2] [ref=e177]
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - paragraph [ref=e180]: Browse vibes
+              - paragraph [ref=e181]: Pick the aesthetic that matches your mood
+            - generic [ref=e182]:
+              - paragraph [ref=e183]: Explore the looks
+              - paragraph [ref=e184]: See real outfits with every piece identified
+            - generic [ref=e185]:
+              - paragraph [ref=e186]: Shop what you love
+              - paragraph [ref=e187]: Tap any product to buy it directly
+        - generic [ref=e188]:
+          - heading "Browse by Season" [level=2] [ref=e189]
+          - generic [ref=e190]:
+            - link "Spring" [ref=e191] [cursor=pointer]:
+              - /url: /season/spring
+              - paragraph [ref=e192]: Spring
+            - link "Summer" [ref=e193] [cursor=pointer]:
+              - /url: /season/summer
+              - paragraph [ref=e194]: Summer
+            - link "Fall" [ref=e195] [cursor=pointer]:
+              - /url: /season/fall
+              - paragraph [ref=e196]: Fall
+            - link "Winter" [ref=e197] [cursor=pointer]:
+              - /url: /season/winter
+              - paragraph [ref=e198]: Winter
+        - generic [ref=e199]:
+          - heading "Browse by Brand" [level=2] [ref=e200]
+          - generic [ref=e201]:
+            - link "Prada" [ref=e202] [cursor=pointer]:
+              - /url: /brand/prada
+            - link "Dior" [ref=e203] [cursor=pointer]:
+              - /url: /brand/dior
+            - link "Chanel" [ref=e204] [cursor=pointer]:
+              - /url: /brand/chanel
+            - link "Saint" [ref=e205] [cursor=pointer]:
+              - /url: /brand/saint
+            - link "Gucci" [ref=e206] [cursor=pointer]:
+              - /url: /brand/gucci
+            - link "Bottega" [ref=e207] [cursor=pointer]:
+              - /url: /brand/bottega
+            - link "Valentino" [ref=e208] [cursor=pointer]:
+              - /url: /brand/valentino
+            - link "Sherman" [ref=e209] [cursor=pointer]:
+              - /url: /brand/sherman
+            - link "Toteme" [ref=e210] [cursor=pointer]:
+              - /url: /brand/toteme
+            - link "Alaia" [ref=e211] [cursor=pointer]:
+              - /url: /brand/alaia
+            - link "Savette" [ref=e212] [cursor=pointer]:
+              - /url: /brand/savette
+            - link "Hermes" [ref=e213] [cursor=pointer]:
+              - /url: /brand/hermes
+            - link "Janessa" [ref=e214] [cursor=pointer]:
+              - /url: /brand/janessa
+            - link "Le" [ref=e215] [cursor=pointer]:
+              - /url: /brand/le
+            - link "La" [ref=e216] [cursor=pointer]:
+              - /url: /brand/la
+            - link "Arielle Ratner" [ref=e217] [cursor=pointer]:
+              - /url: /brand/arielle-ratner
+            - link "Loewe" [ref=e218] [cursor=pointer]:
+              - /url: /brand/loewe
+            - link "Miu Miu" [ref=e219] [cursor=pointer]:
+              - /url: /brand/miu-miu
+            - link "Attersee" [ref=e220] [cursor=pointer]:
+              - /url: /brand/attersee
+            - link "Amazon" [ref=e221] [cursor=pointer]:
+              - /url: /brand/amazon
+        - generic [ref=e222]:
+          - heading "Style Guides" [level=2] [ref=e223]
+          - generic [ref=e224]:
+            - link "Spring Wedding Guest Dresses" [ref=e225] [cursor=pointer]:
+              - /url: /style/spring-wedding-guest-dresses
+              - paragraph [ref=e226]: Spring Wedding Guest Dresses
+            - link "Casual Spring Outfits" [ref=e227] [cursor=pointer]:
+              - /url: /style/casual-spring-outfits
+              - paragraph [ref=e228]: Casual Spring Outfits
+            - link "Spring Work Outfits" [ref=e229] [cursor=pointer]:
+              - /url: /style/spring-work-outfits
+              - paragraph [ref=e230]: Spring Work Outfits
+            - link "Spring Capsule Wardrobe" [ref=e231] [cursor=pointer]:
+              - /url: /style/spring-capsule-wardrobe
+              - paragraph [ref=e232]: Spring Capsule Wardrobe
+            - link "Spring Brunch Outfits" [ref=e233] [cursor=pointer]:
+              - /url: /style/spring-brunch-outfit
+              - paragraph [ref=e234]: Spring Brunch Outfits
+            - link "Spring Date Night Outfits" [ref=e235] [cursor=pointer]:
+              - /url: /style/spring-date-night-outfit
+              - paragraph [ref=e236]: Spring Date Night Outfits
+        - paragraph [ref=e238]: VibeShop draws from Julia Berolzheimer's Daily Looks archive — over 500 styled outfits photographed in Charleston, New York, and beyond. Each look is analyzed for color palette, fabric, silhouette, and mood, then grouped into vibes that capture a feeling, not just a category. Whether you're drawn to polished maximalism, smart denim, or vacation glamour, every outfit comes with direct product links so you can shop exactly what Julia wore. Updated daily as new looks are published.
+    - contentinfo [ref=e239]:
+      - generic [ref=e240]:
+        - generic [ref=e241]:
+          - link "Search" [ref=e242] [cursor=pointer]:
+            - /url: /search
+          - generic [ref=e243]: ·
+          - link "Spring" [ref=e244] [cursor=pointer]:
+            - /url: /season/spring
+          - link "Summer" [ref=e245] [cursor=pointer]:
+            - /url: /season/summer
+          - link "Fall" [ref=e246] [cursor=pointer]:
+            - /url: /season/fall
+          - link "Winter" [ref=e247] [cursor=pointer]:
+            - /url: /season/winter
+          - generic [ref=e248]: ·
+          - link "Style Guides" [ref=e249] [cursor=pointer]:
+            - /url: /style/spring-outfit-ideas
+          - generic [ref=e250]: ·
+          - link "My Saves" [ref=e251] [cursor=pointer]:
+            - /url: /saves
+        - paragraph [ref=e252]:
+          - text: Curated by
+          - link "Julia Berolzheimer" [ref=e253] [cursor=pointer]:
+            - /url: https://juliaberolzheimer.com
+  - button "Open Next.js Dev Tools" [ref=e259] [cursor=pointer]:
+    - img [ref=e260]
+  - alert [ref=e263]

@@ -175,23 +175,50 @@ function VibeGridSkeleton() {
   )
 }
 
+function getCurrentSeason(): string {
+  const month = new Date().getMonth() // 0-11
+  if (month >= 2 && month <= 4) return "spring"
+  if (month >= 5 && month <= 7) return "summer"
+  if (month >= 8 && month <= 10) return "fall"
+  return "winter"
+}
+
 async function VibeGrid() {
   await connection()
+  const currentSeason = getCurrentSeason()
+
   const vibes = await prisma.vibe.findMany({
     where: { approvedAt: { not: null } },
-    orderBy: { sortOrder: "asc" },
     include: {
       vibeAssignments: {
         take: 4,
         orderBy: { confidenceScore: "desc" },
         include: {
           post: {
-            select: { outfitImageUrl: true, title: true },
+            select: { outfitImageUrl: true, title: true, season: true },
           },
         },
       },
       _count: { select: { vibeAssignments: true } },
     },
+  })
+
+  // Sort vibes by seasonal relevance: count posts matching current season
+  const vibeSeasonCounts = await prisma.$queryRaw<{ vibeId: string; seasonCount: bigint }[]>`
+    SELECT va."vibeId", COUNT(*) as "seasonCount"
+    FROM vibe_assignments va
+    JOIN posts p ON p.id = va."postId"
+    WHERE p.season = ${currentSeason}
+    GROUP BY va."vibeId"
+    ORDER BY "seasonCount" DESC
+  `
+  const seasonCountMap = new Map(vibeSeasonCounts.map((r) => [r.vibeId, Number(r.seasonCount)]))
+
+  // Sort: vibes with more current-season posts first
+  vibes.sort((a, b) => {
+    const aCount = seasonCountMap.get(a.id) || 0
+    const bCount = seasonCountMap.get(b.id) || 0
+    return bCount - aCount
   })
 
   if (vibes.length === 0) {
