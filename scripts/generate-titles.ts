@@ -10,9 +10,9 @@ async function main() {
   console.log("VibeShop Display Title Generator")
   console.log("═══════════════════════════════════════\n")
 
+  // Re-generate ALL titles (not just null ones) to remove location hallucinations
   const posts = await prisma.post.findMany({
     where: {
-      displayTitle: null,
       visionData: { isNot: null },
     },
     include: {
@@ -56,6 +56,8 @@ async function main() {
           {
             role: "user",
             content: `Generate a short evocative title (3-6 words) for this outfit. Name the feeling or moment, not just the garments. Like a magazine headline.
+
+IMPORTANT: Do NOT include specific city, country, or location names (e.g., Positano, Paris, Charleston, Tuscany, Amalfi). The AI cannot reliably identify locations from photos. Use generic setting words instead (garden, poolside, coastal, city, cobblestone, porch).
 
 Garments: ${garments}
 Brands: ${brands}
