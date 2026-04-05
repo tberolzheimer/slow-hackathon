@@ -38,9 +38,12 @@ export function ProductGrid({
   const [sortBy, setSortBy] = useState<SortOption>("newest")
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
+  // Filter out products without images — they show as blank white boxes
+  const withImages = useMemo(() => products.filter((p) => p.productImageUrl), [products])
+
   const sorted = useMemo(() => {
-    if (sortBy === "newest") return products // already in server order (newest first)
-    const copy = [...products]
+    if (sortBy === "newest") return withImages
+    const copy = [...withImages]
     if (sortBy === "brand-az") {
       copy.sort((a, b) => (a.brand ?? "").localeCompare(b.brand ?? ""))
     } else if (sortBy === "brand-za") {
@@ -64,7 +67,7 @@ export function ProductGrid({
               </h2>
             )}
           </div>
-          {!hideSort && products.length > 1 && (
+          {!hideSort && withImages.length > 1 && (
             <select
               value={sortBy}
               onChange={(e) => {
@@ -84,7 +87,7 @@ export function ProductGrid({
 
       {/* Count */}
       <p className="text-xs text-muted-foreground mb-4">
-        Showing {visible.length} of {products.length} pieces
+        Showing {visible.length} of {withImages.length} pieces
       </p>
 
       {/* Grid */}

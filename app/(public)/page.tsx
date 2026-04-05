@@ -275,7 +275,11 @@ async function VibeGrid() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {vibes.map((vibe, i) => {
+      {vibes.filter((v) => {
+        // Only show vibes that have at least 3 images for the mosaic
+        const imgCount = v.vibeAssignments.filter((a) => a.post.outfitImageUrl).length
+        return imgCount >= 3
+      }).map((vibe, i) => {
         const images = vibe.vibeAssignments
           .map((a) => a.post.outfitImageUrl)
           .filter(Boolean) as string[]

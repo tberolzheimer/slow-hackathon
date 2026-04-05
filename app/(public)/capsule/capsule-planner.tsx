@@ -533,10 +533,21 @@ export function CapsulePlanner() {
               </button>
             </div>
           ) : (
-            <Button variant="outline" size="lg" disabled>
-              <Heart className="h-4 w-4 mr-2 fill-primary text-primary" />
-              {emailStatus === "success" ? "Capsule Synced!" : `${result.totalLooks} Looks Saved`}
-            </Button>
+            <div className="space-y-2">
+              <Button variant="outline" size="lg" disabled>
+                <Heart className="h-4 w-4 mr-2 fill-primary text-primary" />
+                {emailStatus === "success" ? "Capsule Synced!" : `${result.totalLooks} Looks Saved`}
+              </Button>
+              {emailStatus !== "success" && (
+                <p className="text-xs text-muted-foreground">
+                  Saved locally.{" "}
+                  <Link href="/saves" className="underline hover:text-foreground">
+                    View in My Saves
+                  </Link>{" "}
+                  or sign up anytime to sync across devices.
+                </p>
+              )}
+            </div>
           )}
         </div>
 
