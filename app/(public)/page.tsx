@@ -60,6 +60,27 @@ export default function HomePage() {
         </Link>
       </section>
 
+      {/* Travel Capsule CTA */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-10">
+        <Link
+          href="/capsule"
+          className="group block p-8 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
+        >
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary mb-3">
+            Travel Capsule
+          </p>
+          <h2 className="font-display text-2xl sm:text-3xl text-foreground mb-2">
+            Pack like Julia for your next trip
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Tell us where you&apos;re going. We&apos;ll pull the perfect capsule wardrobe from her archive.
+          </p>
+          <span className="inline-flex items-center text-sm font-medium text-primary group-hover:underline">
+            Plan My Capsule →
+          </span>
+        </Link>
+      </section>
+
       {/* How It Works — SB4: Plan */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-border/50">
         <h2 className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-10">
