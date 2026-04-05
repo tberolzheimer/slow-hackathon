@@ -458,19 +458,22 @@ export default async function MostWornPage() {
 // Card component
 // ---------------------------------------------------------------------------
 
+function productSlug(brand: string | null, itemName: string | null): string {
+  return [brand, itemName].filter(Boolean).join(" ").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+}
+
 function MostWornCard({ item }: { item: MostWornItem }) {
   const displayName =
     item.brand && item.itemName
       ? `${item.brand} ${item.itemName}`
       : item.brand || item.itemName || "Wardrobe Staple"
+  const slug = productSlug(item.brand, item.itemName)
 
   return (
     <div>
-      {/* Product image + shop link */}
-      <a
-        href={item.affiliateUrl}
-        target="_blank"
-        rel="noopener sponsored"
+      {/* Product image → product page */}
+      <Link
+        href={slug ? `/product/${slug}` : item.affiliateUrl}
         className="group block"
       >
         <div className="relative aspect-square rounded-lg overflow-hidden bg-white mb-3">
@@ -505,8 +508,16 @@ function MostWornCard({ item }: { item: MostWornItem }) {
           <p className="text-sm text-foreground">{item.itemName}</p>
         )}
         <p className="text-xs text-primary mt-1 group-hover:underline">
-          Shop This &rarr;
+          See All Looks &rarr;
         </p>
+      </Link>
+      <a
+        href={item.affiliateUrl}
+        target="_blank"
+        rel="noopener sponsored"
+        className="text-xs text-muted-foreground hover:text-primary mt-0.5 inline-block"
+      >
+        Shop This &rarr;
       </a>
 
       {/* Look thumbnails */}

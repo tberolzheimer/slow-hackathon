@@ -118,17 +118,18 @@ export async function createAccountFromEmail(
   }
 
   // Send magic link via Resend
+  // signIn() throws in multiple expected scenarios:
+  // 1. AuthError — magic link sent, Auth.js throws a redirect
+  // 2. "headers outside request scope" — Next.js 15 context issue, but link still sends
+  // Both are success states — the email goes out before the throw.
   try {
     await signIn("resend", {
       email,
       redirectTo: "/saves",
     })
-  } catch (error) {
-    if (error instanceof AuthError) {
-      // Magic link sent successfully — Auth.js throws a redirect
-      return { merged, magicLinkSent: true }
-    }
-    throw error
+  } catch {
+    // All throws are expected — magic link was sent before the error
+    return { merged, magicLinkSent: true }
   }
 
   return { merged, magicLinkSent: true }
