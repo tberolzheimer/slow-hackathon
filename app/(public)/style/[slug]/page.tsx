@@ -23,7 +23,8 @@ interface SeoPageConfig {
     formality?: string | string[]
     mood?: string | string[]
     setting?: string | string[]
-    garmentSearch?: string // ILIKE pattern for garments JSON
+    garmentSearch?: string // single garment type to filter by
+    garmentSearchAll?: string[] // ALL must be present in outfit garments (e.g., ["dress", "jacket"])
   }
 }
 
@@ -71,7 +72,7 @@ const SEO_PAGES: SeoPageConfig[] = [
     metaTitle: "How to Style a Spring Dress with a Jacket — Julia Berolzheimer | VibeShop",
     metaDesc: "The spring dress + jacket combination Julia reaches for most. See real outfits and shop every piece.",
     intro: `The spring dress-and-jacket combination is Julia's single most-reached-for formula. It solves the fundamental spring problem: mornings are cold, afternoons are warm, and you need to look good through both.\n\nThe trick isn't matching — it's contrast. A structured blazer over a flowing floral dress. A cropped denim jacket over a midi. A lightweight trench left open over something bright underneath. The jacket does the work of making it "an outfit" instead of "just a dress."\n\nThese pairings come from years of Julia's Daily Looks. Some are obvious (the classic trench + wrap dress), and some are unexpected (a leather jacket over a garden print). Every combination is one you can recreate with pieces you probably already own — and the ones you don't are all linked to shop.`,
-    filters: { season: "spring", garmentSearch: "jacket" },
+    filters: { season: "spring", garmentSearchAll: ["dress", "jacket"] },
   },
   {
     slug: "spring-work-outfits",
@@ -177,15 +178,22 @@ export default async function StylePage({ params }: Props) {
   matchingPostIds = visionResults.map((v) => v.postId)
 
   // If garment filter, further filter by checking garments JSON text
-  if (filters.garmentSearch && matchingPostIds.length > 0) {
-    // Fetch garments JSON and filter in JS (Prisma Json filters don't work for this)
+  const garmentTerms = filters.garmentSearchAll || (filters.garmentSearch ? [filters.garmentSearch] : [])
+  const requireAll = !!filters.garmentSearchAll // ALL terms must match for outfit filtering
+
+  if (garmentTerms.length > 0 && matchingPostIds.length > 0) {
     const withGarments = await prisma.visionData.findMany({
       where: { postId: { in: matchingPostIds } },
       select: { postId: true, garments: true },
     })
     const filtered = withGarments.filter((v) => {
       const json = JSON.stringify(v.garments || "").toLowerCase()
-      return json.includes(filters.garmentSearch!.toLowerCase())
+      if (requireAll) {
+        // ALL terms must be present (e.g., dress AND jacket)
+        return garmentTerms.every((term) => json.includes(term.toLowerCase()))
+      }
+      // ANY term matches
+      return garmentTerms.some((term) => json.includes(term.toLowerCase()))
     })
     if (filtered.length > 0) {
       matchingPostIds = filtered.map((v) => v.postId)
@@ -233,12 +241,11 @@ export default async function StylePage({ params }: Props) {
       take: 50,
     })
 
-    // Filter products by relevance if garmentSearch is set
-    if (filters.garmentSearch) {
-      const term = filters.garmentSearch.toLowerCase()
+    // Filter products by relevance — for combo pages, match ANY term (show dresses AND jackets)
+    if (garmentTerms.length > 0) {
       products = products.filter((p) => {
         const text = `${p.rawText} ${p.itemName || ""}`.toLowerCase()
-        return text.includes(term)
+        return garmentTerms.some((term) => text.includes(term.toLowerCase()))
       })
     }
 
