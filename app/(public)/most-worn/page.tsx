@@ -172,15 +172,34 @@ interface MostWornItem {
 }
 
 // ---------------------------------------------------------------------------
+// Item key normalization — groups the same product across different URLs
+// ---------------------------------------------------------------------------
+
+function normalizeItemKey(brand: string | null, itemName: string | null): string | null {
+  if (!brand) return null
+  const b = brand.toLowerCase().trim()
+  // Normalize item name: remove color words, size indicators, strip to core type
+  let item = (itemName || "").toLowerCase().trim()
+  // Remove common color/qualifier words that vary across listings
+  item = item
+    .replace(/\b(black|white|beige|tan|brown|navy|cream|nude|gold|silver|pink|blue|red|green|gray|grey)\b/g, "")
+    .replace(/\b(leather|suede|canvas|satin|silk|patent|velvet|wool)\b/g, "")
+    .replace(/\b(mini|small|medium|large|oversized)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+  if (!item) item = "item"
+  return `${b}|${item}`
+}
+
+// ---------------------------------------------------------------------------
 // Data fetching
 // ---------------------------------------------------------------------------
 
 async function getMostWornItems(): Promise<MostWornItem[]> {
-  // Step 1: Load all non-alternative products with affiliate URLs (Prisma, no raw SQL)
+  // Step 1: Load all non-alternative products
   const allProducts = await prisma.product.findMany({
     where: {
       isAlternative: false,
-      affiliateUrl: { not: "" },
     },
     select: {
       id: true,
@@ -192,19 +211,31 @@ async function getMostWornItems(): Promise<MostWornItem[]> {
     },
   })
 
-  // Step 2: Group by affiliate URL, count unique posts
-  const urlGroups = new Map<string, {
+  // Step 2: Group by brand + normalized item name (not affiliate URL)
+  // The same item (e.g. "Chanel Flats") appears with dozens of different
+  // affiliate URLs across posts. Grouping by URL undercounts dramatically.
+  const itemGroups = new Map<string, {
     postIds: Set<string>
+    affiliateUrls: Set<string>
     best: typeof allProducts[0]
   }>()
 
   for (const p of allProducts) {
-    if (!p.affiliateUrl || p.affiliateUrl.length <= 5) continue
-    const existing = urlGroups.get(p.affiliateUrl)
+    if (!p.brand) continue
+    // Normalize: "Chanel Ballet Flats", "Chanel Flats" → "chanel|flats"
+    const itemKey = normalizeItemKey(p.brand, p.itemName)
+    if (!itemKey) continue
+
+    const existing = itemGroups.get(itemKey)
     if (!existing) {
-      urlGroups.set(p.affiliateUrl, { postIds: new Set([p.postId]), best: p })
+      itemGroups.set(itemKey, {
+        postIds: new Set([p.postId]),
+        affiliateUrls: new Set(p.affiliateUrl ? [p.affiliateUrl] : []),
+        best: p,
+      })
     } else {
       existing.postIds.add(p.postId)
+      if (p.affiliateUrl) existing.affiliateUrls.add(p.affiliateUrl)
       // Prefer product with image
       if (p.productImageUrl && !existing.best.productImageUrl) {
         existing.best = p
@@ -212,12 +243,12 @@ async function getMostWornItems(): Promise<MostWornItem[]> {
     }
   }
 
-  // Step 3: Filter to items appearing in 2+ posts, sort by count
-  const repeated = Array.from(urlGroups.entries())
-    .filter(([, v]) => v.postIds.size >= 2)
+  // Step 3: Filter to items appearing in 3+ posts, sort by count
+  const repeated = Array.from(itemGroups.entries())
+    .filter(([, v]) => v.postIds.size >= 3)
     .sort((a, b) => b[1].postIds.size - a[1].postIds.size)
-    .map(([url, v]) => ({
-      affiliateUrl: url,
+    .map(([, v]) => ({
+      affiliateUrl: v.best.affiliateUrl || Array.from(v.affiliateUrls)[0] || "",
       look_count: v.postIds.size,
       brand: v.best.brand,
       item_name: v.best.itemName,

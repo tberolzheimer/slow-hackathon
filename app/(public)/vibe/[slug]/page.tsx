@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db/prisma"
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Badge } from "@/components/ui/badge"
@@ -11,7 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { HeartButton } from "@/components/heart-button"
+import { ProductGrid } from "@/components/product-grid"
 import { SectionNav } from "./section-nav"
 import { OutfitGrid } from "./outfit-grid"
 
@@ -162,12 +161,10 @@ export default async function VibePage({ params }: Props) {
         <section id="shop-the-vibe" className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 scroll-mt-32">
           {/* Shop Now — recent products */}
           {recentProducts.length > 0 && (
-            <>
-              <h2 className="font-display text-2xl text-foreground mb-6">
-                Shop Now — {recentProducts.length} pieces
-              </h2>
-              <ProductGrid products={recentProducts.slice(0, 24)} />
-            </>
+            <ProductGrid
+              products={recentProducts}
+              title={`Shop Now — ${recentProducts.length} pieces`}
+            />
           )}
 
           {/* Past Seasons — older products, collapsible */}
@@ -182,7 +179,7 @@ export default async function VibePage({ params }: Props) {
                     <p className="text-sm text-muted-foreground mb-6">
                       These pieces may no longer be available, but the styling inspiration is forever.
                     </p>
-                    <ProductGrid products={pastProducts.slice(0, 24)} muted />
+                    <ProductGrid products={pastProducts} muted hideSort />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -191,12 +188,10 @@ export default async function VibePage({ params }: Props) {
 
           {/* Fallback if no recent split possible */}
           {recentProducts.length === 0 && pastProducts.length === 0 && (
-            <>
-              <h2 className="font-display text-2xl text-foreground mb-6">
-                Shop the Vibe — {uniqueProducts.length} pieces
-              </h2>
-              <ProductGrid products={uniqueProducts.slice(0, 24)} />
-            </>
+            <ProductGrid
+              products={uniqueProducts}
+              title={`Shop the Vibe — ${uniqueProducts.length} pieces`}
+            />
           )}
         </section>
       )}
@@ -236,47 +231,3 @@ export default async function VibePage({ params }: Props) {
   )
 }
 
-function ProductGrid({
-  products,
-  muted = false,
-}: {
-  products: { id: string; affiliateUrl: string; productImageUrl: string | null; rawText: string; brand: string | null; itemName: string | null }[]
-  muted?: boolean
-}) {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
-      {products.map((product) => (
-        <div key={product.id} className={`${muted ? "opacity-70 hover:opacity-100" : ""}`}>
-          <a
-            href={product.affiliateUrl}
-            target="_blank"
-            rel="noopener sponsored"
-            className="group block"
-          >
-            <div className="relative aspect-square rounded-lg overflow-hidden bg-white mb-3">
-              <Image
-                src={product.productImageUrl!}
-                alt={product.rawText || "Product"}
-                fill
-                className="object-contain group-hover:scale-105 transition-transform duration-300"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-              <div className="absolute top-2 right-2 z-10">
-                <HeartButton itemType="product" itemId={product.id} size="sm" />
-              </div>
-            </div>
-            {product.brand && (
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                {product.brand}
-              </p>
-            )}
-            {product.itemName && (
-              <p className="text-sm text-foreground">{product.itemName}</p>
-            )}
-            <p className="text-xs text-primary mt-1 group-hover:underline">Shop This →</p>
-          </a>
-        </div>
-      ))}
-    </div>
-  )
-}
