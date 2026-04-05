@@ -176,35 +176,61 @@ interface MostWornItem {
 // ---------------------------------------------------------------------------
 
 async function getMostWornItems(): Promise<MostWornItem[]> {
-  // Step 1: Get all affiliate URLs that appear in 2+ posts
+  // Step 1: Get affiliate URLs appearing in 2+ posts
   const grouped = await prisma.$queryRaw<
-    {
-      affiliateUrl: string
-      look_count: bigint
-      brand: string | null
-      item_name: string | null
-      product_image_url: string | null
-      product_id: string
-    }[]
+    { affiliateUrl: string; look_count: number }[]
   >`
-    SELECT DISTINCT ON ("affiliateUrl")
-      "affiliateUrl",
-      COUNT(DISTINCT "postId") OVER (PARTITION BY "affiliateUrl") as look_count,
-      brand,
-      "itemName" as item_name,
-      "productImageUrl" as product_image_url,
-      id as product_id
+    SELECT "affiliateUrl", COUNT(DISTINCT "postId")::int as look_count
     FROM products
     WHERE "isAlternative" = false
       AND "affiliateUrl" IS NOT NULL
-      AND "affiliateUrl" != ''
-    ORDER BY "affiliateUrl", "productImageUrl" DESC NULLS LAST
+      AND LENGTH("affiliateUrl") > 5
+    GROUP BY "affiliateUrl"
+    HAVING COUNT(DISTINCT "postId") >= 2
+    ORDER BY look_count DESC
   `
 
-  // Filter to items with 2+ looks and sort by count desc
-  const repeated = grouped
-    .filter((r) => Number(r.look_count) >= 2)
-    .sort((a, b) => Number(b.look_count) - Number(a.look_count))
+  // Step 1b: Get product details for each repeated affiliate URL
+  // (pick the one with an image if available)
+  const urls = grouped.map((r) => r.affiliateUrl)
+  if (urls.length === 0) return []
+
+  const productDetails = await prisma.product.findMany({
+    where: {
+      affiliateUrl: { in: urls },
+      isAlternative: false,
+    },
+    select: {
+      id: true,
+      affiliateUrl: true,
+      brand: true,
+      itemName: true,
+      productImageUrl: true,
+    },
+    orderBy: { productImageUrl: "desc" },
+  })
+
+  // Pick one representative product per URL (prefer one with image)
+  const bestProduct = new Map<string, typeof productDetails[0]>()
+  for (const p of productDetails) {
+    if (!bestProduct.has(p.affiliateUrl)) {
+      bestProduct.set(p.affiliateUrl, p)
+    } else if (p.productImageUrl && !bestProduct.get(p.affiliateUrl)!.productImageUrl) {
+      bestProduct.set(p.affiliateUrl, p)
+    }
+  }
+
+  const repeated = grouped.map((r) => {
+    const prod = bestProduct.get(r.affiliateUrl)
+    return {
+      affiliateUrl: r.affiliateUrl,
+      look_count: r.look_count,
+      brand: prod?.brand ?? null,
+      item_name: prod?.itemName ?? null,
+      product_image_url: prod?.productImageUrl ?? null,
+      product_id: prod?.id ?? "",
+    }
+  })
 
   if (repeated.length === 0) return []
 
@@ -264,7 +290,7 @@ async function getMostWornItems(): Promise<MostWornItem[]> {
 
   return repeated.map((r) => ({
     affiliateUrl: r.affiliateUrl,
-    lookCount: Number(r.look_count),
+    lookCount: r.look_count,
     brand: r.brand,
     itemName: r.item_name,
     productImageUrl: r.product_image_url,
