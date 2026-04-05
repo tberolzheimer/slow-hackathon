@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { Search } from "lucide-react"
 import { HeartPromptToast } from "@/components/heart-prompt-toast"
 import { HeartNavBadge } from "@/components/heart-nav-badge"
@@ -31,13 +32,17 @@ export default function PublicLayout({
       </header>
 
       {/* Return visit banner */}
-      <ReturnVisitBanner />
+      <Suspense fallback={null}>
+        <ReturnVisitBanner />
+      </Suspense>
 
       {/* Main content */}
       <main>{children}</main>
 
       {/* Heart sign-up prompt toast */}
-      <HeartPromptToast />
+      <Suspense fallback={null}>
+        <HeartPromptToast />
+      </Suspense>
 
       {/* Footer */}
       <footer className="border-t border-border/50 mt-20">
