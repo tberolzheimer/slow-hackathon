@@ -118,6 +118,8 @@ model Product {
   retailerDomain  String?
   linkAlive       Boolean   @default(true)
   lastCheckedAt   DateTime?
+  stockStatus     String    @default("unknown") // "available" | "sold_out" | "unknown"
+  lastStockCheck  DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

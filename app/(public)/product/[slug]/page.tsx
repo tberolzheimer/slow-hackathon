@@ -6,6 +6,7 @@ import type { Metadata } from "next"
 import { connection } from "next/server"
 import { Badge } from "@/components/ui/badge"
 import { HeartButton } from "@/components/heart-button"
+import { ExternalLink } from "lucide-react"
 
 
 interface Props {
@@ -99,11 +100,40 @@ export default async function ProductOutfitsPage({ params }: Props) {
   })
 
   const outfits = posts.map((p) => p.post)
-  // Get a sample product image
+  // Get a sample product image + stock status
   const sampleProduct = await prisma.product.findFirst({
     where: { brand: product.brand, itemName: product.itemName, productImageUrl: { not: null } },
-    select: { productImageUrl: true, affiliateUrl: true },
+    select: { productImageUrl: true, affiliateUrl: true, stockStatus: true },
   })
+
+  const isSoldOut = sampleProduct?.stockStatus === "sold_out"
+
+  // Build "Find at Another Retailer" search links for sold-out products
+  const searchQuery = [product.brand, product.itemName].filter(Boolean).join(" ")
+  const encodedQuery = encodeURIComponent(searchQuery)
+  const SHOPMY_BASE = "https://go.shopmy.us/ap/juliaberolzheimer?url="
+  const retailerSearchLinks = [
+    {
+      name: "Google Shopping",
+      url: `${SHOPMY_BASE}${encodeURIComponent(`https://www.google.com/search?tbm=shop&q=${encodedQuery}`)}`,
+    },
+    {
+      name: "Shopbop",
+      url: `${SHOPMY_BASE}${encodeURIComponent(`https://www.shopbop.com/s?searchTerm=${encodedQuery}`)}`,
+    },
+    {
+      name: "Net-a-Porter",
+      url: `${SHOPMY_BASE}${encodeURIComponent(`https://www.net-a-porter.com/en-us/shop/search?query=${encodedQuery}`)}`,
+    },
+    {
+      name: "Nordstrom",
+      url: `${SHOPMY_BASE}${encodeURIComponent(`https://www.nordstrom.com/sr?keyword=${encodedQuery}`)}`,
+    },
+    {
+      name: "The RealReal",
+      url: `${SHOPMY_BASE}${encodeURIComponent(`https://www.therealreal.com/search?query=${encodedQuery}`)}`,
+    },
+  ]
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-16">
@@ -131,7 +161,7 @@ export default async function ProductOutfitsPage({ params }: Props) {
               href={sampleProduct.affiliateUrl}
               target="_blank"
               rel="noopener sponsored"
-              className="group inline-flex items-center gap-6 p-5 rounded-xl border border-border hover:border-primary/40 transition-all"
+              className={`group inline-flex items-center gap-6 p-5 rounded-xl border border-border hover:border-primary/40 transition-all ${isSoldOut ? "opacity-75" : ""}`}
             >
               <div className="relative w-36 h-36 rounded-lg overflow-hidden bg-white flex-shrink-0">
                 <Image
@@ -141,16 +171,46 @@ export default async function ProductOutfitsPage({ params }: Props) {
                   className="object-contain"
                   sizes="144px"
                 />
+                {isSoldOut && (
+                  <div className="absolute top-1 left-1">
+                    <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-muted-foreground text-[10px] px-1.5 py-0.5">
+                      Sold Out
+                    </Badge>
+                  </div>
+                )}
               </div>
               <div className="text-left">
                 <p className="text-base font-medium text-foreground">
                   {product.brand} {product.itemName}
                 </p>
                 <p className="text-sm text-primary group-hover:underline mt-1.5">
-                  Shop This Piece →
+                  {isSoldOut ? "View Item" : "Shop This Piece"} →
                 </p>
               </div>
             </a>
+          </div>
+        )}
+
+        {/* Find at Another Retailer — shown when product is sold out */}
+        {isSoldOut && (
+          <div className="mt-8 max-w-md mx-auto">
+            <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground mb-3">
+              Find at another retailer
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {retailerSearchLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener sponsored"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                  {link.name}
+                </a>
+              ))}
+            </div>
           </div>
         )}
       </div>

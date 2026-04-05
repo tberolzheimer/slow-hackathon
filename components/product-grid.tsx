@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { HeartButton } from "@/components/heart-button"
 
 export interface ProductGridItem {
@@ -12,6 +13,7 @@ export interface ProductGridItem {
   rawText: string
   brand: string | null
   itemName: string | null
+  stockStatus?: string | null // "available" | "sold_out" | "unknown"
 }
 
 type SortOption = "newest" | "brand-az" | "brand-za"
@@ -92,43 +94,57 @@ export function ProductGrid({
 
       {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
-        {visible.map((product) => (
-          <div
-            key={product.id}
-            className={muted ? "opacity-70 hover:opacity-100 transition-opacity" : ""}
-          >
-            <a
-              href={product.affiliateUrl}
-              target="_blank"
-              rel="noopener sponsored"
-              className="group block"
+        {visible.map((product) => {
+          const isSoldOut = product.stockStatus === "sold_out"
+          return (
+            <div
+              key={product.id}
+              className={
+                muted || isSoldOut
+                  ? "opacity-70 hover:opacity-100 transition-opacity"
+                  : ""
+              }
             >
-              <div className="relative aspect-square rounded-lg overflow-hidden bg-white mb-3">
-                <Image
-                  src={product.productImageUrl!}
-                  alt={product.rawText || "Product"}
-                  fill
-                  className="object-contain group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                />
-                <div className="absolute top-2 right-2 z-10">
-                  <HeartButton itemType="product" itemId={product.id} size="sm" />
+              <a
+                href={product.affiliateUrl}
+                target="_blank"
+                rel="noopener sponsored"
+                className="group block"
+              >
+                <div className="relative aspect-square rounded-lg overflow-hidden bg-white mb-3">
+                  <Image
+                    src={product.productImageUrl!}
+                    alt={product.rawText || "Product"}
+                    fill
+                    className="object-contain group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                  <div className="absolute top-2 right-2 z-10">
+                    <HeartButton itemType="product" itemId={product.id} size="sm" />
+                  </div>
+                  {isSoldOut && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-muted-foreground text-[10px] px-1.5 py-0.5">
+                        Sold Out
+                      </Badge>
+                    </div>
+                  )}
                 </div>
-              </div>
-              {product.brand && (
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                  {product.brand}
+                {product.brand && (
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    {product.brand}
+                  </p>
+                )}
+                {product.itemName && (
+                  <p className="text-sm text-foreground truncate">{product.itemName}</p>
+                )}
+                <p className="text-xs text-primary mt-1 group-hover:underline">
+                  {isSoldOut ? "View Item" : "Shop This"} &rarr;
                 </p>
-              )}
-              {product.itemName && (
-                <p className="text-sm text-foreground truncate">{product.itemName}</p>
-              )}
-              <p className="text-xs text-primary mt-1 group-hover:underline">
-                Shop This &rarr;
-              </p>
-            </a>
-          </div>
-        ))}
+              </a>
+            </div>
+          )
+        })}
       </div>
 
       {/* Show More */}

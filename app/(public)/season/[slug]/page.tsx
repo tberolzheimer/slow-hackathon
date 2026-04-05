@@ -75,13 +75,15 @@ export default async function SeasonPage({ params }: Props) {
           rawText: true,
           productImageUrl: true,
           affiliateUrl: true,
+          stockStatus: true,
         },
       },
     },
     orderBy: { date: "desc" },
   })
 
-  // Aggregate products
+  // Aggregate products, sort: available first, unknown second, sold_out last
+  const stockOrder: Record<string, number> = { available: 0, unknown: 1, sold_out: 2 }
   const seen = new Set<string>()
   const allProducts = posts
     .flatMap((p) => p.products)
@@ -91,6 +93,7 @@ export default async function SeasonPage({ params }: Props) {
       seen.add(key)
       return true
     })
+    .sort((a, b) => (stockOrder[a.stockStatus] ?? 1) - (stockOrder[b.stockStatus] ?? 1))
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-16">

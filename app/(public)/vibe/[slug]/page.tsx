@@ -77,6 +77,8 @@ export default async function VibePage({ params }: Props) {
     )
 
   // Deduplicate by affiliate URL, keep newest
+  // Then sort: available first, unknown second, sold_out last (within each date group)
+  const stockOrder: Record<string, number> = { available: 0, unknown: 1, sold_out: 2 }
   const seen = new Set<string>()
   const uniqueProducts = allProductsWithDate
     .sort((a, b) => new Date(b.postDate).getTime() - new Date(a.postDate).getTime())
@@ -86,8 +88,12 @@ export default async function VibePage({ params }: Props) {
       return true
     })
 
-  const recentProducts = uniqueProducts.filter((p) => new Date(p.postDate) >= sixMonthsAgo)
-  const pastProducts = uniqueProducts.filter((p) => new Date(p.postDate) < sixMonthsAgo)
+  const recentProducts = uniqueProducts
+    .filter((p) => new Date(p.postDate) >= sixMonthsAgo)
+    .sort((a, b) => (stockOrder[a.stockStatus] ?? 1) - (stockOrder[b.stockStatus] ?? 1))
+  const pastProducts = uniqueProducts
+    .filter((p) => new Date(p.postDate) < sixMonthsAgo)
+    .sort((a, b) => (stockOrder[a.stockStatus] ?? 1) - (stockOrder[b.stockStatus] ?? 1))
 
   return (
     <div>

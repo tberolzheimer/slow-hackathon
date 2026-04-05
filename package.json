@@ -12,7 +12,8 @@
     "ingest": "tsx scripts/ingest/index.ts",
     "ai:analyze": "tsx scripts/analyze-images.ts",
     "ai:cluster": "tsx scripts/cluster-vibes.ts",
-    "resolve-retailers": "tsx scripts/resolve-retailers.ts"
+    "resolve-retailers": "tsx scripts/resolve-retailers.ts",
+    "check-stock": "tsx scripts/check-stock.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
