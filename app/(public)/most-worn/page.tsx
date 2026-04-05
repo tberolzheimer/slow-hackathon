@@ -180,14 +180,20 @@ async function getMostWornItems(): Promise<MostWornItem[]> {
   const grouped = await prisma.$queryRaw<
     { affiliateUrl: string; look_count: number }[]
   >`
-    SELECT "affiliateUrl", COUNT(DISTINCT "postId")::int as look_count
-    FROM products
-    WHERE "isAlternative" = false
-      AND "affiliateUrl" IS NOT NULL
-      AND LENGTH("affiliateUrl") > 5
-    GROUP BY "affiliateUrl"
-    HAVING COUNT(DISTINCT "postId") >= 2
-    ORDER BY look_count DESC
+    SELECT t."affiliateUrl", t.look_count::int as look_count
+    FROM (
+      SELECT "affiliateUrl", COUNT(*)::int as look_count
+      FROM (
+        SELECT DISTINCT "affiliateUrl", "postId"
+        FROM products
+        WHERE "isAlternative" = false
+          AND "affiliateUrl" IS NOT NULL
+          AND LENGTH("affiliateUrl") > 5
+      ) AS unique_pairs
+      GROUP BY "affiliateUrl"
+      HAVING COUNT(*) >= 2
+    ) t
+    ORDER BY t.look_count DESC
   `
 
   // Step 1b: Get product details for each repeated affiliate URL
