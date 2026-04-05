@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { ProductGrid } from "@/components/product-grid"
+import { ShareButtons } from "@/components/share-buttons"
 import { SectionNav } from "./section-nav"
 import { OutfitGrid } from "./outfit-grid"
 
@@ -116,6 +117,9 @@ export default async function VibePage({ params }: Props) {
         <div className="mt-4 flex items-center justify-center gap-2">
           <Badge variant="secondary">{posts.length} looks</Badge>
           <Badge variant="secondary">{uniqueProducts.length} pieces</Badge>
+        </div>
+        <div className="mt-4 flex justify-center">
+          <ShareButtons title={`${vibe.name} — VibeShop`} />
         </div>
       </section>
 

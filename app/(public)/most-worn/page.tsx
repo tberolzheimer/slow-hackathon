@@ -5,6 +5,7 @@ import type { Metadata } from "next"
 import { connection } from "next/server"
 import { Badge } from "@/components/ui/badge"
 import { HeartButton } from "@/components/heart-button"
+import { ShareButtons } from "@/components/share-buttons"
 
 export const metadata: Metadata = {
   title: "Julia Berolzheimer's Most Worn Items | VibeShop",
@@ -367,6 +368,9 @@ export default async function MostWornPage() {
         </p>
         <div className="mt-6 flex items-center justify-center gap-2">
           <Badge variant="secondary">{items.length} repeat pieces</Badge>
+        </div>
+        <div className="mt-4 flex justify-center">
+          <ShareButtons title="Julia Berolzheimer's Most Worn Items — VibeShop" />
         </div>
       </section>
 

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { StickyShopBar } from "./sticky-shop-bar"
 import { HeartButton } from "@/components/heart-button"
+import { ShareButtons } from "@/components/share-buttons"
 
 
 interface Props {
@@ -150,8 +151,8 @@ export default async function LookPage({ params }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Breadcrumb */}
-      <div className="px-4 sm:px-6 pt-4 pb-2">
+      {/* Breadcrumb + Share */}
+      <div className="px-4 sm:px-6 pt-4 pb-2 flex items-center justify-between">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -173,6 +174,7 @@ export default async function LookPage({ params }: Props) {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <ShareButtons title={displayTitle} />
       </div>
 
       {/* PDP Split Layout */}

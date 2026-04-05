@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ShareButtons } from "@/components/share-buttons"
 import { generateCapsule } from "@/lib/actions/capsule"
 import type { CapsuleResult } from "@/lib/ai/capsule-engine"
 import { addGuestHeart, getGuestHearts, clearGuestHearts } from "@/lib/hearts/guest-hearts"
@@ -690,7 +691,8 @@ export function CapsulePlanner() {
         )}
 
         {/* Bottom CTAs */}
-        <div className="mt-12 flex flex-col items-center gap-3">
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <ShareButtons title={result.tripName} />
           <Button
             variant="outline"
             onClick={() => {
@@ -698,6 +700,9 @@ export function CapsulePlanner() {
               setResult(null)
               setActivities([])
               setSavedAll(false)
+              setShowEmailGate(false)
+              setEmailStatus("idle")
+              setCapsuleEmail("")
             }}
           >
             Plan Another Trip
