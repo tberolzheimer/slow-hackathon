@@ -24,6 +24,7 @@ model User {
   accounts Account[]
   sessions Session[]
   hearts   Heart[]
+  capsules Capsule[]
 
   @@map("users")
 }
@@ -207,6 +208,22 @@ model Heart {
   @@index([itemType, itemId])
   @@index([userId])
   @@map("hearts")
+}
+
+model Capsule {
+  id        String   @id @default(cuid())
+  userId    String?
+  guestId   String?
+  name      String
+  looks     Json     // string[] of look slugs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([guestId])
+  @@map("capsules")
 }
 
 model IngestLog {
