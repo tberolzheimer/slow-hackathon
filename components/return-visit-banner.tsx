@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,12 +12,15 @@ const BANNER_DISMISS_KEY = "vibeshop-return-banner-dismissed"
 
 export function ReturnVisitBanner() {
   const { data: session } = useSession()
+  const pathname = usePathname()
   const [visible, setVisible] = useState(false)
   const [heartCount, setHeartCount] = useState(0)
 
   useEffect(() => {
     // Don't show for logged-in users
     if (session?.user) return
+    // Don't show on /saves page (email capture is already there)
+    if (pathname === "/saves") return
 
     const hearts = getGuestHearts()
     if (hearts.length === 0) return
