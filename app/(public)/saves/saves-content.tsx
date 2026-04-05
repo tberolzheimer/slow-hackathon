@@ -229,12 +229,8 @@ export function SavesContent() {
   )
 
   const handleAddLookToCapsule = useCallback(
-    async (capsuleId: string, lookSlug: string) => {
-      if (isLoggedIn) {
-        await addLookToCapsule(capsuleId, lookSlug)
-      } else {
-        addLookToGuestCapsule(capsuleId, lookSlug)
-      }
+    (capsuleId: string, lookSlug: string) => {
+      // Optimistic update — instant UI response
       setCapsules((prev) =>
         prev.map((c) =>
           c.id === capsuleId && !c.looks.includes(lookSlug)
@@ -242,17 +238,19 @@ export function SavesContent() {
             : c
         )
       )
+      // Persist in background (don't await)
+      if (isLoggedIn) {
+        addLookToCapsule(capsuleId, lookSlug)
+      } else {
+        addLookToGuestCapsule(capsuleId, lookSlug)
+      }
     },
     [isLoggedIn]
   )
 
   const handleRemoveLookFromCapsule = useCallback(
-    async (capsuleId: string, lookSlug: string) => {
-      if (isLoggedIn) {
-        await removeLookFromCapsule(capsuleId, lookSlug)
-      } else {
-        removeLookFromGuestCapsule(capsuleId, lookSlug)
-      }
+    (capsuleId: string, lookSlug: string) => {
+      // Optimistic update — instant UI response
       setCapsules((prev) =>
         prev.map((c) =>
           c.id === capsuleId
@@ -260,6 +258,12 @@ export function SavesContent() {
             : c
         )
       )
+      // Persist in background (don't await)
+      if (isLoggedIn) {
+        removeLookFromCapsule(capsuleId, lookSlug)
+      } else {
+        removeLookFromGuestCapsule(capsuleId, lookSlug)
+      }
     },
     [isLoggedIn]
   )
@@ -656,43 +660,108 @@ function ExpandedCapsuleView({
 }) {
   const [suggestions, setSuggestions] = useState<SuggestedLook[]>([])
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
+  const [resolvedLooks, setResolvedLooks] = useState<SavedItem[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
+  const suggestionsTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
 
-  // Fetch suggestions when capsule looks change
+  // Resolve all looks in the capsule (some may not be in user's saves)
+  useEffect(() => {
+    if (capsule.looks.length === 0) {
+      setResolvedLooks([])
+      return
+    }
+
+    // First, get what we already have from lookItems
+    const known = new Map<string, SavedItem>()
+    for (const item of lookItems) {
+      known.set(item.itemId, item)
+    }
+
+    const knownLooks = capsule.looks
+      .map((slug) => known.get(slug))
+      .filter(Boolean) as SavedItem[]
+
+    // If all looks are already in saves, use them directly
+    if (knownLooks.length === capsule.looks.length) {
+      setResolvedLooks(knownLooks)
+      return
+    }
+
+    // Otherwise, resolve the missing ones via API
+    setResolvedLooks(knownLooks) // show what we have immediately
+    const missingSlugs = capsule.looks.filter((slug) => !known.has(slug))
+    if (missingSlugs.length > 0) {
+      fetch("/api/saves/resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: missingSlugs.map((slug) => ({
+            itemType: "look",
+            itemId: slug,
+            createdAt: new Date().toISOString(),
+          })),
+        }),
+      })
+        .then((res) => res.json())
+        .then((resolved: SavedItem[]) => {
+          setResolvedLooks((prev) => {
+            const all = [...prev]
+            for (const r of resolved) {
+              if (!all.find((a) => a.itemId === r.itemId)) {
+                all.push(r)
+              }
+            }
+            return all
+          })
+        })
+        .catch(() => {})
+    }
+  }, [capsule.looks, lookItems])
+
+  // Debounced suggestions fetch — only after 1s of no changes
   useEffect(() => {
     if (capsule.looks.length === 0) {
       setSuggestions([])
       return
     }
 
-    let cancelled = false
-    setLoadingSuggestions(true)
+    if (suggestionsTimerRef.current) {
+      clearTimeout(suggestionsTimerRef.current)
+    }
 
-    fetch("/api/capsule-suggestions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lookSlugs: capsule.looks }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && Array.isArray(data)) {
-          setSuggestions(data)
-        }
+    suggestionsTimerRef.current = setTimeout(() => {
+      let cancelled = false
+      setLoadingSuggestions(true)
+
+      fetch("/api/capsule-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lookSlugs: capsule.looks }),
       })
-      .catch(() => {
-        // Silently fail — suggestions are not critical
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingSuggestions(false)
-      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!cancelled && Array.isArray(data)) {
+            setSuggestions(data)
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (!cancelled) setLoadingSuggestions(false)
+        })
+
+      return () => { cancelled = true }
+    }, 1000) // 1s debounce
 
     return () => {
-      cancelled = true
+      if (suggestionsTimerRef.current) {
+        clearTimeout(suggestionsTimerRef.current)
+      }
     }
   }, [capsule.looks])
 
+  // Order resolved looks to match capsule.looks order
   const capsuleLookItems = capsule.looks
-    .map((slug) => lookItems.find((i) => i.itemId === slug))
+    .map((slug) => resolvedLooks.find((i) => i.itemId === slug))
     .filter(Boolean) as SavedItem[]
 
   return (
