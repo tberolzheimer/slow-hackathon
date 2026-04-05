@@ -54,6 +54,8 @@ export default function PublicLayout({
             <span className="text-border">·</span>
             <Link href="/capsule" className="hover:text-foreground transition-colors">Travel Capsule</Link>
             <span className="text-border">·</span>
+            <Link href="/most-worn" className="hover:text-foreground transition-colors">Most Worn</Link>
+            <span className="text-border">·</span>
             <Link href="/saves" className="hover:text-foreground transition-colors">My Saves</Link>
           </div>
           <p className="text-sm text-muted-foreground">
