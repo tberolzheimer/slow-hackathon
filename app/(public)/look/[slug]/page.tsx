@@ -246,15 +246,12 @@ export default async function LookPage({ params }: Props) {
           {post.products.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mb-6">
               {[...effectiveHeroes, ...effectiveSupporting].map((product) => (
-                <a
+                <div
                   key={product.id}
-                  href={product.affiliateUrl}
-                  target="_blank"
-                  rel="noopener sponsored"
-                  className="group block rounded-lg border border-border hover:border-primary/40 hover:shadow-sm transition-all"
+                  className="rounded-lg border border-border hover:border-primary/40 hover:shadow-sm transition-all"
                 >
                   {product.productImageUrl && (
-                    <div className="p-3 pb-0">
+                    <a href={product.affiliateUrl} target="_blank" rel="noopener sponsored" className="block p-3 pb-0 group">
                       <div className="relative aspect-[4/5] rounded-md overflow-hidden bg-white">
                         <Image
                           src={product.productImageUrl}
@@ -267,7 +264,7 @@ export default async function LookPage({ params }: Props) {
                           <HeartButton itemType="product" itemId={product.id} size="sm" />
                         </div>
                       </div>
-                    </div>
+                    </a>
                   )}
                   <div className="p-3">
                     {product.brand ? (
@@ -288,9 +285,14 @@ export default async function LookPage({ params }: Props) {
                         ${product.price.toFixed(0)}
                       </p>
                     ) : null}
-                    <p className="text-xs text-primary font-medium mt-2 group-hover:underline">
+                    <a
+                      href={product.affiliateUrl}
+                      target="_blank"
+                      rel="noopener sponsored"
+                      className="text-xs text-primary font-medium mt-2 hover:underline block"
+                    >
                       {product.retailerName ? `Shop at ${product.retailerName} →` : "Shop This →"}
-                    </p>
+                    </a>
                     {product.brand && product.itemName && lookCounts.get(`${product.brand}::${product.itemName}`) && (
                       <a
                         href={`/product/${`${product.brand}-${product.itemName}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
@@ -300,7 +302,7 @@ export default async function LookPage({ params }: Props) {
                       </a>
                     )}
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           )}
