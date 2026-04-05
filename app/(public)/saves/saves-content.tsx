@@ -772,22 +772,23 @@ function SavedItemCard({
         : "#")
 
   const isLook = item.itemType === "look"
+  const isProduct = item.itemType === "product"
 
   return (
     <div className="relative group">
       <Link href={href} className="block rounded-lg overflow-hidden bg-muted">
         {item.imageUrl ? (
-          <div className="relative aspect-[3/4]">
+          <div className={`relative ${isProduct ? "aspect-square bg-white" : "aspect-[3/4]"}`}>
             <Image
               src={item.imageUrl}
               alt={item.title || "Saved item"}
               fill
-              className="object-cover group-hover:brightness-90 transition-all"
+              className={`${isProduct ? "object-contain p-2" : "object-cover"} group-hover:brightness-90 transition-all`}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
         ) : (
-          <div className="aspect-[3/4] flex items-center justify-center">
+          <div className={`${isProduct ? "aspect-square" : "aspect-[3/4]"} flex items-center justify-center`}>
             <Badge variant="secondary">{item.itemType}</Badge>
           </div>
         )}
