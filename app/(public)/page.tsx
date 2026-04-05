@@ -245,22 +245,44 @@ async function VibeGrid() {
     },
   })
 
-  // Sort vibes by seasonal relevance: count posts matching current season
-  const vibeSeasonCounts = await prisma.$queryRaw<{ vibeId: string; seasonCount: bigint }[]>`
-    SELECT va."vibeId", COUNT(*) as "seasonCount"
+  // Sort vibes by seasonal cycle: current season first, then upcoming seasons
+  // e.g., in spring (April): spring → summer → fall → winter
+  const SEASON_ORDER = ["spring", "summer", "fall", "winter"]
+  const currentIdx = SEASON_ORDER.indexOf(currentSeason)
+  // Build order: [spring, summer, fall, winter] rotated to start at current
+  const seasonCycle = [
+    ...SEASON_ORDER.slice(currentIdx),
+    ...SEASON_ORDER.slice(0, currentIdx),
+  ]
+
+  // Determine each vibe's primary season from its posts
+  const vibeSeasons = await prisma.$queryRaw<{ vibeId: string; season: string; cnt: bigint }[]>`
+    SELECT va."vibeId", p.season, COUNT(*) as cnt
     FROM vibe_assignments va
     JOIN posts p ON p.id = va."postId"
-    WHERE p.season = ${currentSeason}
-    GROUP BY va."vibeId"
-    ORDER BY "seasonCount" DESC
+    WHERE p.season IS NOT NULL
+    GROUP BY va."vibeId", p.season
+    ORDER BY va."vibeId", cnt DESC
   `
-  const seasonCountMap = new Map(vibeSeasonCounts.map((r) => [r.vibeId, Number(r.seasonCount)]))
+  // Map each vibe to its dominant season
+  const vibePrimarySeason = new Map<string, string>()
+  const seen = new Set<string>()
+  for (const row of vibeSeasons) {
+    if (!seen.has(row.vibeId)) {
+      vibePrimarySeason.set(row.vibeId, row.season)
+      seen.add(row.vibeId)
+    }
+  }
 
-  // Sort: vibes with more current-season posts first
+  // Sort: by season cycle position, then by look count within each season
   vibes.sort((a, b) => {
-    const aCount = seasonCountMap.get(a.id) || 0
-    const bCount = seasonCountMap.get(b.id) || 0
-    return bCount - aCount
+    const aSeason = vibePrimarySeason.get(a.id) || "winter"
+    const bSeason = vibePrimarySeason.get(b.id) || "winter"
+    const aOrder = seasonCycle.indexOf(aSeason)
+    const bOrder = seasonCycle.indexOf(bSeason)
+    if (aOrder !== bOrder) return aOrder - bOrder
+    // Within same season, sort by look count descending
+    return b._count.vibeAssignments - a._count.vibeAssignments
   })
 
   if (vibes.length === 0) {
