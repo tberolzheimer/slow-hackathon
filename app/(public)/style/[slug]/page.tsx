@@ -233,6 +233,15 @@ export default async function StylePage({ params }: Props) {
       take: 50,
     })
 
+    // Filter products by relevance if garmentSearch is set
+    if (filters.garmentSearch) {
+      const term = filters.garmentSearch.toLowerCase()
+      products = products.filter((p) => {
+        const text = `${p.rawText} ${p.itemName || ""}`.toLowerCase()
+        return text.includes(term)
+      })
+    }
+
     // Deduplicate by brand+itemName
     const seen = new Set<string>()
     products = products.filter((p) => {
