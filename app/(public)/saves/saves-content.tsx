@@ -83,8 +83,13 @@ export function SavesContent() {
   const [expandedCapsule, setExpandedCapsule] = useState<string | null>(null)
   const [showCreateCapsule, setShowCreateCapsule] = useState(false)
   const [newCapsuleName, setNewCapsuleName] = useState("")
+  const [selectionCapsuleId, setSelectionCapsuleId] = useState<string | null>(null)
+  const looksGridRef = useRef<HTMLDivElement>(null)
 
   const isLoggedIn = !!session?.user
+  const activeCapsule = selectionCapsuleId
+    ? capsules.find((c) => c.id === selectionCapsuleId)
+    : null
 
   // Load hearts
   useEffect(() => {
@@ -178,6 +183,22 @@ export function SavesContent() {
 
     setNewCapsuleName("")
     setShowCreateCapsule(false)
+
+    // Auto-enter selection mode for the new capsule + scroll to looks
+    const newId = isLoggedIn ? undefined : capsules[0]?.id // will be set after state update
+    setTimeout(() => {
+      // Get the newest capsule (just added to front of array)
+      setCapsules((prev) => {
+        if (prev.length > 0) {
+          setExpandedCapsule(prev[0].id)
+          setSelectionCapsuleId(prev[0].id)
+        }
+        return prev
+      })
+      setTimeout(() => {
+        looksGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      }, 100)
+    }, 50)
   }, [newCapsuleName, isLoggedIn])
 
   const handleRenameCapsule = useCallback(
@@ -347,6 +368,7 @@ export function SavesContent() {
               Create your first capsule to group looks together
             </p>
           </button>
+          /* empty capsule CTA handled inside CapsuleCard */
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {capsules.map((capsule) => (
@@ -355,11 +377,26 @@ export function SavesContent() {
                 capsule={capsule}
                 lookItems={lookItems}
                 isExpanded={expandedCapsule === capsule.id}
-                onToggleExpand={() =>
-                  setExpandedCapsule(
-                    expandedCapsule === capsule.id ? null : capsule.id
-                  )
-                }
+                isSelecting={selectionCapsuleId === capsule.id}
+                onToggleExpand={() => {
+                  const expanding = expandedCapsule !== capsule.id
+                  setExpandedCapsule(expanding ? capsule.id : null)
+                  if (expanding) {
+                    setSelectionCapsuleId(capsule.id)
+                    setTimeout(() => {
+                      looksGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }, 100)
+                  } else {
+                    setSelectionCapsuleId(null)
+                  }
+                }}
+                onStartSelecting={() => {
+                  setSelectionCapsuleId(capsule.id)
+                  setExpandedCapsule(capsule.id)
+                  setTimeout(() => {
+                    looksGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }, 100)
+                }}
                 onRename={handleRenameCapsule}
                 onDelete={handleDeleteCapsule}
                 onRemoveLook={handleRemoveLookFromCapsule}
@@ -381,8 +418,10 @@ export function SavesContent() {
       </div>
 
       {/* Filter pills */}
-      <div className="flex items-center justify-center gap-2 mb-8">
-        <h2 className="font-display text-lg tracking-tight mr-4">My Looks</h2>
+      <div ref={looksGridRef} className="flex items-center justify-center gap-2 mb-8 scroll-mt-20">
+        <h2 className="font-display text-lg tracking-tight mr-4">
+          {selectionCapsuleId ? "Select looks to add" : "My Looks"}
+        </h2>
         {(
           [
             ["all", "All"],
@@ -412,10 +451,36 @@ export function SavesContent() {
             key={`${item.itemType}-${item.itemId}`}
             item={item}
             capsules={capsules}
+            selectionCapsuleId={selectionCapsuleId}
+            activeCapsule={activeCapsule}
             onAddToCapsule={handleAddLookToCapsule}
+            onRemoveFromCapsule={handleRemoveLookFromCapsule}
           />
         ))}
       </div>
+
+      {/* Sticky selection bar */}
+      {selectionCapsuleId && activeCapsule && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border p-3 animate-in slide-in-from-bottom duration-200">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <p className="text-sm">
+              Adding to{" "}
+              <span className="font-medium text-primary">{activeCapsule.name}</span>
+              {" — "}
+              <span className="text-muted-foreground">{activeCapsule.looks.length} looks</span>
+            </p>
+            <Button
+              size="sm"
+              onClick={() => {
+                setSelectionCapsuleId(null)
+                setExpandedCapsule(null)
+              }}
+            >
+              Done
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -426,7 +491,9 @@ function CapsuleCard({
   capsule,
   lookItems,
   isExpanded,
+  isSelecting,
   onToggleExpand,
+  onStartSelecting,
   onRename,
   onDelete,
   onRemoveLook,
@@ -435,7 +502,9 @@ function CapsuleCard({
   capsule: CapsuleData
   lookItems: SavedItem[]
   isExpanded: boolean
+  isSelecting: boolean
   onToggleExpand: () => void
+  onStartSelecting: () => void
   onRename: (id: string, name: string) => void
   onDelete: (id: string) => void
   onRemoveLook: (capsuleId: string, lookSlug: string) => void
@@ -460,24 +529,44 @@ function CapsuleCard({
       )}
       onClick={onToggleExpand}
     >
-      {/* Thumbnail grid */}
-      <div className="grid grid-cols-2 aspect-square">
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="relative bg-muted">
-            {thumbLooks[i]?.imageUrl ? (
-              <Image
-                src={thumbLooks[i].imageUrl!}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 25vw, 15vw"
-              />
-            ) : (
-              <div className="w-full h-full bg-muted" />
-            )}
-          </div>
-        ))}
-      </div>
+      {/* Thumbnail grid or empty CTA */}
+      {capsule.looks.length === 0 ? (
+        <div
+          className={cn(
+            "aspect-[4/3] border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-colors",
+            isSelecting
+              ? "border-primary/40 bg-primary/5"
+              : "border-border bg-muted/30"
+          )}
+          onClick={(e) => {
+            e.stopPropagation()
+            onStartSelecting()
+          }}
+        >
+          <ChevronDown className="h-5 w-5 text-primary/50 animate-bounce" />
+          <p className="text-xs text-muted-foreground text-center px-4">
+            {isSelecting ? "Select looks below" : "Tap to add looks"}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 aspect-square">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="relative bg-muted">
+              {thumbLooks[i]?.imageUrl ? (
+                <Image
+                  src={thumbLooks[i].imageUrl!}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 25vw, 15vw"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted" />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Card info */}
       <div className="p-3 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
@@ -757,11 +846,17 @@ function SuggestionCard({
 function SavedItemCard({
   item,
   capsules,
+  selectionCapsuleId,
+  activeCapsule,
   onAddToCapsule,
+  onRemoveFromCapsule,
 }: {
   item: SavedItem
   capsules: CapsuleData[]
+  selectionCapsuleId: string | null
+  activeCapsule: CapsuleData | null | undefined
   onAddToCapsule: (capsuleId: string, lookSlug: string) => void
+  onRemoveFromCapsule: (capsuleId: string, lookSlug: string) => void
 }) {
   const href =
     item.href ||
@@ -773,26 +868,78 @@ function SavedItemCard({
 
   const isLook = item.itemType === "look"
   const isProduct = item.itemType === "product"
+  const isInSelection = isLook && selectionCapsuleId && activeCapsule
+  const isSelected = isInSelection && activeCapsule?.looks.includes(item.itemId)
+
+  function handleSelectionClick(e: React.MouseEvent) {
+    if (!isInSelection || !selectionCapsuleId) return
+    e.preventDefault()
+    e.stopPropagation()
+    if (isSelected) {
+      onRemoveFromCapsule(selectionCapsuleId, item.itemId)
+    } else {
+      onAddToCapsule(selectionCapsuleId, item.itemId)
+    }
+  }
 
   return (
-    <div className="relative group">
-      <Link href={href} className="block rounded-lg overflow-hidden bg-muted">
-        {item.imageUrl ? (
-          <div className={`relative ${isProduct ? "aspect-square bg-white" : "aspect-[3/4]"}`}>
-            <Image
-              src={item.imageUrl}
-              alt={item.title || "Saved item"}
-              fill
-              className={`${isProduct ? "object-contain p-2" : "object-cover"} group-hover:brightness-90 transition-all`}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
+    <div className={cn("relative group", isInSelection && "cursor-pointer")}>
+      {/* In selection mode: clicking the card toggles selection */}
+      {isInSelection ? (
+        <div
+          onClick={handleSelectionClick}
+          className={cn(
+            "block rounded-lg overflow-hidden bg-muted ring-2 transition-all",
+            isSelected ? "ring-primary" : "ring-transparent hover:ring-primary/30"
+          )}
+        >
+          {item.imageUrl ? (
+            <div className={`relative ${isProduct ? "aspect-square bg-white" : "aspect-[3/4]"}`}>
+              <Image
+                src={item.imageUrl}
+                alt={item.title || "Saved item"}
+                fill
+                className={`${isProduct ? "object-contain p-2" : "object-cover"} transition-all ${isSelected ? "brightness-90" : ""}`}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+            </div>
+          ) : (
+            <div className={`${isProduct ? "aspect-square" : "aspect-[3/4]"} flex items-center justify-center`}>
+              <Badge variant="secondary">{item.itemType}</Badge>
+            </div>
+          )}
+          {/* Selection checkbox */}
+          <div className="absolute top-2 left-2 z-10">
+            <div className={cn(
+              "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+              isSelected
+                ? "bg-primary border-primary"
+                : "bg-background/80 border-muted-foreground/40"
+            )}>
+              {isSelected && <Check className="h-3.5 w-3.5 text-primary-foreground" />}
+            </div>
           </div>
-        ) : (
-          <div className={`${isProduct ? "aspect-square" : "aspect-[3/4]"} flex items-center justify-center`}>
-            <Badge variant="secondary">{item.itemType}</Badge>
-          </div>
-        )}
-      </Link>
+        </div>
+      ) : (
+        /* Normal mode: clicking navigates */
+        <Link href={href} className="block rounded-lg overflow-hidden bg-muted">
+          {item.imageUrl ? (
+            <div className={`relative ${isProduct ? "aspect-square bg-white" : "aspect-[3/4]"}`}>
+              <Image
+                src={item.imageUrl}
+                alt={item.title || "Saved item"}
+                fill
+                className={`${isProduct ? "object-contain p-2" : "object-cover"} group-hover:brightness-90 transition-all`}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+            </div>
+          ) : (
+            <div className={`${isProduct ? "aspect-square" : "aspect-[3/4]"} flex items-center justify-center`}>
+              <Badge variant="secondary">{item.itemType}</Badge>
+            </div>
+          )}
+        </Link>
+      )}
       <div className="absolute top-2 right-2 z-10 flex gap-1">
         <HeartButton
           itemType={item.itemType as "look" | "product" | "vibe"}
@@ -800,13 +947,13 @@ function SavedItemCard({
           size="sm"
         />
       </div>
-      {/* "Add to Capsule" button for looks */}
-      {isLook && capsules.length > 0 && (
-        <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Always-visible "Add to Capsule" button (when NOT in selection mode) */}
+      {isLook && capsules.length > 0 && !selectionCapsuleId && (
+        <div className="absolute bottom-2 left-2 z-10">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-1.5 rounded-full bg-background/80 text-muted-foreground hover:text-primary transition-colors">
-                <FolderPlus className="h-4 w-4" />
+              <button className="p-1.5 rounded-full bg-background/90 shadow-sm border border-border text-muted-foreground hover:text-primary transition-colors">
+                <Plus className="h-3.5 w-3.5" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[160px]">
