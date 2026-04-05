@@ -176,67 +176,54 @@ interface MostWornItem {
 // ---------------------------------------------------------------------------
 
 async function getMostWornItems(): Promise<MostWornItem[]> {
-  // Step 1: Get affiliate URLs appearing in 2+ posts
-  const grouped = await prisma.$queryRaw<
-    { affiliateUrl: string; look_count: number }[]
-  >`
-    SELECT t."affiliateUrl", t.look_count::int as look_count
-    FROM (
-      SELECT "affiliateUrl", COUNT(*)::int as look_count
-      FROM (
-        SELECT DISTINCT "affiliateUrl", "postId"
-        FROM products
-        WHERE "isAlternative" = false
-          AND "affiliateUrl" IS NOT NULL
-          AND LENGTH("affiliateUrl") > 5
-      ) AS unique_pairs
-      GROUP BY "affiliateUrl"
-      HAVING COUNT(*) >= 2
-    ) t
-    ORDER BY t.look_count DESC
-  `
-
-  // Step 1b: Get product details for each repeated affiliate URL
-  // (pick the one with an image if available)
-  const urls = grouped.map((r) => r.affiliateUrl)
-  if (urls.length === 0) return []
-
-  const productDetails = await prisma.product.findMany({
+  // Step 1: Load all non-alternative products with affiliate URLs (Prisma, no raw SQL)
+  const allProducts = await prisma.product.findMany({
     where: {
-      affiliateUrl: { in: urls },
       isAlternative: false,
+      affiliateUrl: { not: "" },
     },
     select: {
       id: true,
       affiliateUrl: true,
+      postId: true,
       brand: true,
       itemName: true,
       productImageUrl: true,
     },
-    orderBy: { productImageUrl: "desc" },
   })
 
-  // Pick one representative product per URL (prefer one with image)
-  const bestProduct = new Map<string, typeof productDetails[0]>()
-  for (const p of productDetails) {
-    if (!bestProduct.has(p.affiliateUrl)) {
-      bestProduct.set(p.affiliateUrl, p)
-    } else if (p.productImageUrl && !bestProduct.get(p.affiliateUrl)!.productImageUrl) {
-      bestProduct.set(p.affiliateUrl, p)
+  // Step 2: Group by affiliate URL, count unique posts
+  const urlGroups = new Map<string, {
+    postIds: Set<string>
+    best: typeof allProducts[0]
+  }>()
+
+  for (const p of allProducts) {
+    if (!p.affiliateUrl || p.affiliateUrl.length <= 5) continue
+    const existing = urlGroups.get(p.affiliateUrl)
+    if (!existing) {
+      urlGroups.set(p.affiliateUrl, { postIds: new Set([p.postId]), best: p })
+    } else {
+      existing.postIds.add(p.postId)
+      // Prefer product with image
+      if (p.productImageUrl && !existing.best.productImageUrl) {
+        existing.best = p
+      }
     }
   }
 
-  const repeated = grouped.map((r) => {
-    const prod = bestProduct.get(r.affiliateUrl)
-    return {
-      affiliateUrl: r.affiliateUrl,
-      look_count: r.look_count,
-      brand: prod?.brand ?? null,
-      item_name: prod?.itemName ?? null,
-      product_image_url: prod?.productImageUrl ?? null,
-      product_id: prod?.id ?? "",
-    }
-  })
+  // Step 3: Filter to items appearing in 2+ posts, sort by count
+  const repeated = Array.from(urlGroups.entries())
+    .filter(([, v]) => v.postIds.size >= 2)
+    .sort((a, b) => b[1].postIds.size - a[1].postIds.size)
+    .map(([url, v]) => ({
+      affiliateUrl: url,
+      look_count: v.postIds.size,
+      brand: v.best.brand,
+      item_name: v.best.itemName,
+      product_image_url: v.best.productImageUrl,
+      product_id: v.best.id,
+    }))
 
   if (repeated.length === 0) return []
 
