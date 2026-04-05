@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { StyleMatch } from "./style-match"
 
 export const metadata: Metadata = {
-  title: "Style Match — How Much of Julia's Style Is Yours?",
+  title: "Style Match — Which of Julia's Aesthetics Are Yours? | VibeShop",
   description:
     "Swipe through 20 of Julia Berolzheimer's looks. We'll build your Style DNA and show you which vibes match your aesthetic.",
 }
