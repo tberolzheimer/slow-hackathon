@@ -8,10 +8,7 @@ import { getGuestHeartCount } from "@/lib/hearts/guest-hearts"
 
 export function HeartNavBadge() {
   const { data: session } = useSession()
-  const [count, setCount] = useState(() => {
-    if (typeof window !== "undefined") return getGuestHeartCount()
-    return 0
-  })
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
     function updateCount() {
