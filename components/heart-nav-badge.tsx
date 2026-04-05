@@ -16,8 +16,7 @@ export function HeartNavBadge() {
   useEffect(() => {
     function updateCount() {
       if (session?.user) {
-        // For logged-in users, we could fetch from DB
-        // For now, use a lightweight approach
+        // For logged-in users, fetch once on mount (not polling)
         import("@/lib/actions/hearts").then(({ getHeartCounts }) =>
           getHeartCounts().then((c) => setCount(c.total))
         )
@@ -26,18 +25,14 @@ export function HeartNavBadge() {
       }
     }
 
+    // Initial load
     updateCount()
 
-    // Poll for changes (guest hearts happen via localStorage)
-    const interval = setInterval(updateCount, 2000)
-
-    // Listen for heart changes from HeartButton
+    // Event-driven updates only — no polling
     window.addEventListener("hearts-changed", updateCount)
-    // Also listen for storage events (cross-tab sync)
     window.addEventListener("storage", updateCount)
 
     return () => {
-      clearInterval(interval)
       window.removeEventListener("hearts-changed", updateCount)
       window.removeEventListener("storage", updateCount)
     }

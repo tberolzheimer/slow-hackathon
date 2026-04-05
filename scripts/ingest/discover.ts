@@ -42,12 +42,17 @@ export async function discoverPosts(afterDate: Date): Promise<DiscoveredPost[]> 
         const dateMatch = slug.match(/daily-look-(\d{1,2})-(\d{1,2})-(\d{2})$/)
         if (dateMatch) {
           const [, month, day, year] = dateMatch
-          const postDate = new Date(
-            parseInt(year, 10) + 2000,
-            parseInt(month, 10) - 1,
-            parseInt(day, 10)
-          )
-          if (postDate < afterDate) continue
+          const yearNum = parseInt(year, 10)
+          // Only treat as year if it's plausible (23-current+1); otherwise the
+          // trailing number is a look number, not a year — skip date filtering
+          if (yearNum >= 23 && yearNum <= new Date().getFullYear() - 2000 + 1) {
+            const postDate = new Date(
+              yearNum + 2000,
+              parseInt(month, 10) - 1,
+              parseInt(day, 10)
+            )
+            if (postDate < afterDate) continue
+          }
         } else if (lastmod) {
           // Fallback: use lastmod date
           const modDate = new Date(lastmod)

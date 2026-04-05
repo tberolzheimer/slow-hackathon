@@ -178,16 +178,17 @@ export default async function StylePage({ params }: Props) {
 
   // If garment filter, further filter by checking garments JSON text
   if (filters.garmentSearch && matchingPostIds.length > 0) {
-    const garmentFiltered = await prisma.visionData.findMany({
-      where: {
-        postId: { in: matchingPostIds },
-        garments: { path: [], string_contains: filters.garmentSearch },
-      },
-      select: { postId: true },
+    // Fetch garments JSON and filter in JS (Prisma Json filters don't work for this)
+    const withGarments = await prisma.visionData.findMany({
+      where: { postId: { in: matchingPostIds } },
+      select: { postId: true, garments: true },
     })
-    // Fallback: if path query doesn't work, just keep all (garments is JSON)
-    if (garmentFiltered.length > 0) {
-      matchingPostIds = garmentFiltered.map((v) => v.postId)
+    const filtered = withGarments.filter((v) => {
+      const json = JSON.stringify(v.garments || "").toLowerCase()
+      return json.includes(filters.garmentSearch!.toLowerCase())
+    })
+    if (filtered.length > 0) {
+      matchingPostIds = filtered.map((v) => v.postId)
     }
   }
 
