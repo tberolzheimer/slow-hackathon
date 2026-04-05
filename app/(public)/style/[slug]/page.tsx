@@ -200,8 +200,8 @@ export default async function StylePage({ params }: Props) {
     }
   }
 
-  // Get the actual posts
-  const posts = matchingPostIds.length > 0
+  // Get matching posts — fetch more than 24, then rank by relevance + recency
+  const allMatchingPosts = matchingPostIds.length > 0
     ? await prisma.post.findMany({
         where: {
           id: { in: matchingPostIds },
@@ -215,10 +215,47 @@ export default async function StylePage({ params }: Props) {
           outfitImageUrl: true,
           date: true,
         },
-        orderBy: { date: "desc" },
-        take: 24,
       })
     : []
+
+  // Score each post: relevance + recency (70% recency, 30% relevance)
+  // Recency: 0-1 scale where newest = 1, posts >2 years old = 0
+  // Relevance: for garment-filtered pages, boost posts with more keyword matches
+  const now = Date.now()
+  const twoYearsMs = 2 * 365 * 24 * 60 * 60 * 1000
+
+  // Build a relevance map from garment data if we have garment filters
+  const relevanceMap = new Map<string, number>()
+  if (garmentTerms.length > 0) {
+    const garmentData = await prisma.visionData.findMany({
+      where: { postId: { in: allMatchingPosts.map((p) => p.id) } },
+      select: { postId: true, garments: true, vibeKeywords: true },
+    })
+    for (const vd of garmentData) {
+      const json = JSON.stringify(vd.garments || "").toLowerCase()
+      const keywords = JSON.stringify(vd.vibeKeywords || "").toLowerCase()
+      // Count how many garment terms appear (more matches = more relevant)
+      let matchCount = 0
+      for (const term of garmentTerms) {
+        const t = term.toLowerCase()
+        if (json.includes(t)) matchCount++
+        if (keywords.includes(t)) matchCount += 0.5
+      }
+      relevanceMap.set(vd.postId, matchCount / garmentTerms.length)
+    }
+  }
+
+  const scoredPosts = allMatchingPosts.map((post) => {
+    const recencyScore = Math.max(0, 1 - (now - new Date(post.date).getTime()) / twoYearsMs)
+    const relevanceScore = relevanceMap.get(post.id) || 0.5
+    // Blend: 70% recency + 30% relevance
+    const score = recencyScore * 0.7 + relevanceScore * 0.3
+    return { ...post, score }
+  })
+
+  // Sort by score descending (most relevant + recent first), take 24
+  scoredPosts.sort((a, b) => b.score - a.score)
+  const posts = scoredPosts.slice(0, 24)
 
   // Get products from matching posts
   const postIds = posts.map((p) => p.id)
@@ -285,9 +322,19 @@ export default async function StylePage({ params }: Props) {
             {posts.length} Looks
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-            {posts.map((post) =>
+            {posts.map((post, i) =>
               post.outfitImageUrl ? (
-                <div key={post.id} className="relative">
+                <div key={post.id}>
+                  {/* Jump to products teaser after first row on mobile */}
+                  {i === 2 && products.length > 0 && (
+                    <a
+                      href="#shop-section"
+                      className="block sm:hidden mb-4 p-3 rounded-lg bg-muted/50 text-center text-sm text-primary"
+                    >
+                      Shop {products.length} pieces ↓
+                    </a>
+                  )}
+                  <div className="relative">
                   <Link
                     href={`/look/${post.slug}`}
                     className="group block rounded-lg overflow-hidden"
@@ -307,6 +354,7 @@ export default async function StylePage({ params }: Props) {
                   <p className="text-sm text-foreground mt-2 truncate">
                     {post.displayTitle || post.title}
                   </p>
+                  </div>
                 </div>
               ) : null
             )}
@@ -316,7 +364,7 @@ export default async function StylePage({ params }: Props) {
 
       {/* Product Grid */}
       {products.length > 0 && (
-        <section className="mb-16">
+        <section id="shop-section" className="mb-16 scroll-mt-20">
           <h2 className="font-display text-2xl text-foreground mb-6">
             Shop These Looks — {products.length} Pieces
           </h2>
