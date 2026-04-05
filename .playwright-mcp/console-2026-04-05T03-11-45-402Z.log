@@ -58,3 +58,45 @@ Parsing ecmascript source code failed @ http://localhost:3000/_next/static/chunk
 [  422754ms] [LOG] [Fast Refresh] done in 181ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
 [  423817ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
 [  423823ms] [LOG] [Fast Refresh] done in 107ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1812161ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1812303ms] [LOG] [Fast Refresh] done in 247ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1824826ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1826345ms] [LOG] [Fast Refresh] done in 1624ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1826637ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1827510ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1827533ms] [LOG] [Fast Refresh] done in 124ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1827876ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1827894ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1828044ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1828068ms] [LOG] [Fast Refresh] done in 126ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1831738ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1831762ms] [LOG] [Fast Refresh] done in 126ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1837002ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1837031ms] [LOG] [Fast Refresh] done in 131ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1839957ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1840020ms] [LOG] [Fast Refresh] done in 164ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1840890ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1840895ms] [LOG] [Fast Refresh] done in 107ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1841231ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1841258ms] [LOG] [Fast Refresh] done in 129ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1841679ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1841698ms] [LOG] [Fast Refresh] done in 119ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1841856ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1841927ms] [LOG] [Fast Refresh] done in 174ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1842039ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1842235ms] [LOG] [Fast Refresh] done in 298ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1846487ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1846488ms] [LOG] [Fast Refresh] done in 103ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1853841ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1853849ms] [LOG] [Fast Refresh] done in 110ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1870960ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1870963ms] [LOG] [Fast Refresh] done in 105ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1955100ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1955195ms] [LOG] [Fast Refresh] done in 197ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
