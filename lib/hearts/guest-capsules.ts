@@ -32,12 +32,12 @@ export function getGuestCapsules(): GuestCapsule[] {
   return readCapsules()
 }
 
-export function createGuestCapsule(name: string): GuestCapsule {
+export function createGuestCapsule(name: string, initialLooks: string[] = []): GuestCapsule {
   const capsules = readCapsules()
   const capsule: GuestCapsule = {
     id: crypto.randomUUID(),
     name,
-    looks: [],
+    looks: initialLooks,
     createdAt: new Date().toISOString(),
   }
   capsules.push(capsule)

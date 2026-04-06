@@ -15,6 +15,7 @@ import { trackEvent } from "@/lib/analytics"
 import { generateCapsule } from "@/lib/actions/capsule"
 import type { CapsuleResult } from "@/lib/ai/capsule-engine"
 import { addGuestHeart, getGuestHearts, clearGuestHearts } from "@/lib/hearts/guest-hearts"
+import { createGuestCapsule } from "@/lib/hearts/guest-capsules"
 import { createAccountFromEmail } from "@/lib/actions/auth"
 
 type Screen = "intro" | "destination" | "details" | "activities" | "generating" | "capsule"
@@ -188,11 +189,15 @@ export function CapsulePlanner() {
 
   function handleSaveAll() {
     if (!result) return
+    const allSlugs: string[] = []
     for (const section of result.sections) {
       for (const look of section.looks) {
         addGuestHeart("look", look.slug)
+        allSlugs.push(look.slug)
       }
     }
+    // Create a named capsule with all the looks so it appears in My Capsules on /saves
+    createGuestCapsule(result.tripName, allSlugs)
     window.dispatchEvent(new Event("hearts-changed"))
     setSavedAll(true)
     setShowEmailGate(true)
