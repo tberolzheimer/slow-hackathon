@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Share2, Link2, Check } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ExternalLink, Check } from "lucide-react"
 
 interface ShareButtonsProps {
   url?: string
@@ -27,10 +26,6 @@ export function ShareButtons({ url, title, text }: ShareButtonsProps) {
       }
     }
     // Fallback: copy link
-    handleCopy()
-  }
-
-  async function handleCopy() {
     try {
       await navigator.clipboard.writeText(shareUrl)
       setCopied(true)
@@ -41,34 +36,22 @@ export function ShareButtons({ url, title, text }: ShareButtonsProps) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleShare}
-        className="gap-1.5"
-      >
-        <Share2 className="h-3.5 w-3.5" />
-        Share
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleCopy}
-        className="gap-1.5 text-muted-foreground"
-      >
-        {copied ? (
-          <>
-            <Check className="h-3.5 w-3.5 text-primary" />
-            <span className="text-primary">Copied</span>
-          </>
-        ) : (
-          <>
-            <Link2 className="h-3.5 w-3.5" />
-            Copy Link
-          </>
-        )}
-      </Button>
-    </div>
+    <button
+      onClick={handleShare}
+      className="inline-flex items-center gap-1.5 px-3 h-8 rounded-full bg-muted hover:bg-muted/80 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      aria-label="Share"
+    >
+      {copied ? (
+        <>
+          <Check className="h-3.5 w-3.5 text-primary" />
+          <span className="text-primary">Copied</span>
+        </>
+      ) : (
+        <>
+          <ExternalLink className="h-3.5 w-3.5" />
+          <span>Share</span>
+        </>
+      )}
+    </button>
   )
 }

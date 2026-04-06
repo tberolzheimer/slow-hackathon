@@ -152,9 +152,17 @@ export default async function LookPage({ params }: Props) {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Breadcrumb + Share */}
-      <div className="px-4 sm:px-6 pt-4 pb-2 flex items-center justify-between">
-        <Breadcrumb>
-          <BreadcrumbList>
+      <div className="px-4 sm:px-6 pt-4 pb-2 flex items-center justify-between gap-2">
+        {/* Mobile: parent-only back link */}
+        <Link
+          href={vibe ? `/vibe/${vibe.slug}` : "/"}
+          className="sm:hidden text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          ← {vibe ? vibe.name : "Home"}
+        </Link>
+        {/* Desktop: full breadcrumb trail */}
+        <Breadcrumb className="hidden sm:block min-w-0">
+          <BreadcrumbList className="text-sm flex-nowrap">
             <BreadcrumbItem>
               <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
@@ -169,12 +177,11 @@ export default async function LookPage({ params }: Props) {
               </>
             )}
             <BreadcrumbSeparator />
-            <BreadcrumbItem>
+            <BreadcrumbItem className="min-w-0">
               <BreadcrumbPage>{displayTitle}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <ShareButtons title={displayTitle} />
       </div>
 
       {/* PDP Split Layout */}
@@ -204,7 +211,10 @@ export default async function LookPage({ params }: Props) {
               <h1 className="font-display text-2xl sm:text-3xl text-foreground mb-1">
                 {displayTitle}
               </h1>
-              <HeartButton itemType="look" itemId={post.slug} size="lg" />
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <ShareButtons title={displayTitle} />
+                <HeartButton itemType="look" itemId={post.slug} size="lg" />
+              </div>
             </div>
             <p className="text-sm text-muted-foreground">
               {post.date.toLocaleDateString("en-US", {

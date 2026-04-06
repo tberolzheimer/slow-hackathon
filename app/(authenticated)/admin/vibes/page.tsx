@@ -1,31 +1,32 @@
 import { prisma } from "@/lib/db/prisma"
 import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { VibeActions } from "./vibe-actions"
+import { VibeEditDialog } from "./vibe-edit-dialog"
 
 export default async function AdminVibesPage() {
   const vibes = await prisma.vibe.findMany({
     orderBy: { sortOrder: "asc" },
     include: {
-      vibeAssignments: {
-        take: 4,
-        orderBy: { confidenceScore: "desc" },
-        include: {
-          post: { select: { outfitImageUrl: true, title: true } },
-        },
-      },
       _count: { select: { vibeAssignments: true } },
     },
   })
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold">Manage Vibes</h1>
+          <h1 className="text-2xl font-bold">Vibes</h1>
           <Badge variant="secondary">{vibes.length} vibes</Badge>
         </div>
         <Button asChild>
@@ -33,64 +34,63 @@ export default async function AdminVibesPage() {
         </Button>
       </div>
 
-      <div className="space-y-6">
-        {vibes.map((vibe) => {
-          const images = vibe.vibeAssignments
-            .map((a) => a.post.outfitImageUrl)
-            .filter(Boolean) as string[]
-
-          return (
-            <Card key={vibe.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-xl">{vibe.name}</CardTitle>
-                    {vibe.tagline && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {vibe.tagline}
-                      </p>
-                    )}
-                    <div className="flex gap-2 mt-2">
-                      <Badge variant={vibe.approvedAt ? "default" : "secondary"}>
-                        {vibe.approvedAt ? "Approved" : "Draft"}
-                      </Badge>
-                      <Badge variant="outline">
-                        {vibe.type}
-                      </Badge>
-                      <Badge variant="secondary">
-                        {vibe._count.vibeAssignments} looks
-                      </Badge>
-                    </div>
-                  </div>
-                  <VibeActions vibeId={vibe.id} isApproved={!!vibe.approvedAt} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                {vibe.introText && (
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {vibe.introText}
-                  </p>
-                )}
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {images.map((src, i) => (
-                    <div
-                      key={i}
-                      className="relative w-20 h-28 flex-shrink-0 rounded overflow-hidden"
-                    >
-                      <Image
-                        src={src}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="80px"
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Tagline</TableHead>
+              <TableHead>Looks</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="w-16">Edit</TableHead>
+              <TableHead className="w-40">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {vibes.map((vibe) => (
+              <TableRow key={vibe.id}>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {vibe.accentColor && (
+                      <div
+                        className="w-3 h-3 rounded-full border"
+                        style={{ backgroundColor: vibe.accentColor }}
                       />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
+                    )}
+                    {vibe.name}
+                  </div>
+                </TableCell>
+                <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
+                  {vibe.tagline || "—"}
+                </TableCell>
+                <TableCell>{vibe._count.vibeAssignments}</TableCell>
+                <TableCell>
+                  <Badge variant={vibe.approvedAt ? "default" : "secondary"}>
+                    {vibe.approvedAt ? "Approved" : "Draft"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{vibe.type}</Badge>
+                </TableCell>
+                <TableCell>
+                  <VibeEditDialog
+                    vibe={{
+                      id: vibe.id,
+                      name: vibe.name,
+                      tagline: vibe.tagline,
+                      introText: vibe.introText,
+                      accentColor: vibe.accentColor,
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <VibeActions vibeId={vibe.id} isApproved={!!vibe.approvedAt} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   )

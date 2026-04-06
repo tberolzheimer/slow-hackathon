@@ -1,6 +1,10 @@
 /**
  * Re-check "unknown" stock status products using Firecrawl.
  * Firecrawl renders pages with a real browser, bypassing 403s.
+ *
+ * Targets: Net-a-Porter, Saks, Bergdorf, Neiman Marcus, Farfetch, + others.
+ * Skips: Chanel, Dior, Hermès (luxury brands we want to keep linking to).
+ * ShopMy product-ID links: resolves redirect first, then scrapes destination.
  */
 
 import "dotenv/config"
@@ -12,7 +16,12 @@ const fcApp = new (FirecrawlApp as any)({ apiKey: process.env.FIRECRAWL_API_KEY!
 const firecrawl = fcApp.v1 || fcApp
 
 const BATCH_SIZE = 10
-const DELAY_MS = 2000 // 2s between batches (Firecrawl has its own rate limits)
+const DELAY_MS = 2000
+
+// Luxury brands to skip — keep as "unknown" (still link to their sites)
+const SKIP_DOMAINS = new Set([
+  "chanel.com", "dior.com", "hermes.com", "louisvuitton.com",
+])
 
 const IN_STOCK_SIGNALS = [
   "add to bag", "add to cart", "buy now", "add to basket",
@@ -27,32 +36,47 @@ const SOLD_OUT_SIGNALS = [
 
 function detectStock(text: string): "available" | "sold_out" | "unknown" {
   const lower = text.toLowerCase()
-
-  // Check sold out first (more specific)
   for (const signal of SOLD_OUT_SIGNALS) {
     if (lower.includes(signal)) return "sold_out"
   }
-
-  // Then check in stock
   for (const signal of IN_STOCK_SIGNALS) {
     if (lower.includes(signal)) return "available"
   }
-
   return "unknown"
+}
+
+function getDestinationDomain(url: string): string | null {
+  try {
+    if (url.includes("go.shopmy.us/ap/") && url.includes("url=")) {
+      const match = url.match(/url=([^&]+)/)
+      if (match) return new URL(decodeURIComponent(match[1])).hostname.replace("www.", "")
+    }
+    return new URL(url).hostname.replace("www.", "")
+  } catch { return null }
+}
+
+async function resolveShopMyRedirect(url: string): Promise<string> {
+  // For go.shopmy.us/p-XXXXX links, follow the redirect to find the real URL
+  try {
+    const res = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(5000) })
+    const location = res.headers.get("location")
+    if (location) return location
+  } catch {}
+  return url
 }
 
 async function main() {
   console.log("═══════════════════════════════════════")
-  console.log("Firecrawl Stock Checker — Unknown Products")
+  console.log("Firecrawl Stock Checker — Targeted Retailers")
   console.log("═══════════════════════════════════════\n")
 
-  // Get all unknown-status products with affiliate URLs
-  const unknowns = await prisma.product.findMany({
+  // Get all unknown-status products
+  const allUnknowns = await prisma.product.findMany({
     where: {
       stockStatus: "unknown",
       linkAlive: true,
       affiliateUrl: { not: "" },
-      productImageUrl: { not: null }, // Only check products users can see
+      productImageUrl: { not: null },
     },
     select: {
       id: true,
@@ -60,8 +84,17 @@ async function main() {
       brand: true,
       itemName: true,
     },
-    take: 500, // Stay within free tier limits
   })
+
+  // Filter out luxury brands we want to skip
+  const unknowns = allUnknowns.filter((p) => {
+    const domain = getDestinationDomain(p.affiliateUrl)
+    return !domain || !SKIP_DOMAINS.has(domain)
+  })
+
+  console.log(`Total unknown: ${allUnknowns.length}`)
+  console.log(`Skipping luxury brands: ${allUnknowns.length - unknowns.length}`)
+  console.log(`Checking: ${unknowns.length}\n`)
 
   console.log(`Found ${unknowns.length} unknown products to check\n`)
 
@@ -77,8 +110,34 @@ async function main() {
     for (const product of batch) {
       const label = `${product.brand || ""} ${product.itemName || ""}`.trim() || product.id
       try {
-        // Use Firecrawl to scrape the page
-        const result = await firecrawl.scrapeUrl(product.affiliateUrl, {
+        // Resolve ShopMy product-ID redirects first
+        let scrapeUrl = product.affiliateUrl
+        if (product.affiliateUrl.includes("go.shopmy.us/p-")) {
+          scrapeUrl = await resolveShopMyRedirect(product.affiliateUrl)
+          if (scrapeUrl !== product.affiliateUrl) {
+            // Follow one more redirect if it's another ShopMy wrapper
+            if (scrapeUrl.includes("go.shopmy.us")) {
+              scrapeUrl = await resolveShopMyRedirect(scrapeUrl)
+            }
+          }
+        }
+
+        // Extract destination URL from ShopMy auto-links
+        if (scrapeUrl.includes("go.shopmy.us/ap/") && scrapeUrl.includes("url=")) {
+          const match = scrapeUrl.match(/url=([^&]+)/)
+          if (match) scrapeUrl = decodeURIComponent(match[1])
+        }
+
+        // Skip if destination is a luxury brand we want to keep
+        const destDomain = getDestinationDomain(scrapeUrl)
+        if (destDomain && SKIP_DOMAINS.has(destDomain)) {
+          console.log(`  [${i + batch.indexOf(product) + 1}/${unknowns.length}] ${label} — skipped (${destDomain})`)
+          stillUnknown++
+          continue
+        }
+
+        // Use Firecrawl to scrape the destination page
+        const result = await firecrawl.scrapeUrl(scrapeUrl, {
           formats: ["markdown"],
           timeout: 15000,
         })

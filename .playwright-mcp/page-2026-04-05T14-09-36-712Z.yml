@@ -1,0 +1,62 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VibeShop" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "My Saves (5)" [ref=e7] [cursor=pointer]:
+            - /url: /saves
+            - img [ref=e8]
+            - generic [ref=e10]: "5"
+          - link "Search" [ref=e11] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e12]
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - link "← Continue Browsing" [ref=e17] [cursor=pointer]:
+          - /url: /
+        - heading "My Saves" [level=1] [ref=e18]
+        - generic [ref=e19]: Loading...
+    - generic [ref=e22]:
+      - img [ref=e23]
+      - generic [ref=e25]:
+        - paragraph [ref=e26]: 5 looks saved! Enter your email to keep them forever.
+        - generic [ref=e27]:
+          - textbox "your@email.com" [ref=e28]
+          - button "Save" [ref=e29] [cursor=pointer]
+      - button "Dismiss" [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+    - contentinfo [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - link "Search" [ref=e37] [cursor=pointer]:
+            - /url: /search
+          - generic [ref=e38]: ·
+          - link "Spring" [ref=e39] [cursor=pointer]:
+            - /url: /season/spring
+          - link "Summer" [ref=e40] [cursor=pointer]:
+            - /url: /season/summer
+          - link "Fall" [ref=e41] [cursor=pointer]:
+            - /url: /season/fall
+          - link "Winter" [ref=e42] [cursor=pointer]:
+            - /url: /season/winter
+          - generic [ref=e43]: ·
+          - link "Style Guides" [ref=e44] [cursor=pointer]:
+            - /url: /style/spring-outfit-ideas
+          - generic [ref=e45]: ·
+          - link "Travel Capsule" [ref=e46] [cursor=pointer]:
+            - /url: /capsule
+          - generic [ref=e47]: ·
+          - link "Most Worn" [ref=e48] [cursor=pointer]:
+            - /url: /most-worn
+          - generic [ref=e49]: ·
+          - link "My Saves" [ref=e50] [cursor=pointer]:
+            - /url: /saves
+        - paragraph [ref=e51]:
+          - text: Curated by
+          - link "Julia Berolzheimer" [ref=e52] [cursor=pointer]:
+            - /url: https://juliaberolzheimer.com
+  - button "Open Next.js Dev Tools" [ref=e58] [cursor=pointer]:
+    - img [ref=e59]
+  - alert [ref=e62]

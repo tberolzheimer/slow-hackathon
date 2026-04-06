@@ -1,0 +1,105 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VibeShop" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "My Saves" [ref=e7] [cursor=pointer]:
+            - /url: /saves
+            - img [ref=e8]
+          - link "Search" [ref=e10] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e11]
+    - main [ref=e14]:
+      - generic [ref=e58]:
+        - link "← All Vibes" [ref=e60] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e61]:
+          - heading "Coastal Dreams" [level=1] [ref=e62]
+          - paragraph [ref=e63]: Where summer never ends and waves inspire style
+          - generic [ref=e64]:
+            - generic [ref=e65]: 52 looks
+            - generic [ref=e66]: 188 pieces
+          - generic [ref=e68]:
+            - button "Share" [ref=e69] [cursor=pointer]
+            - button "Copy Link" [ref=e70] [cursor=pointer]
+        - generic [ref=e71]:
+          - heading "The Looks" [level=2] [ref=e72]
+          - generic [ref=e73]:
+            - generic [ref=e74]
+            - generic [ref=e77]
+            - button "Show all 52 looks" [ref=e201] [cursor=pointer]
+        - generic [ref=e202]:
+          - generic [ref=e203]:
+            - generic [ref=e204]
+            - paragraph [ref=e208]: Showing 18 of 18 pieces
+            - generic [ref=e209]
+          - heading "Past Seasons — 170 pieces" [level=3] [ref=e399]:
+            - button "Past Seasons — 170 pieces" [ref=e400] [cursor=pointer]
+        - generic [ref=e401]:
+          - heading "Brands in this vibe" [level=3] [ref=e402]
+          - generic [ref=e403]:
+            - link "COS" [ref=e404] [cursor=pointer]:
+              - /url: /brand/cos
+            - link "Lisa Yang" [ref=e405] [cursor=pointer]:
+              - /url: /brand/lisa-yang
+            - link "Janessa Leone" [ref=e406] [cursor=pointer]:
+              - /url: /brand/janessa-leone
+            - link "Bottega Veneta" [ref=e407] [cursor=pointer]:
+              - /url: /brand/bottega-veneta
+            - link "Hermes" [ref=e408] [cursor=pointer]:
+              - /url: /brand/hermes
+            - link "Tanya Taylor" [ref=e409] [cursor=pointer]:
+              - /url: /brand/tanya-taylor
+            - link "Polo" [ref=e410] [cursor=pointer]:
+              - /url: /brand/polo
+            - link "Eres" [ref=e411] [cursor=pointer]:
+              - /url: /brand/eres
+            - link "Dior" [ref=e412] [cursor=pointer]:
+              - /url: /brand/dior
+            - link "Amazon" [ref=e413] [cursor=pointer]:
+              - /url: /brand/amazon
+            - link "Maygel Coronel" [ref=e414] [cursor=pointer]:
+              - /url: /brand/maygel-coronel
+            - link "De Castro" [ref=e415] [cursor=pointer]:
+              - /url: /brand/de-castro
+            - link "Juliet Dunn" [ref=e416] [cursor=pointer]:
+              - /url: /brand/juliet-dunn
+            - link "Loewe" [ref=e417] [cursor=pointer]:
+              - /url: /brand/loewe
+            - link "La Coqueta" [ref=e418] [cursor=pointer]:
+              - /url: /brand/la-coqueta
+    - contentinfo [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - link "Search" [ref=e32] [cursor=pointer]:
+            - /url: /search
+          - generic [ref=e33]: ·
+          - link "Spring" [ref=e34] [cursor=pointer]:
+            - /url: /season/spring
+          - link "Summer" [ref=e35] [cursor=pointer]:
+            - /url: /season/summer
+          - link "Fall" [ref=e36] [cursor=pointer]:
+            - /url: /season/fall
+          - link "Winter" [ref=e37] [cursor=pointer]:
+            - /url: /season/winter
+          - generic [ref=e38]: ·
+          - link "Style Guides" [ref=e39] [cursor=pointer]:
+            - /url: /style/spring-outfit-ideas
+          - generic [ref=e40]: ·
+          - link "Travel Capsule" [ref=e41] [cursor=pointer]:
+            - /url: /capsule
+          - generic [ref=e42]: ·
+          - link "Most Worn" [ref=e43] [cursor=pointer]:
+            - /url: /most-worn
+          - generic [ref=e44]: ·
+          - link "My Saves" [ref=e45] [cursor=pointer]:
+            - /url: /saves
+        - paragraph [ref=e46]:
+          - text: Curated by
+          - link "Julia Berolzheimer" [ref=e47] [cursor=pointer]:
+            - /url: https://juliaberolzheimer.com
+  - button "Open Next.js Dev Tools" [ref=e53] [cursor=pointer]:
+    - img [ref=e54]
+  - alert [ref=e57]

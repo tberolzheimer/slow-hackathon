@@ -20,6 +20,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  role          String    @default("user") // "admin" | "editor" | "user"
 
   accounts Account[]
   sessions Session[]
@@ -243,4 +244,15 @@ model IngestLog {
   @@index([runType])
   @@index([startedAt])
   @@map("ingest_logs")
+}
+
+model AdminInvite {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  role      String    @default("editor") // "admin" | "editor"
+  invitedBy String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@map("admin_invites")
 }

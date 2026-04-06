@@ -1,0 +1,72 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VibeShop" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "My Saves (5)" [ref=e7] [cursor=pointer]:
+            - /url: /saves
+            - img [ref=e8]
+            - generic [ref=e10]: "5"
+          - link "Search" [ref=e11] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e12]
+    - generic [ref=e16]:
+      - paragraph [ref=e17]:
+        - text: Welcome back! You have
+        - generic [ref=e18]: 5 saved looks
+        - text: . Sign up to keep them forever.
+      - button "Save My Hearts" [ref=e19] [cursor=pointer]
+      - button "Dismiss" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+    - main [ref=e24]:
+      - generic [ref=e25]:
+        - link "← All Vibes" [ref=e26] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e27]: Travel Capsule
+        - heading "Pack like Julia for your next trip" [level=1] [ref=e28]
+        - paragraph [ref=e29]: Tell us where you're going. We'll pull the perfect capsule wardrobe from 835 styled looks.
+        - button "Plan My Capsule" [ref=e30] [cursor=pointer]
+    - generic [ref=e33]:
+      - img [ref=e34]
+      - generic [ref=e36]:
+        - paragraph [ref=e37]: 5 looks saved! Enter your email to keep them forever.
+        - generic [ref=e38]:
+          - textbox "your@email.com" [ref=e39]
+          - button "Save" [ref=e40] [cursor=pointer]
+      - button "Dismiss" [ref=e41] [cursor=pointer]:
+        - img [ref=e42]
+    - contentinfo [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - link "Search" [ref=e48] [cursor=pointer]:
+            - /url: /search
+          - generic [ref=e49]: ·
+          - link "Spring" [ref=e50] [cursor=pointer]:
+            - /url: /season/spring
+          - link "Summer" [ref=e51] [cursor=pointer]:
+            - /url: /season/summer
+          - link "Fall" [ref=e52] [cursor=pointer]:
+            - /url: /season/fall
+          - link "Winter" [ref=e53] [cursor=pointer]:
+            - /url: /season/winter
+          - generic [ref=e54]: ·
+          - link "Style Guides" [ref=e55] [cursor=pointer]:
+            - /url: /style/spring-outfit-ideas
+          - generic [ref=e56]: ·
+          - link "Travel Capsule" [ref=e57] [cursor=pointer]:
+            - /url: /capsule
+          - generic [ref=e58]: ·
+          - link "Most Worn" [ref=e59] [cursor=pointer]:
+            - /url: /most-worn
+          - generic [ref=e60]: ·
+          - link "My Saves" [ref=e61] [cursor=pointer]:
+            - /url: /saves
+        - paragraph [ref=e62]:
+          - text: Curated by
+          - link "Julia Berolzheimer" [ref=e63] [cursor=pointer]:
+            - /url: https://juliaberolzheimer.com
+  - button "Open Next.js Dev Tools" [ref=e69] [cursor=pointer]:
+    - img [ref=e70]
+  - alert [ref=e73]

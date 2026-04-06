@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "VibeShop" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "My Saves" [ref=e7] [cursor=pointer]:
+            - /url: /saves
+            - img [ref=e8]
+          - link "Search" [ref=e10] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e11]
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - link "← Continue Browsing" [ref=e16] [cursor=pointer]:
+          - /url: /
+        - heading "My Saves" [level=1] [ref=e17]
+        - generic [ref=e18]:
+          - img [ref=e19]
+          - paragraph [ref=e21]: You haven't saved anything yet.
+          - paragraph [ref=e22]: Browse vibes and tap the heart on looks you love.
+          - link "Explore Vibes" [ref=e23] [cursor=pointer]:
+            - /url: /
+    - contentinfo [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - link "Search" [ref=e27] [cursor=pointer]:
+            - /url: /search
+          - generic [ref=e28]: ·
+          - link "Spring" [ref=e29] [cursor=pointer]:
+            - /url: /season/spring
+          - link "Summer" [ref=e30] [cursor=pointer]:
+            - /url: /season/summer
+          - link "Fall" [ref=e31] [cursor=pointer]:
+            - /url: /season/fall
+          - link "Winter" [ref=e32] [cursor=pointer]:
+            - /url: /season/winter
+          - generic [ref=e33]: ·
+          - link "Style Guides" [ref=e34] [cursor=pointer]:
+            - /url: /style/spring-outfit-ideas
+          - generic [ref=e35]: ·
+          - link "Travel Capsule" [ref=e36] [cursor=pointer]:
+            - /url: /capsule
+          - generic [ref=e37]: ·
+          - link "Most Worn" [ref=e38] [cursor=pointer]:
+            - /url: /most-worn
+          - generic [ref=e39]: ·
+          - link "My Saves" [ref=e40] [cursor=pointer]:
+            - /url: /saves
+        - paragraph [ref=e41]:
+          - text: Curated by
+          - link "Julia Berolzheimer" [ref=e42] [cursor=pointer]:
+            - /url: https://juliaberolzheimer.com
+  - button "Open Next.js Dev Tools" [ref=e48] [cursor=pointer]:
+    - img [ref=e49]
+  - alert [ref=e52]
