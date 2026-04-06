@@ -6,7 +6,10 @@ import Credentials from "next-auth/providers/credentials"
 import Google from "next-auth/providers/google"
 import Resend from "next-auth/providers/resend"
 
-const MASTER_ADMIN_EMAIL = "thomas@juliaberolzheimer.com"
+const ADMIN_EMAILS = new Set([
+  "thomas@juliaberolzheimer.com",
+  "thomasberolzheimer+vibe@gmail.com",
+])
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -78,7 +81,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const email = dbUser.email?.toLowerCase()
 
           // Master admin always gets admin role
-          if (email === MASTER_ADMIN_EMAIL && dbUser.role !== "admin") {
+          if (email && ADMIN_EMAILS.has(email) && dbUser.role !== "admin") {
             await prisma.user.update({
               where: { id: token.id as string },
               data: { role: "admin" },
