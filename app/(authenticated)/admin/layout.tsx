@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
-import { redirect } from "next/navigation"
 import Link from "next/link"
 import { LayoutDashboard, Palette, Image, ShoppingBag, Users } from "lucide-react"
+import { AdminSignIn } from "./admin-sign-in"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -18,22 +18,40 @@ export default async function AdminLayout({
 }) {
   const session = await auth()
 
+  // Not logged in — show Google sign-in
   if (!session) {
-    redirect("/sign-in?callbackUrl=/admin")
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+        <div className="text-center max-w-md px-4">
+          <h1 className="font-display text-3xl mb-2">VibeShop Admin</h1>
+          <p className="text-muted-foreground mb-8">
+            Sign in with Google to access the admin dashboard.
+          </p>
+          <AdminSignIn />
+        </div>
+      </div>
+    )
   }
 
-  const role = session.user.role
+  // Logged in but not admin/editor — show 403 with option to try different account
+  const role = (session.user as any).role
   if (role !== "admin" && role !== "editor") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
         <div className="text-center max-w-md px-4">
           <h1 className="text-4xl font-bold mb-4">403</h1>
-          <p className="text-muted-foreground mb-6">
-            You don&apos;t have permission to access the admin area.
+          <p className="text-muted-foreground mb-2">
+            <span className="font-medium text-foreground">{session.user.email}</span> doesn&apos;t have admin access.
           </p>
-          <Link href="/" className="text-primary underline underline-offset-4">
-            Go back home
-          </Link>
+          <p className="text-sm text-muted-foreground mb-6">
+            Ask an admin to invite you, or sign in with a different account.
+          </p>
+          <AdminSignIn label="Try a Different Account" />
+          <div className="mt-4">
+            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
+              ← Back to VibeShop
+            </Link>
+          </div>
         </div>
       </div>
     )
