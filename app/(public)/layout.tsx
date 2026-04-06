@@ -16,8 +16,11 @@ export default function PublicLayout({
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-display text-2xl tracking-tight text-foreground">
+          <Link href="/" className="font-display text-2xl tracking-tight text-foreground flex items-center gap-1.5">
             VibeShop
+            <span className="text-[10px] font-sans font-medium uppercase tracking-wider text-primary/70 border border-primary/30 rounded px-1 py-0.5 leading-none">
+              Beta
+            </span>
           </Link>
           <div className="flex items-center gap-1">
             <HeartNavBadge />
