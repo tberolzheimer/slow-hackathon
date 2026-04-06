@@ -193,14 +193,13 @@ export default function HomePage() {
       {/* Editor's Note — SB7: Success + SB3: Authority */}
       <section className="max-w-2xl mx-auto px-4 sm:px-6 pb-16">
         <p className="text-sm text-muted-foreground leading-relaxed text-center">
-          VibeShop draws from Julia Berolzheimer&apos;s Daily Looks archive —
-          over 500 styled outfits photographed in Charleston, New York, and
-          beyond. Each look is analyzed for color palette, fabric, silhouette,
-          and mood, then grouped into vibes that capture a feeling, not just a
-          category. Whether you&apos;re drawn to polished maximalism, smart
-          denim, or vacation glamour, every outfit comes with direct product
-          links so you can shop exactly what Julia wore. Updated daily as new
-          looks are published.
+          835 outfits. Every piece identified. Every product linked.
+          VibeShop organizes Julia Berolzheimer&apos;s entire Daily Looks
+          archive by aesthetic feeling — not by date, not by season, but by
+          the vibe that makes you stop scrolling. Whether you&apos;re drawn
+          to polished maximalism, coastal ease, or the kind of layering that
+          only works in October, every look comes with the exact pieces she
+          reached for. Updated as new looks are published.
         </p>
       </section>
     </div>

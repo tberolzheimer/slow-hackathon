@@ -55,9 +55,16 @@ async function main() {
         messages: [
           {
             role: "user",
-            content: `Generate a short evocative title (3-6 words) for this outfit. Name the feeling or moment, not just the garments. Like a magazine headline.
+            content: `Generate a short evocative title (3-6 words) for this outfit.
 
-IMPORTANT: Do NOT include specific city, country, or location names (e.g., Positano, Paris, Charleston, Tuscany, Amalfi). The AI cannot reliably identify locations from photos. Use generic setting words instead (garden, poolside, coastal, city, cobblestone, porch).
+VOICE RULES:
+- Name the feeling, moment, or scene — not the garments
+- Like a playlist title or photo album name
+- Good: "Sunset Aperitivo Hour", "Garden Party Romance", "Morning Market Wandering"
+- BAD: "Floral Dress with Sandals Look", "Casual Saturday Shopping Style"
+- NEVER use: "look", "outfit", "style", "effortless", "elegant", "chic" in the title
+- NEVER use city/country names (Positano, Paris, Charleston). Use generic settings: garden, poolside, coastal, cobblestone, porch
+- Think: what moment is Julia living in this photo?
 
 Garments: ${garments}
 Brands: ${brands}
