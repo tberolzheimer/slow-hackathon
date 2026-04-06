@@ -385,12 +385,9 @@ export function SavesContent() {
                 onToggleExpand={() => {
                   const expanding = expandedCapsule !== capsule.id
                   setExpandedCapsule(expanding ? capsule.id : null)
-                  if (expanding) {
-                    setSelectionCapsuleId(capsule.id)
-                    setTimeout(() => {
-                      looksGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-                    }, 100)
-                  } else {
+                  // Don't auto-enter selection mode or scroll on expand
+                  // Just show the capsule detail view
+                  if (!expanding) {
                     setSelectionCapsuleId(null)
                   }
                 }}

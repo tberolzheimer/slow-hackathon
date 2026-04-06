@@ -516,7 +516,7 @@ export function CapsulePlanner() {
                 {result.totalLooks} looks saved to your capsule
               </p>
               <p className="text-xs text-muted-foreground mb-4">
-                Enter your email to keep this capsule across devices.
+                Enter your email to sync across devices. You can add, remove, or rename looks in My Saves.
               </p>
               <form onSubmit={handleCapsuleEmailSubmit} className="flex gap-2">
                 <Input
@@ -544,15 +544,24 @@ export function CapsulePlanner() {
                 <Heart className="h-4 w-4 mr-2 fill-primary text-primary" />
                 {emailStatus === "success" ? "Capsule Synced!" : `${result.totalLooks} Looks Saved`}
               </Button>
-              {emailStatus !== "success" && (
-                <p className="text-xs text-muted-foreground">
-                  Saved locally.{" "}
-                  <Link href="/saves" className="underline hover:text-foreground">
-                    View in My Saves
-                  </Link>{" "}
-                  or sign up anytime to sync across devices.
-                </p>
-              )}
+              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                {emailStatus === "success" ? (
+                  <>
+                    Your capsule is synced.{" "}
+                    <Link href="/saves" className="underline hover:text-foreground">
+                      View in My Saves
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    Saved locally.{" "}
+                    <Link href="/saves" className="underline hover:text-foreground">
+                      View in My Saves
+                    </Link>{" "}
+                    — you can add, remove, or rearrange looks anytime.
+                  </>
+                )}
+              </p>
             </div>
           )}
         </div>
