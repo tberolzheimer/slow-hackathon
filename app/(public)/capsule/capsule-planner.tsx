@@ -181,24 +181,27 @@ export function CapsulePlanner() {
       setResult(capsule)
       setScreen("capsule")
       trackEvent("capsule_complete", { destination, season, duration, activities, totalLooks: capsule.totalLooks })
+
+      // Auto-save capsule + looks locally so nothing is lost if user navigates away
+      const allSlugs: string[] = []
+      for (const section of capsule.sections) {
+        for (const look of section.looks) {
+          addGuestHeart("look", look.slug)
+          allSlugs.push(look.slug)
+        }
+      }
+      createGuestCapsule(capsule.tripName, allSlugs)
+      window.dispatchEvent(new Event("hearts-changed"))
+      setSavedAll(true) // already saved — button reflects this
     } catch {
       clearInterval(interval)
       setLoadingMessage("Something went wrong. Please try again.")
     }
   }
 
+  // Capsule is auto-saved on generation — this is kept for any manual trigger
   function handleSaveAll() {
-    if (!result) return
-    const allSlugs: string[] = []
-    for (const section of result.sections) {
-      for (const look of section.looks) {
-        addGuestHeart("look", look.slug)
-        allSlugs.push(look.slug)
-      }
-    }
-    // Create a named capsule with all the looks so it appears in My Capsules on /saves
-    createGuestCapsule(result.tripName, allSlugs)
-    window.dispatchEvent(new Event("hearts-changed"))
+    if (!result || savedAll) return
     setSavedAll(true)
     setShowEmailGate(true)
   }
@@ -504,17 +507,13 @@ export function CapsulePlanner() {
           )}
         </div>
 
-        {/* Save all CTA + Email gate */}
+        {/* Auto-saved notice + Email gate */}
         <div className="text-center mb-10">
-          {!savedAll ? (
-            <Button onClick={handleSaveAll} size="lg">
-              <Heart className="h-4 w-4 mr-2" />
-              Save This Capsule
-            </Button>
-          ) : showEmailGate && emailStatus !== "success" ? (
+          {showEmailGate && emailStatus !== "success" ? (
             <div className="max-w-sm mx-auto p-6 rounded-xl bg-primary/5 border border-primary/10">
               <p className="text-sm text-foreground font-medium mb-1">
-                {result.totalLooks} looks saved!
+                <Heart className="h-4 w-4 inline mr-1 fill-primary text-primary" />
+                {result.totalLooks} looks saved to your capsule
               </p>
               <p className="text-xs text-muted-foreground mb-4">
                 Enter your email to keep this capsule across devices.
