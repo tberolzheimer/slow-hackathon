@@ -1,13 +1,24 @@
 "use client"
 
-import { signIn } from "next-auth/react"
+import { signIn, signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 
 export function AdminSignIn({ label = "Sign in with Google" }: { label?: string }) {
+  const { data: session } = useSession()
+
+  async function handleSignIn() {
+    // If already logged in with wrong account, sign out first
+    if (session) {
+      await signOut({ redirect: false })
+    }
+    // Force Google account picker with prompt: "select_account"
+    signIn("google", { callbackUrl: "/admin" }, { prompt: "select_account" })
+  }
+
   return (
     <Button
       size="lg"
-      onClick={() => signIn("google", { callbackUrl: "/admin" })}
+      onClick={handleSignIn}
       className="gap-2"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24">
