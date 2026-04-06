@@ -361,6 +361,20 @@ export default async function LookPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Originally published link */}
+      {post.url && (
+        <div className="px-4 sm:px-6 mt-6 text-center">
+          <a
+            href={post.url}
+            target="_blank"
+            rel="noopener"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Originally published on juliaberolzheimer.com →
+          </a>
+        </div>
+      )}
+
       {/* More from this vibe — horizontal carousel */}
       {relatedPosts.length > 0 && vibe && (
         <section className="px-4 sm:px-6 py-12 border-t border-border/50 mt-8">

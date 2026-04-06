@@ -84,6 +84,8 @@ export default function PublicLayout({
             <Link href="/most-worn" className="hover:text-foreground transition-colors">Most Worn</Link>
             <span className="text-border">·</span>
             <Link href="/saves" className="hover:text-foreground transition-colors">My Saves</Link>
+            <span className="text-border">·</span>
+            <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
           </div>
           <p className="text-sm text-muted-foreground">
             Curated by{" "}
