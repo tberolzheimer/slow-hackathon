@@ -13,6 +13,7 @@ import {
   clearGuestHearts,
 } from "@/lib/hearts/guest-hearts"
 import { createAccountFromEmail } from "@/lib/actions/auth"
+import { trackEvent } from "@/lib/analytics"
 
 export function HeartPromptToast() {
   const { data: session } = useSession()
@@ -63,13 +64,13 @@ export function HeartPromptToast() {
       } else {
         clearGuestHearts()
         setStatus("success")
-        // Auto-dismiss after showing success
+        trackEvent("email_signup", { source: "heart_prompt", heartCount })
         setTimeout(() => setVisible(false), 3000)
       }
     } catch {
-      // signIn redirect throws — this is expected success
       clearGuestHearts()
       setStatus("success")
+      trackEvent("email_signup", { source: "heart_prompt", heartCount })
       setTimeout(() => setVisible(false), 3000)
     }
   }

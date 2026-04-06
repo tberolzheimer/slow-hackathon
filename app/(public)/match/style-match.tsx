@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createAccountFromEmail } from "@/lib/actions/auth"
 import { addGuestHeart, clearGuestHearts } from "@/lib/hearts/guest-hearts"
+import { trackEvent } from "@/lib/analytics"
 
 interface MatchCard {
   id: string
@@ -78,6 +79,10 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
 
     if (currentCard + 1 >= totalCards) {
       setScreen("reveal")
+      trackEvent("style_match_complete", {
+        liked: likedCards.length + (liked ? 1 : 0),
+        total: totalCards,
+      })
     } else {
       setCurrentCard(currentCard + 1)
     }

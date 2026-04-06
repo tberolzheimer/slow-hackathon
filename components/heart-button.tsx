@@ -3,6 +3,7 @@
 import { Heart } from "lucide-react"
 import { useHeart } from "@/lib/hooks/use-heart"
 import { cn } from "@/lib/utils"
+import { trackEvent } from "@/lib/analytics"
 
 type ItemType = "look" | "product" | "vibe"
 
@@ -37,7 +38,7 @@ export function HeartButton({
         e.preventDefault()
         e.stopPropagation()
         toggle().then(() => {
-          // Notify HeartNavBadge to update count
+          if (!hearted) trackEvent("heart_saved", { itemType, itemId })
           window.dispatchEvent(new Event("hearts-changed"))
         })
       }}

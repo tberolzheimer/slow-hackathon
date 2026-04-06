@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ShareButtons } from "@/components/share-buttons"
+import { trackEvent } from "@/lib/analytics"
 import { generateCapsule } from "@/lib/actions/capsule"
 import type { CapsuleResult } from "@/lib/ai/capsule-engine"
 import { addGuestHeart, getGuestHearts, clearGuestHearts } from "@/lib/hearts/guest-hearts"
@@ -178,6 +179,7 @@ export function CapsulePlanner() {
       clearInterval(interval)
       setResult(capsule)
       setScreen("capsule")
+      trackEvent("capsule_complete", { destination, season, duration, activities, totalLooks: capsule.totalLooks })
     } catch {
       clearInterval(interval)
       setLoadingMessage("Something went wrong. Please try again.")
