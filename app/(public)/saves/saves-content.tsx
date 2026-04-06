@@ -767,14 +767,14 @@ function ExpandedCapsuleView({
         {capsule.name}
       </h3>
 
-      {/* Looks in this capsule */}
+      {/* Looks in this capsule — all clickable to outfit page */}
       {capsuleLookItems.length > 0 ? (
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
           {capsuleLookItems.map((item) => (
-            <div key={item.itemId} className="relative group">
+            <div key={item.itemId} className="relative">
               <Link
-                href={item.href || `/look/${item.itemId}`}
-                className="block rounded-lg overflow-hidden bg-muted"
+                href={`/look/${item.itemId}`}
+                className="block rounded-lg overflow-hidden bg-muted active:brightness-90"
               >
                 {item.imageUrl ? (
                   <div className="relative aspect-[3/4]">
@@ -782,7 +782,7 @@ function ExpandedCapsuleView({
                       src={item.imageUrl}
                       alt={item.title || "Look"}
                       fill
-                      className="object-cover group-hover:brightness-90 transition-all"
+                      className="object-cover"
                       sizes="(max-width: 640px) 33vw, 16vw"
                     />
                   </div>
@@ -793,15 +793,21 @@ function ExpandedCapsuleView({
                 )}
               </Link>
               <button
-                onClick={() => onRemoveLook(capsule.id, item.itemId)}
-                className="absolute top-1 right-1 p-1 rounded-full bg-background/80 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onRemoveLook(capsule.id, item.itemId)
+                }}
+                className="absolute top-1 right-1 z-10 p-1.5 rounded-full bg-background/90 shadow-sm border border-border text-muted-foreground hover:text-destructive transition-colors"
                 title="Remove from capsule"
               >
                 <X className="h-3 w-3" />
               </button>
-              <p className="text-xs text-foreground truncate mt-1">
-                {item.title || "Look"}
-              </p>
+              <Link href={`/look/${item.itemId}`} className="block">
+                <p className="text-xs text-foreground truncate mt-1 hover:text-primary">
+                  {item.title || "Look"}
+                </p>
+              </Link>
             </div>
           ))}
         </div>
