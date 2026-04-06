@@ -39,6 +39,10 @@ async function main() {
     const settingCounts: Record<string, number> = {}
     const keywordCounts: Record<string, number> = {}
 
+    const garmentTypeCounts: Record<string, number> = {}
+    const fabricCounts: Record<string, number> = {}
+    const colorCounts: Record<string, number> = {}
+
     for (const assignment of vibe.vibeAssignments) {
       const vd = assignment.post.visionData
       if (!vd) continue
@@ -47,6 +51,13 @@ async function main() {
       if (vd.setting) settingCounts[vd.setting] = (settingCounts[vd.setting] || 0) + 1
       const kws = Array.isArray(vd.vibeKeywords) ? (vd.vibeKeywords as string[]) : []
       for (const kw of kws) keywordCounts[kw] = (keywordCounts[kw] || 0) + 1
+      // Extract garment details for grounding
+      const garments = Array.isArray(vd.garments) ? (vd.garments as { type?: string; fabric?: string; colorName?: string }[]) : []
+      for (const g of garments) {
+        if (g.type) garmentTypeCounts[g.type] = (garmentTypeCounts[g.type] || 0) + 1
+        if (g.fabric) fabricCounts[g.fabric] = (fabricCounts[g.fabric] || 0) + 1
+        if (g.colorName) colorCounts[g.colorName] = (colorCounts[g.colorName] || 0) + 1
+      }
     }
 
     const topMoods = Object.entries(moodCounts)
@@ -65,6 +76,18 @@ async function main() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 12)
       .map(([k]) => k)
+    const topGarments = Object.entries(garmentTypeCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([k, n]) => `${k} (${n})`)
+    const topFabrics = Object.entries(fabricCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([k, n]) => `${k} (${n})`)
+    const topColors = Object.entries(colorCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([k, n]) => `${k} (${n})`)
 
     const lookCount = vibe.vibeAssignments.length
 
@@ -111,6 +134,9 @@ Top moods: ${topMoods.join(", ") || "unknown"}
 Top seasons: ${topSeasons.join(", ") || "unknown"}
 Top settings: ${topSettings.join(", ") || "unknown"}
 Top keywords: ${topKeywords.join(", ") || "unknown"}
+Top garments: ${topGarments.join(", ") || "unknown"}
+Top fabrics: ${topFabrics.join(", ") || "unknown"}
+Top colors: ${topColors.join(", ") || "unknown"}
 
 ## Already-Used Taglines (avoid repetition)
 ${usedTaglines.length > 0 ? usedTaglines.map((t) => `- "${t}"`).join("\n") : "(none yet)"}
@@ -118,6 +144,8 @@ ${usedTaglines.length > 0 ? usedTaglines.map((t) => `- "${t}"`).join("\n") : "(n
 ## Instructions
 
 Write a new tagline and intro for the "${vibe.name}" vibe. Keep the vibe name exactly as-is. Make the tagline and intro feel distinct from all already-used taglines.
+
+CRITICAL: The intro MUST match the actual garments, fabrics, and colors listed above. If the top garments are sundresses and sandals, do NOT write about wool and fireplaces. Ground your writing in what Julia actually wears in this vibe.
 
 Return JSON only, no markdown fences:
 {"tagline": "...", "introText": "..."}`,

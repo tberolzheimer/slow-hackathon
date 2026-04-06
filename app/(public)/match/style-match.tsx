@@ -284,21 +284,22 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
           has {topVibes.length} {topVibes.length === 1 ? "side" : "sides"}
         </h2>
 
-        {/* Top 3 archetype cards */}
+        {/* Top 3 archetype cards — clickable to vibe pages */}
         <div className="space-y-4 w-full max-w-sm mb-8">
           {topVibes.map((vibe, i) => (
-            <div
+            <Link
               key={vibe.slug}
-              className="p-4 rounded-xl border border-border bg-card text-left"
+              href={`/vibe/${vibe.slug}`}
+              className="block p-4 rounded-xl border border-border bg-card text-left hover:border-primary/40 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl font-display text-primary">{i + 1}</span>
                 <div>
                   <p className="font-display text-lg text-foreground">{vibe.name}</p>
-                  <p className="text-xs text-muted-foreground">{vibe.count} looks matched</p>
+                  <p className="text-xs text-muted-foreground">{vibe.count} looks matched · Explore →</p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
