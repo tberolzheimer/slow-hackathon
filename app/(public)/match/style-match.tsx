@@ -99,7 +99,7 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
         itemId: c.slug,
         createdAt: new Date().toISOString(),
       }))
-      await createAccountFromEmail(email.trim(), hearts)
+      await createAccountFromEmail(email.trim(), hearts, "style_match")
     } catch {
       // signIn redirect throws — expected
     }

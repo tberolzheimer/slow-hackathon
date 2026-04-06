@@ -39,6 +39,7 @@ export async function syncProfileToKlaviyo(
     topVibe?: string
     preferredSeason?: string
     preferredColors?: string[]
+    signupSource?: string
   }
 ) {
   try {
@@ -49,7 +50,7 @@ export async function syncProfileToKlaviyo(
         attributes: {
           email,
           properties: {
-            vibeshop_sign_up_source: "vibeshop_hearts",
+            vibeshop_sign_up_source: preferences.signupSource || "vibeshop",
             vibeshop_hearted_vibes: preferences.heartedVibes || [],
             vibeshop_heart_count: preferences.heartCount || 0,
             vibeshop_top_vibe: preferences.topVibe || "",

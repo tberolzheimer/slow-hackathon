@@ -57,7 +57,7 @@ export function HeartPromptToast() {
         createdAt: h.createdAt,
       }))
 
-      const result = await createAccountFromEmail(email.trim(), hearts)
+      const result = await createAccountFromEmail(email.trim(), hearts, "heart_prompt")
       if (result && "error" in result) {
         setErrorMsg(result.error || "Something went wrong")
         setStatus("error")

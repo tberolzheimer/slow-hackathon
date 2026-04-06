@@ -63,7 +63,7 @@ export function ReturnVisitBanner() {
         itemId: h.itemId,
         createdAt: h.createdAt,
       }))
-      const result = await createAccountFromEmail(email.trim(), hearts)
+      const result = await createAccountFromEmail(email.trim(), hearts, "return_banner")
       if (result && "error" in result) {
         setStatus("error")
       } else {

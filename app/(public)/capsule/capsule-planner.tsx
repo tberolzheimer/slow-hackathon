@@ -216,7 +216,7 @@ export function CapsulePlanner() {
         itemId: h.itemId,
         createdAt: h.createdAt,
       }))
-      await createAccountFromEmail(capsuleEmail.trim(), hearts)
+      await createAccountFromEmail(capsuleEmail.trim(), hearts, "capsule")
       clearGuestHearts()
       setEmailStatus("success")
     } catch {

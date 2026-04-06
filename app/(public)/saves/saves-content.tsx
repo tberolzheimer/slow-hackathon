@@ -1119,7 +1119,8 @@ function EmailCapture({
           itemType: h.itemType,
           itemId: h.itemId,
           createdAt: h.createdAt,
-        }))
+        })),
+        "saves_page"
       )
       if (result && "error" in result) {
         setErrorMsg(result.error || "Something went wrong")

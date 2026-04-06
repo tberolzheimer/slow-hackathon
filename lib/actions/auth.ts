@@ -52,7 +52,8 @@ export async function signUp(formData: FormData) {
 
 export async function createAccountFromEmail(
   email: string,
-  hearts: { itemType: string; itemId: string; createdAt: string }[]
+  hearts: { itemType: string; itemId: string; createdAt: string }[],
+  signupSource: string = "vibeshop"
 ) {
   if (!email || !email.includes("@")) {
     return { error: "Please enter a valid email" }
@@ -112,6 +113,7 @@ export async function createAccountFromEmail(
       heartedVibes: uniqueVibes,
       heartCount: hearts.length,
       topVibe: uniqueVibes[0] || "",
+      signupSource,
     })
   } catch (err) {
     console.error("Klaviyo sync failed (non-blocking):", err)
