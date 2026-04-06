@@ -21,7 +21,8 @@ export default function HomePage() {
       {/* Hero — SB1: Character + SB2: Problem */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-14 pb-4 text-center">
         <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight text-foreground mb-6">
-          Find your vibe. Shop the look.
+          Find your vibe.<br />
+          Shop the look.
         </h1>
         <p className="font-display italic text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
           You know the feeling — you love a look but can&apos;t name what draws
