@@ -1,6 +1,6 @@
 const KLAVIYO_API_URL = "https://a.klaviyo.com/api"
 const KLAVIYO_REVISION = "2024-10-15"
-const VIBESHOP_EMAIL_LIST_ID = "UeFBMV" // Julia Berolzheimer "Email List" — single opt-in
+const VIBESHOP_EMAIL_LIST_ID = "R3rngj" // Vibeshop Signups list
 
 function getApiKey() {
   const key = process.env.KLAVIYO_PRIVATE_API_KEY || process.env.KLAVIYO_API_KEY
