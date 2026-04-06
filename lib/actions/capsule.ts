@@ -28,9 +28,31 @@ export async function createCapsule(name: string, lookSlugs: string[], guestId?:
   return { id: capsule.id, name: capsule.name }
 }
 
-export async function addLookToCapsule(capsuleId: string, lookSlug: string) {
+/**
+ * Verify that the current user owns the capsule.
+ * Guest capsules (userId is null, guestId is set) are handled client-side
+ * via localStorage and skip server-side auth.
+ */
+async function verifyCapsuleOwnership(capsuleId: string) {
   const capsule = await prisma.capsule.findUnique({ where: { id: capsuleId } })
-  if (!capsule) return { error: "Capsule not found" }
+  if (!capsule) return { error: "Capsule not found" as const, capsule: null }
+
+  // Guest capsule — no server-side auth (handled client-side via localStorage guestId)
+  if (!capsule.userId && capsule.guestId) {
+    return { error: null, capsule }
+  }
+
+  // Logged-in user capsule — verify ownership
+  const session = await auth()
+  if (!session?.user?.id) return { error: "Not authenticated" as const, capsule: null }
+  if (capsule.userId !== session.user.id) return { error: "Not authorized" as const, capsule: null }
+
+  return { error: null, capsule }
+}
+
+export async function addLookToCapsule(capsuleId: string, lookSlug: string) {
+  const { error, capsule } = await verifyCapsuleOwnership(capsuleId)
+  if (error || !capsule) return { error: error || "Capsule not found" }
 
   const looks = Array.isArray(capsule.looks) ? (capsule.looks as string[]) : []
   if (looks.includes(lookSlug)) return { id: capsule.id }
@@ -44,8 +66,8 @@ export async function addLookToCapsule(capsuleId: string, lookSlug: string) {
 }
 
 export async function removeLookFromCapsule(capsuleId: string, lookSlug: string) {
-  const capsule = await prisma.capsule.findUnique({ where: { id: capsuleId } })
-  if (!capsule) return { error: "Capsule not found" }
+  const { error, capsule } = await verifyCapsuleOwnership(capsuleId)
+  if (error || !capsule) return { error: error || "Capsule not found" }
 
   const looks = Array.isArray(capsule.looks) ? (capsule.looks as string[]) : []
 
@@ -58,6 +80,9 @@ export async function removeLookFromCapsule(capsuleId: string, lookSlug: string)
 }
 
 export async function renameCapsule(capsuleId: string, name: string) {
+  const { error } = await verifyCapsuleOwnership(capsuleId)
+  if (error) return { error }
+
   await prisma.capsule.update({
     where: { id: capsuleId },
     data: { name },
@@ -66,6 +91,9 @@ export async function renameCapsule(capsuleId: string, name: string) {
 }
 
 export async function deleteCapsule(capsuleId: string) {
+  const { error } = await verifyCapsuleOwnership(capsuleId)
+  if (error) return { error }
+
   await prisma.capsule.delete({ where: { id: capsuleId } })
   return { success: true }
 }

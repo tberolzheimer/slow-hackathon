@@ -99,22 +99,10 @@ export function StyleMatch({ cards }: { cards: MatchCard[] }) {
         itemId: c.slug,
         createdAt: new Date().toISOString(),
       }))
+      // Klaviyo sync is handled inside createAccountFromEmail (server action)
       await createAccountFromEmail(email.trim(), hearts, "style_match")
     } catch {
       // signIn redirect throws — expected
-    }
-
-    // Sync to Klaviyo
-    try {
-      const topVibes = getTopVibes()
-      const { syncProfileToKlaviyo } = await import("@/lib/klaviyo/sync")
-      await syncProfileToKlaviyo(email.trim(), {
-        heartedVibes: topVibes.map((v) => v.name),
-        heartCount: likedCards.length,
-        topVibe: topVibes[0]?.name || "",
-      })
-    } catch {
-      // Non-blocking
     }
 
     setEmailStatus("done")
