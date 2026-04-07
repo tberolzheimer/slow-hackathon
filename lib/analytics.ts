@@ -21,14 +21,13 @@ export async function initPostHog() {
   posthog.init(key, {
     api_host: host || "https://us.i.posthog.com",
     defaults: "2026-01-30",
-    persistence: "memory",
-    capture_pageview: true,
+    persistence: "localStorage+cookie",
+    capture_pageview: false, // We fire pageviews manually in PostHogProvider
     capture_pageleave: true,
     autocapture: true,
     session_recording: {
       maskAllInputs: false,
       maskInputFn: (text, element) => {
-        // Mask email inputs for privacy
         if (element?.getAttribute("type") === "email") return "***@***.com"
         return text
       },

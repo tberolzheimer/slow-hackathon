@@ -1,4 +1,5 @@
 import { SessionProvider } from "@/components/session-provider"
+import { Analytics } from "@vercel/analytics/react"
 import type { Metadata } from "next"
 import { ThemeProvider } from "next-themes"
 import { Geist, Playfair_Display } from "next/font/google"
@@ -44,6 +45,7 @@ export default function RootLayout({
             {children}
           </ThemeProvider>
         </SessionProvider>
+        <Analytics />
       </body>
     </html>
   )
