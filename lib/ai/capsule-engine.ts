@@ -14,6 +14,7 @@
  */
 
 import { prisma } from "@/lib/db/prisma"
+import { unstable_cache } from "next/cache"
 import { computeEmbedding, cosineSimilarity } from "./embeddings"
 
 // ═══════════════════════════════════════
@@ -361,27 +362,61 @@ function scorePostForActivity(
 // Main capsule generation
 // ═══════════════════════════════════════
 
+const getCachedCapsulePosts = unstable_cache(
+  async () => {
+    return prisma.post.findMany({
+      where: {
+        outfitImageUrl: { not: null },
+        visionData: { isNot: null },
+      },
+      select: {
+        id: true,
+        slug: true,
+        displayTitle: true,
+        outfitImageUrl: true,
+        date: true,
+        visionData: {
+          select: {
+            season: true,
+            formality: true,
+            mood: true,
+            palette: true,
+            vibeKeywords: true,
+            setting: true,
+            garments: true,
+            embedding: true,
+          },
+        },
+        products: {
+          where: { isAlternative: false, productImageUrl: { not: null } },
+          orderBy: { sortOrder: "asc" },
+          take: 5,
+          select: {
+            id: true,
+            brand: true,
+            itemName: true,
+            productImageUrl: true,
+            affiliateUrl: true,
+            garmentType: true,
+          },
+        },
+        vibeAssignments: {
+          take: 1,
+          orderBy: { confidenceScore: "desc" },
+          select: {
+            vibe: { select: { name: true, slug: true } },
+          },
+        },
+      },
+    })
+  },
+  ["capsule-posts"],
+  { revalidate: 3600 }
+)
+
 export async function generateCapsuleFromTrip(input: TripInput): Promise<CapsuleResult> {
-  // 1. Load all posts with vision data + products
-  const posts = await prisma.post.findMany({
-    where: {
-      outfitImageUrl: { not: null },
-      visionData: { isNot: null },
-    },
-    include: {
-      visionData: true,
-      products: {
-        where: { isAlternative: false, productImageUrl: { not: null } },
-        orderBy: { sortOrder: "asc" },
-        take: 5,
-      },
-      vibeAssignments: {
-        take: 1,
-        orderBy: { confidenceScore: "desc" },
-        include: { vibe: { select: { name: true, slug: true } } },
-      },
-    },
-  })
+  // 1. Load all posts with vision data + products (cached 1 hour — data rarely changes)
+  const posts = await getCachedCapsulePosts()
 
   // 2. Load vibe centroids for destination matching
   const vibes = await prisma.vibe.findMany({

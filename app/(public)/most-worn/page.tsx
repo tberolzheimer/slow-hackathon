@@ -180,33 +180,36 @@ interface MostWornItem {
 // ---------------------------------------------------------------------------
 
 async function getMostWornItems(): Promise<MostWornItem[]> {
-  // Step 1: Load all non-alternative products
-  const allProducts = await prisma.product.findMany({
-    where: {
-      isAlternative: false,
-    },
-    select: {
-      id: true,
-      affiliateUrl: true,
-      postId: true,
-      brand: true,
-      itemName: true,
-      productImageUrl: true,
-    },
-  })
+  // ---------------------------------------------------------------------------
+  // Step 1: Fetch ONLY the 3 columns needed for grouping via raw SQL.
+  // This avoids loading all ~4800 full product rows into memory.
+  // The DISTINCT eliminates duplicate (brand, itemName, postId) triples
+  // so we transfer less data from the database.
+  // ---------------------------------------------------------------------------
+  const rows = await prisma.$queryRaw<
+    { brand: string; itemName: string; postId: string }[]
+  >`
+    SELECT DISTINCT brand, "itemName", "postId"
+    FROM products
+    WHERE "isAlternative" = false
+      AND brand IS NOT NULL
+      AND "itemName" IS NOT NULL
+  `
 
-  // Step 2: Group by brand + normalized item name (not affiliate URL)
-  // The same item (e.g. "Chanel Flats") appears with dozens of different
-  // affiliate URLs across posts. Grouping by URL undercounts dramatically.
+  // ---------------------------------------------------------------------------
+  // Step 2: Group by normalized key in JS (normalization logic is too complex
+  // for SQL — it involves regex synonym replacement, colour/material stripping).
+  // We only track postIds per group, plus one representative (brand, itemName).
+  // ---------------------------------------------------------------------------
   const itemGroups = new Map<string, {
     postIds: Set<string>
-    affiliateUrls: Set<string>
-    best: typeof allProducts[0]
+    brand: string
+    itemName: string
+    /** All variant (brand, itemName) pairs that collapse into this group */
+    variants: { brand: string; itemName: string }[]
   }>()
 
-  for (const p of allProducts) {
-    if (!p.brand) continue
-    // Normalize: "Chanel Ballet Flats", "Chanel Flats" → "chanel|flats"
+  for (const p of rows) {
     const itemKey = normalizeItemKey(p.brand, p.itemName)
     if (!itemKey) continue
 
@@ -214,45 +217,94 @@ async function getMostWornItems(): Promise<MostWornItem[]> {
     if (!existing) {
       itemGroups.set(itemKey, {
         postIds: new Set([p.postId]),
-        affiliateUrls: new Set(p.affiliateUrl ? [p.affiliateUrl] : []),
-        best: p,
+        brand: p.brand,
+        itemName: p.itemName,
+        variants: [{ brand: p.brand, itemName: p.itemName }],
       })
     } else {
       existing.postIds.add(p.postId)
-      if (p.affiliateUrl) existing.affiliateUrls.add(p.affiliateUrl)
-      // Prefer product with image
-      if (p.productImageUrl && !existing.best.productImageUrl) {
-        existing.best = p
+      if (
+        !existing.variants.some(
+          (v) => v.brand === p.brand && v.itemName === p.itemName
+        )
+      ) {
+        existing.variants.push({ brand: p.brand, itemName: p.itemName })
       }
     }
   }
 
+  // ---------------------------------------------------------------------------
   // Step 3: Filter to items appearing in 3+ posts, sort by count
-  const repeated = Array.from(itemGroups.entries())
-    .filter(([, v]) => v.postIds.size >= 3)
-    .sort((a, b) => b[1].postIds.size - a[1].postIds.size)
-    .map(([, v]) => ({
-      affiliateUrl: v.best.affiliateUrl || Array.from(v.affiliateUrls)[0] || "",
-      look_count: v.postIds.size,
-      brand: v.best.brand,
-      item_name: v.best.itemName,
-      product_image_url: v.best.productImageUrl,
-      product_id: v.best.id,
-    }))
+  // ---------------------------------------------------------------------------
+  const repeated = Array.from(itemGroups.values())
+    .filter((v) => v.postIds.size >= 3)
+    .sort((a, b) => b.postIds.size - a.postIds.size)
 
   if (repeated.length === 0) return []
 
-  // Step 2: For each repeated item, fetch the posts it appears in
-  const affiliateUrls = repeated.map((r) => r.affiliateUrl)
+  // ---------------------------------------------------------------------------
+  // Step 4: Fetch product details (image, affiliateUrl, id) ONLY for the
+  // items that passed the threshold. We build an OR filter across all variant
+  // (brand, itemName) pairs so all name variants are covered.
+  // ---------------------------------------------------------------------------
+  const variantFilter = repeated.flatMap((g) =>
+    g.variants.map((v) => ({ brand: v.brand, itemName: v.itemName }))
+  )
 
-  const productPosts = await prisma.product.findMany({
+  const detailProducts = await prisma.product.findMany({
     where: {
-      affiliateUrl: { in: affiliateUrls },
+      OR: variantFilter,
       isAlternative: false,
     },
     select: {
+      id: true,
+      brand: true,
+      itemName: true,
       affiliateUrl: true,
-      postId: true,
+      productImageUrl: true,
+    },
+    distinct: ["brand", "itemName", "affiliateUrl"],
+  })
+
+  // Index details by normalized key for quick lookup
+  const detailsByKey = new Map<string, {
+    id: string
+    affiliateUrl: string
+    productImageUrl: string | null
+  }>()
+
+  for (const d of detailProducts) {
+    const key = normalizeItemKey(d.brand, d.itemName)
+    if (!key) continue
+    const existing = detailsByKey.get(key)
+    // Prefer a product row that has an image
+    if (!existing || (d.productImageUrl && !existing.productImageUrl)) {
+      detailsByKey.set(key, {
+        id: d.id,
+        affiliateUrl: d.affiliateUrl,
+        productImageUrl: d.productImageUrl,
+      })
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 5: Fetch look thumbnails for items that will be displayed.
+  // We only need thumbnails for items that will actually render on the page:
+  // top 24 overall + up to 8 per category. Cap at ~50 unique items.
+  // ---------------------------------------------------------------------------
+  const itemsNeedingLooks = repeated.slice(0, 50)
+  const lookVariantFilter = itemsNeedingLooks.flatMap((g) =>
+    g.variants.map((v) => ({ brand: v.brand, itemName: v.itemName }))
+  )
+
+  const productPosts = await prisma.product.findMany({
+    where: {
+      OR: lookVariantFilter,
+      isAlternative: false,
+    },
+    select: {
+      brand: true,
+      itemName: true,
       post: {
         select: {
           id: true,
@@ -265,26 +317,22 @@ async function getMostWornItems(): Promise<MostWornItem[]> {
     },
   })
 
-  // Group posts by affiliate URL, deduplicating by postId
-  const postsByUrl = new Map<
-    string,
-    Map<
-      string,
-      {
-        postId: string
-        slug: string
-        title: string
-        displayTitle: string | null
-        outfitImageUrl: string | null
-      }
-    >
-  >()
+  // Group posts by normalized key, deduplicating by postId
+  const postsByKey = new Map<string, Map<string, {
+    postId: string
+    slug: string
+    title: string
+    displayTitle: string | null
+    outfitImageUrl: string | null
+  }>>()
 
   for (const pp of productPosts) {
-    if (!postsByUrl.has(pp.affiliateUrl)) {
-      postsByUrl.set(pp.affiliateUrl, new Map())
+    const key = normalizeItemKey(pp.brand, pp.itemName)
+    if (!key) continue
+    if (!postsByKey.has(key)) {
+      postsByKey.set(key, new Map())
     }
-    const postsMap = postsByUrl.get(pp.affiliateUrl)!
+    const postsMap = postsByKey.get(key)!
     if (!postsMap.has(pp.post.id)) {
       postsMap.set(pp.post.id, {
         postId: pp.post.id,
@@ -296,15 +344,22 @@ async function getMostWornItems(): Promise<MostWornItem[]> {
     }
   }
 
-  return repeated.map((r) => ({
-    affiliateUrl: r.affiliateUrl,
-    lookCount: r.look_count,
-    brand: r.brand,
-    itemName: r.item_name,
-    productImageUrl: r.product_image_url,
-    productId: r.product_id,
-    looks: Array.from(postsByUrl.get(r.affiliateUrl)?.values() ?? []),
-  }))
+  // ---------------------------------------------------------------------------
+  // Step 6: Assemble final results
+  // ---------------------------------------------------------------------------
+  return repeated.map((g) => {
+    const key = normalizeItemKey(g.brand, g.itemName)!
+    const detail = detailsByKey.get(key)
+    return {
+      affiliateUrl: detail?.affiliateUrl ?? "",
+      lookCount: g.postIds.size,
+      brand: g.brand,
+      itemName: g.itemName,
+      productImageUrl: detail?.productImageUrl ?? null,
+      productId: detail?.id ?? "",
+      looks: Array.from(postsByKey.get(key)?.values() ?? []),
+    }
+  })
 }
 
 // ---------------------------------------------------------------------------

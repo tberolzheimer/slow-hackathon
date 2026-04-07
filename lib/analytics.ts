@@ -1,14 +1,18 @@
 "use client"
 
-import posthog from "posthog-js"
-
+let posthogModule: typeof import("posthog-js") | null = null
 let initialized = false
 
-export function initPostHog() {
+export async function initPostHog() {
   if (initialized || typeof window === "undefined") return
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST
   if (!key) return
+
+  if (!posthogModule) {
+    posthogModule = await import("posthog-js")
+  }
+  const posthog = posthogModule.default
 
   // TODO: Add a cookie consent banner before EU launch. Until then,
   // use memory persistence so PostHog doesn't set cookies without consent.
@@ -32,14 +36,16 @@ export function initPostHog() {
   initialized = true
 }
 
-export function trackEvent(event: string, properties?: Record<string, any>) {
+export async function trackEvent(event: string, properties?: Record<string, any>) {
   if (typeof window === "undefined") return
-  if (!initialized) initPostHog()
-  posthog.capture(event, properties)
+  if (!initialized) await initPostHog()
+  if (!posthogModule) return
+  posthogModule.default.capture(event, properties)
 }
 
-export function identifyUser(userId: string, properties?: Record<string, any>) {
+export async function identifyUser(userId: string, properties?: Record<string, any>) {
   if (typeof window === "undefined") return
-  if (!initialized) initPostHog()
-  posthog.identify(userId, properties)
+  if (!initialized) await initPostHog()
+  if (!posthogModule) return
+  posthogModule.default.identify(userId, properties)
 }

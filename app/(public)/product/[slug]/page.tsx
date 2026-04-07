@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { connection } from "next/server"
+import { cache } from "react"
 import { Badge } from "@/components/ui/badge"
 import { HeartButton } from "@/components/heart-button"
 import { ExternalLink } from "lucide-react"
@@ -25,35 +26,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function findProductBySlug(slug: string) {
-  // Get all non-alternative products with brand + itemName
-  const allProducts = await prisma.product.findMany({
-    where: {
-      isAlternative: false,
-      brand: { not: null },
-      itemName: { not: null },
-    },
-    select: {
-      brand: true,
-      itemName: true,
-      postId: true,
-    },
-  })
+// ---------------------------------------------------------------------------
+// findProductBySlug — cached per request so generateMetadata + page share one call
+// ---------------------------------------------------------------------------
+// Uses a two-step approach:
+//   1. SQL query to get only the distinct (brand, itemName, postId) triples — minimal data
+//   2. JS normalization + slug matching (the normalization logic is too complex for SQL)
+// Wrapped in React.cache() so the same slug in the same request is only computed once.
+// ---------------------------------------------------------------------------
+const findProductBySlug = cache(async (slug: string) => {
+  // Step 1: Fetch only the 3 columns we need (uses @@index([brand, itemName]) + [postId, isAlternative])
+  const rows = await prisma.$queryRaw<
+    { brand: string; itemName: string; postId: string }[]
+  >`
+    SELECT DISTINCT brand, "itemName", "postId"
+    FROM products
+    WHERE "isAlternative" = false
+      AND brand IS NOT NULL
+      AND "itemName" IS NOT NULL
+  `
 
-  // Group by normalized key (same logic as most-worn page)
+  // Step 2: Group by normalized key
   const groups = new Map<
     string,
     {
       brand: string
       itemName: string
       postIds: Set<string>
-      /** All distinct (brand, itemName) pairs that collapse into this group */
       variants: { brand: string; itemName: string }[]
     }
   >()
 
-  for (const p of allProducts) {
-    if (!p.brand || !p.itemName) continue
+  for (const p of rows) {
     const key = normalizeItemKey(p.brand, p.itemName)
     if (!key) continue
 
@@ -67,7 +71,6 @@ async function findProductBySlug(slug: string) {
       })
     } else {
       existing.postIds.add(p.postId)
-      // Track unique (brand, itemName) pairs
       if (
         !existing.variants.some(
           (v) => v.brand === p.brand && v.itemName === p.itemName
@@ -78,7 +81,7 @@ async function findProductBySlug(slug: string) {
     }
   }
 
-  // Match slug against each group's normalized slug
+  // Step 3: Match slug against each group
   for (const [, g] of groups) {
     if (g.postIds.size < 2) continue
     const s = makeProductSlug(g.brand, g.itemName)
@@ -92,7 +95,7 @@ async function findProductBySlug(slug: string) {
     }
   }
   return null
-}
+})
 
 export default async function ProductOutfitsPage({ params }: Props) {
   await connection()

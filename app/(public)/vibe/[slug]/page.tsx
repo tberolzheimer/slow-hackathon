@@ -88,10 +88,13 @@ export default async function VibePage({ params }: Props) {
       return true
     })
 
-  const recentProducts = uniqueProducts
+  // Limit products sent to client to reduce HTML payload (ProductGrid handles "Show More" client-side)
+  const cappedProducts = uniqueProducts.slice(0, 100)
+
+  const recentProducts = cappedProducts
     .filter((p) => new Date(p.postDate) >= sixMonthsAgo)
     .sort((a, b) => (stockOrder[a.stockStatus] ?? 1) - (stockOrder[b.stockStatus] ?? 1))
-  const pastProducts = uniqueProducts
+  const pastProducts = cappedProducts
     .filter((p) => new Date(p.postDate) < sixMonthsAgo)
     .sort((a, b) => (stockOrder[a.stockStatus] ?? 1) - (stockOrder[b.stockStatus] ?? 1))
 

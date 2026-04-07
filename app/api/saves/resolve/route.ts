@@ -8,8 +8,74 @@ export async function POST(req: NextRequest) {
     return NextResponse.json([], { status: 400 })
   }
 
-  const resolved = await Promise.all(
-    items.map(async (item: { itemType: string; itemId: string; createdAt: string }) => {
+  // Group items by type for batched queries (avoids N+1)
+  const lookSlugs: string[] = []
+  const vibeSlugs: string[] = []
+  const productIds: string[] = []
+
+  for (const item of items as { itemType: string; itemId: string }[]) {
+    if (item.itemType === "look") lookSlugs.push(item.itemId)
+    else if (item.itemType === "vibe") vibeSlugs.push(item.itemId)
+    else if (item.itemType === "product") productIds.push(item.itemId)
+  }
+
+  // Batch fetch all three types in parallel (max 3 queries total)
+  const [looks, vibes, products] = await Promise.all([
+    lookSlugs.length > 0
+      ? prisma.post.findMany({
+          where: { slug: { in: lookSlugs } },
+          select: {
+            displayTitle: true,
+            title: true,
+            outfitImageUrl: true,
+            slug: true,
+            vibeAssignments: {
+              take: 1,
+              include: { vibe: { select: { name: true } } },
+            },
+            _count: { select: { products: true } },
+          },
+        })
+      : Promise.resolve([]),
+    vibeSlugs.length > 0
+      ? prisma.vibe.findMany({
+          where: { slug: { in: vibeSlugs } },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            tagline: true,
+            vibeAssignments: {
+              take: 1,
+              orderBy: { confidenceScore: "desc" },
+              select: { post: { select: { outfitImageUrl: true } } },
+            },
+          },
+        })
+      : Promise.resolve([]),
+    productIds.length > 0
+      ? prisma.product.findMany({
+          where: { id: { in: productIds } },
+          select: {
+            id: true,
+            brand: true,
+            itemName: true,
+            productImageUrl: true,
+            affiliateUrl: true,
+            price: true,
+          },
+        })
+      : Promise.resolve([]),
+  ])
+
+  // Index results by their lookup key for O(1) access
+  const lookMap = new Map(looks.map((p) => [p.slug, p]))
+  const vibeMap = new Map(vibes.map((v) => [v.slug, v]))
+  const productMap = new Map(products.map((p) => [p.id, p]))
+
+  // Map each original item to its resolved form
+  const resolved = (items as { itemType: string; itemId: string; createdAt: string }[]).map(
+    (item) => {
       const base = {
         itemType: item.itemType,
         itemId: item.itemId,
@@ -18,21 +84,7 @@ export async function POST(req: NextRequest) {
 
       try {
         if (item.itemType === "look") {
-          // itemId is the post slug
-          const post = await prisma.post.findUnique({
-            where: { slug: item.itemId },
-            select: {
-              displayTitle: true,
-              title: true,
-              outfitImageUrl: true,
-              slug: true,
-              vibeAssignments: {
-                take: 1,
-                include: { vibe: { select: { name: true } } },
-              },
-              _count: { select: { products: true } },
-            },
-          })
+          const post = lookMap.get(item.itemId)
           if (post) {
             return {
               ...base,
@@ -47,24 +99,12 @@ export async function POST(req: NextRequest) {
         }
 
         if (item.itemType === "vibe") {
-          // itemId is the vibe slug
-          const vibe = await prisma.vibe.findUnique({
-            where: { slug: item.itemId },
-            select: { name: true, slug: true, tagline: true },
-          })
-          // Get a cover image from the first assigned post
-          const assignment = vibe
-            ? await prisma.vibeAssignment.findFirst({
-                where: { vibeId: (await prisma.vibe.findUnique({ where: { slug: item.itemId } }))?.id },
-                include: { post: { select: { outfitImageUrl: true } } },
-                orderBy: { confidenceScore: "desc" },
-              })
-            : null
+          const vibe = vibeMap.get(item.itemId)
           if (vibe) {
             return {
               ...base,
               title: vibe.name,
-              imageUrl: assignment?.post.outfitImageUrl || null,
+              imageUrl: vibe.vibeAssignments[0]?.post.outfitImageUrl || null,
               href: `/vibe/${vibe.slug}`,
               subtitle: vibe.tagline,
             }
@@ -72,16 +112,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (item.itemType === "product") {
-          const product = await prisma.product.findUnique({
-            where: { id: item.itemId },
-            select: {
-              brand: true,
-              itemName: true,
-              productImageUrl: true,
-              affiliateUrl: true,
-              price: true,
-            },
-          })
+          const product = productMap.get(item.itemId)
           if (product) {
             return {
               ...base,
@@ -98,7 +129,7 @@ export async function POST(req: NextRequest) {
       }
 
       return base
-    })
+    }
   )
 
   return NextResponse.json(resolved)
