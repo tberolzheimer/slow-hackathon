@@ -20,7 +20,8 @@ export async function initPostHog() {
   // the user accepts, and call posthog.opt_in_capturing().
   posthog.init(key, {
     api_host: host || "https://us.i.posthog.com",
-    defaults: "2026-01-30",
+    ui_host: "https://us.posthog.com", // Required when using reverse proxy
+    person_profiles: "identified_only",
     persistence: "localStorage+cookie",
     capture_pageview: false, // We fire pageviews manually in PostHogProvider
     capture_pageleave: true,
