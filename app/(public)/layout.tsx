@@ -5,6 +5,7 @@ import { HeartPromptToast } from "@/components/heart-prompt-toast"
 import { HeartNavBadge } from "@/components/heart-nav-badge"
 import { ReturnVisitBanner } from "@/components/return-visit-banner"
 import { PostHogProvider } from "@/components/posthog-provider"
+import { CannyWidget } from "@/components/canny-widget"
 
 export default function PublicLayout({
   children,
@@ -46,6 +47,11 @@ export default function PublicLayout({
       {/* Analytics */}
       <Suspense fallback={null}>
         <PostHogProvider />
+      </Suspense>
+
+      {/* Feedback widget */}
+      <Suspense fallback={null}>
+        <CannyWidget />
       </Suspense>
 
       {/* Heart sign-up prompt toast */}
