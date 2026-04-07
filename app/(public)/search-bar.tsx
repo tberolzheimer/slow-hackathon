@@ -21,7 +21,7 @@ export function SearchBar() {
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
         type="text"
-        placeholder="What are you feeling?"
+        placeholder="Search by brand, occasion, or garment"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="pl-10 bg-background border-border/60 focus-visible:ring-primary/30"

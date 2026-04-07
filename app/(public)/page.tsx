@@ -18,89 +18,87 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div>
-      {/* Hero — SB1: Character + SB2: Problem */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-14 pb-4 text-center">
-        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight text-foreground mb-6">
-          Find your vibe.<br />
-          Shop the look.
+      {/* Hero — compact */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-2 text-center">
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl tracking-tight text-foreground mb-3">
+          Find your vibe. Shop the look.
         </h1>
-        <p className="font-display italic text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
-          You know the feeling — you love a look but can&apos;t name what draws
-          you to it. VibeShop organizes hundreds of Julia Berolzheimer&apos;s
-          styled outfits by aesthetic feeling, so you can find your vibe and
-          shop it in minutes.
+        <p className="font-display italic text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-6 leading-relaxed">
+          835 of Julia Berolzheimer&apos;s outfits organized by aesthetic
+          feeling. Every piece linked. Every product shoppable.
         </p>
-        <SearchBar />
+      </section>
+
+      {/* Three Tool CTAs — above the vibes */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link
+            href="/match"
+            className="group block p-5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
+          >
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary mb-1.5">
+              Style Match
+            </p>
+            <p className="font-display text-base sm:text-lg text-foreground mb-1">
+              Which vibes are yours?
+            </p>
+            <p className="text-xs text-muted-foreground mb-2">
+              Swipe 20 looks. 60 seconds.
+            </p>
+            <span className="text-xs font-medium text-primary group-hover:underline">
+              Take the Quiz →
+            </span>
+          </Link>
+          <Link
+            href="/capsule"
+            className="group block p-5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
+          >
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary mb-1.5">
+              Travel Capsule
+            </p>
+            <p className="font-display text-base sm:text-lg text-foreground mb-1">
+              Pack like Julia
+            </p>
+            <p className="text-xs text-muted-foreground mb-2">
+              Your trip. Her archive.
+            </p>
+            <span className="text-xs font-medium text-primary group-hover:underline">
+              Plan My Capsule →
+            </span>
+          </Link>
+          <Link
+            href="/most-worn"
+            className="group block p-5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
+          >
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary mb-1.5">
+              Most Worn
+            </p>
+            <p className="font-display text-base sm:text-lg text-foreground mb-1">
+              Wardrobe staples
+            </p>
+            <p className="text-xs text-muted-foreground mb-2">
+              The pieces she keeps reaching for.
+            </p>
+            <span className="text-xs font-medium text-primary group-hover:underline">
+              See Most Worn →
+            </span>
+          </Link>
+        </div>
       </section>
 
       {/* Vibe Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <Suspense fallback={<VibeGridSkeleton />}>
           <VibeGrid />
         </Suspense>
       </section>
 
-      {/* Style Match CTA */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        <Link
-          href="/match"
-          className="group block p-8 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
-        >
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary mb-3">
-            New
-          </p>
-          <h2 className="font-display text-2xl sm:text-3xl text-foreground mb-2">
-            How much of Julia&apos;s style is yours?
-          </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Swipe through 20 looks. Get your Style DNA in 60 seconds.
-          </p>
-          <span className="inline-flex items-center text-sm font-medium text-primary group-hover:underline">
-            Take the Style Match →
-          </span>
-        </Link>
-      </section>
-
-      {/* Travel Capsule CTA */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-10">
-        <Link
-          href="/capsule"
-          className="group block p-8 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
-        >
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary mb-3">
-            Travel Capsule
-          </p>
-          <h2 className="font-display text-2xl sm:text-3xl text-foreground mb-2">
-            Pack like Julia for your next trip
-          </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Tell us where you&apos;re going. We&apos;ll pull the perfect capsule wardrobe from her archive.
-          </p>
-          <span className="inline-flex items-center text-sm font-medium text-primary group-hover:underline">
-            Plan My Capsule →
-          </span>
-        </Link>
-      </section>
-
-      {/* Most Worn CTA */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-10">
-        <Link
-          href="/most-worn"
-          className="group block p-8 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-center"
-        >
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary mb-3">
-            Most Worn
-          </p>
-          <h2 className="font-display text-2xl sm:text-3xl text-foreground mb-2">
-            Julia&apos;s wardrobe staples
-          </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            The bags, shoes, and jewelry she reaches for again and again across hundreds of looks.
-          </p>
-          <span className="inline-flex items-center text-sm font-medium text-primary group-hover:underline">
-            See Most Worn Pieces →
-          </span>
-        </Link>
+      {/* Search — secondary, below vibes */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+        <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground mb-4">
+          Looking for something specific?
+        </p>
+        <SearchBar />
       </section>
 
       {/* How It Works — SB4: Plan */}
