@@ -12,7 +12,7 @@ import { createAccountFromEmail } from "@/lib/actions/auth"
 const BANNER_DISMISS_KEY = "vibeshop-return-banner-dismissed"
 
 export function ReturnVisitBanner() {
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const pathname = usePathname()
   const [visible, setVisible] = useState(false)
   const [heartCount, setHeartCount] = useState(0)
@@ -21,6 +21,8 @@ export function ReturnVisitBanner() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
   useEffect(() => {
+    // Wait for session to load before deciding — prevents flash of banner
+    if (sessionStatus === "loading") return
     if (session?.user) return
     if (pathname === "/saves") return
 

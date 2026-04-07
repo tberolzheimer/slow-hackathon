@@ -16,7 +16,7 @@ import { createAccountFromEmail } from "@/lib/actions/auth"
 import { trackEvent } from "@/lib/analytics"
 
 export function HeartPromptToast() {
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const [visible, setVisible] = useState(false)
   const [heartCount, setHeartCount] = useState(0)
   const [email, setEmail] = useState("")
@@ -24,6 +24,7 @@ export function HeartPromptToast() {
   const [errorMsg, setErrorMsg] = useState("")
 
   useEffect(() => {
+    if (sessionStatus === "loading") return
     if (session?.user) return
 
     const check = () => {
