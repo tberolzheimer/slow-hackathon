@@ -20,6 +20,7 @@ export async function initPostHog() {
   // the user accepts, and call posthog.opt_in_capturing().
   posthog.init(key, {
     api_host: host || "https://us.i.posthog.com",
+    defaults: "2026-01-30",
     persistence: "memory",
     capture_pageview: true,
     capture_pageleave: true,
