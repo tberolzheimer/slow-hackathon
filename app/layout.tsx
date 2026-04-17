@@ -1,5 +1,6 @@
 import { SessionProvider } from "@/components/session-provider"
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next"
 import { ThemeProvider } from "next-themes"
 import { Geist, Playfair_Display } from "next/font/google"
@@ -46,6 +47,7 @@ export default function RootLayout({
           </ThemeProvider>
         </SessionProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
