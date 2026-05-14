@@ -18,6 +18,7 @@ export async function initPostHog() {
     ui_host: "https://us.posthog.com",
     person_profiles: "identified_only",
     persistence: "localStorage+cookie",
+    cross_subdomain_cookie: true,
     capture_pageview: false,
     capture_pageleave: true,
     autocapture: true,
@@ -29,6 +30,14 @@ export async function initPostHog() {
       },
     },
   })
+
+  posthog.register({ site: "vibeshop" })
+
+  const klid = new URLSearchParams(window.location.search).get("utm_klid")
+  if (klid) {
+    posthog.identify("kl_" + klid, { klaviyo_id: klid })
+  }
+
   initialized = true
 }
 
